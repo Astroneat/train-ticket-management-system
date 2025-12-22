@@ -30,7 +30,7 @@ public class AdminFrame extends JFrame implements MyFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add("DASHBOARD", new AdminDashboardPanel());
-        contentPanel.add("USERS", new UserManagementPanel());
+        contentPanel.add("USERS", new UserManagementPanel(this, user));
         
         add(contentPanel, BorderLayout.CENTER);
         // showPage("DASHBOARD");

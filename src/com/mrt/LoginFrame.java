@@ -187,11 +187,7 @@ public class LoginFrame extends JFrame {
             } else {
                 User result = Universal.db().queryOne(
                     "SELECT * FROM users WHERE email = ? AND password = ?;",
-                    rs -> new User(
-                        rs.getInt("user_id"), 
-                        rs.getString("email"), 
-                        rs.getString("full_name"), 
-                        rs.getString("role")),
+                    rs -> User.parseResultSet(rs),
                     email,
                     pass
                 );

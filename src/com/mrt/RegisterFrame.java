@@ -191,7 +191,7 @@ public class RegisterFrame extends JFrame {
         });
         registerButton.addActionListener(e -> {
             String email = emailField.getText().trim();
-            String fullName = fullNameField.getText();
+            String fullName = fullNameField.getText().trim();
             String pass = new String(passwordField.getPassword()).trim();
             String confirmPass = new String(confirmPasswordField.getPassword()).trim();
 
@@ -213,11 +213,7 @@ public class RegisterFrame extends JFrame {
             else {
                 User checkDup = Universal.db().queryOne(
                     "SELECT * FROM users WHERE email = ?;",
-                    rs -> new User(
-                        rs.getInt("user_id"), 
-                        rs.getString("email"), 
-                        rs.getString("full_name"), 
-                        rs.getString("role")),
+                    rs -> User.parseResultSet(rs),
                     email
                 );
                 if(checkDup != null) {

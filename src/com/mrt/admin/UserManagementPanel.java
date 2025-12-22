@@ -17,6 +17,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -25,10 +26,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import com.mrt.AdminFrame;
 import com.mrt.Universal;
 import com.mrt.User;
 
 public class UserManagementPanel extends JPanel {
+
+    private AdminFrame frame;
+    private User currentUser;
 
     private JTable userTable;
     private DefaultTableModel tableModel;
@@ -36,10 +41,17 @@ public class UserManagementPanel extends JPanel {
     private JTextField searchField;
     private JComboBox<String> filterBox;
 
-    private JLabel numTableRowCount;
-    private int numUsers;
+    private JButton addButton;
+    private JButton editButton;
+    private JButton deleteButton;
+    private JButton refreshButton;
 
-    public UserManagementPanel() {
+    private JLabel numTableRowCount;
+
+    public UserManagementPanel(AdminFrame frame, User currentUser) {
+        this.frame = frame;
+        this.currentUser = currentUser;
+
         setLayout(new BorderLayout(0, 10));
         // setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Universal.BACKGROUND_WHITE);
@@ -98,10 +110,7 @@ public class UserManagementPanel extends JPanel {
             searchButton.setIcon(new ImageIcon(newImg));
         } catch (Exception ignored) {}
         searchButton.addActionListener(e -> {
-            String searchTerm = searchField.getText();
-            String role = "";
-            if(filterBox.getSelectedIndex() != 0) role = filterBox.getSelectedItem().toString();
-            searchUsers(searchTerm, role);
+            loadUsersWithConstraints();
         });
         search.add(searchButton);
 
@@ -123,7 +132,7 @@ public class UserManagementPanel extends JPanel {
         panel.add(filterLabel);
 
         filterBox = new JComboBox<>(new String[] {
-            "---", "Customer", "Admin"
+            "---", "customer", "admin"
         });
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         panel.add(filterBox);
@@ -143,18 +152,149 @@ public class UserManagementPanel extends JPanel {
         actionPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         actionPanel.setOpaque(false);
 
-        JButton addButton = createActionButton("Add");
-        JButton editButton = createActionButton("Edit");
-        JButton deleteButton = createActionButton("Delete");
-        JButton refreshButton = createActionButton("Refresh");
+        addButton = createActionButton("Add");
+        editButton = createActionButton("Edit");
+        deleteButton = createActionButton("Delete");
+        refreshButton = createActionButton("Refresh");
 
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
 
+        addButton.addActionListener(e -> {
+            MyDialog addDialog = new MyDialog(frame, "Add User");
+
+            JTextField emailField = addDialog.addTextField("Email:");
+            JTextField fullNameField = addDialog.addTextField("Full Name:");
+            JTextField passwordField = addDialog.addTextField("Password:");
+            JComboBox<String> roleField = addDialog.addComboBox("Role:", new String[]{
+                "customer", "admin"
+            });
+
+            JButton saveBtn = addDialog.addButtonRow();
+            saveBtn.addActionListener(saveEv -> {
+                String email = emailField.getText().trim();
+                String fullName = fullNameField.getText().trim();
+                String pass = passwordField.getText().trim();
+                String role = roleField.getSelectedItem().toString();
+
+                if(email.isBlank() || fullName.isBlank() || pass.isBlank() || role.isBlank()) {
+                    JOptionPane.showMessageDialog(addDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                User user = Universal.db().queryOne(
+                    "SELECT * FROM users WHERE email = ?",
+                    rs -> User.parseResultSet(rs),
+                    email
+                );
+                if(user != null) {
+                    JOptionPane.showMessageDialog(addDialog, "Email already in use! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Universal.db().execute(
+                    "INSERT INTO users(email, full_name, password, role) VALUES (?, ?, ?, ?);",
+                    email,
+                    fullName,
+                    pass,
+                    role
+                );
+
+                loadAllUsers();
+                addDialog.dispose();
+            });
+
+            addDialog.setVisible(true);
+        });
+
+        editButton.addActionListener(e -> {
+            int row = userTable.getSelectedRow();
+            if(row == -1) {
+                JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String userId = String.valueOf((int) userTable.getValueAt(row, 0));
+            if(userId.equals(String.valueOf(currentUser.getUserId()))) {
+                JOptionPane.showMessageDialog(frame, "You cannot edit yourself. Please edit in the database", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String currentEmail = userTable.getValueAt(row, 1).toString();
+            String currentFullName = userTable.getValueAt(row, 2).toString();
+            String currentRole = userTable.getValueAt(row, 3).toString();
+
+            MyDialog editDialog = new MyDialog(frame, "Edit User");
+            JTextField emailField = editDialog.addTextField("Email:");
+            JTextField fullNameField = editDialog.addTextField("Full Name:");
+            JComboBox<String> roleBox = editDialog.addComboBox("Role:", new String[] {
+                "customer", "admin"
+            });
+
+            emailField.setText(currentEmail);
+            fullNameField.setText(currentFullName);
+            roleBox.setSelectedItem(currentRole);
+
+            JButton saveBtn = editDialog.addButtonRow();
+            saveBtn.addActionListener(editEv -> {
+                String email = emailField.getText().trim();
+                String fullName = fullNameField.getText().trim();
+                String role = roleBox.getSelectedItem().toString();
+
+                if(email.isBlank() || fullName.isBlank() || role.isBlank()) {
+                    JOptionPane.showMessageDialog(editDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                User user = Universal.db().queryOne(
+                    "SELECT * FROM users WHERE email = ?", 
+                    rs -> User.parseResultSet(rs), 
+                    email
+                );
+                if(!email.equals(currentEmail) && user != null) {
+                    JOptionPane.showMessageDialog(editDialog, "Email already in use! Please use another one.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Universal.db().execute(
+                    "UPDATE users SET email = ?, full_name = ?, role = ? WHERE user_id = ?;",
+                    email,
+                    fullName,
+                    role,
+                    userId
+                );
+
+                loadUsersWithConstraints();
+                editDialog.dispose();
+            });
+
+            editDialog.setVisible(true);
+        });
+
+        deleteButton.addActionListener(e -> {
+            int row = userTable.getSelectedRow();
+            if(row == -1) {
+                JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String userId = String.valueOf((int) userTable.getValueAt(row, 0));
+            if(userId.equals(String.valueOf(currentUser.getUserId()))) {
+                JOptionPane.showMessageDialog(frame, "Don\'t delete yourself", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if(confirm == JOptionPane.YES_OPTION) {
+                Universal.db().execute(
+                    "DELETE FROM users WHERE user_id = ?",
+                    userId
+                );
+                loadUsersWithConstraints();
+            }
+        });
+
         refreshButton.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
-            loadUsers();
+            loadAllUsers();
         });
 
         actionPanel.add(addButton);
@@ -197,26 +337,41 @@ public class UserManagementPanel extends JPanel {
         userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         userTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
         userTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-
         userTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        userTable.getColumnModel().getColumn(0).setMinWidth(40);
+        userTable.getSelectionModel().addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting()) {
+                int selectedRow = userTable.getSelectedRow();
+                if(selectedRow != -1) {
+                    editButton.setEnabled(true);
+                    deleteButton.setEnabled(true);
+                }
+                else {
+                    editButton.setEnabled(false);
+                    deleteButton.setEnabled(false);
+                }
+            }
+        });
 
-        loadUsers();
+        loadAllUsers();
 
         JScrollPane scrollPane = new JScrollPane(userTable);
         return scrollPane;
     }
 
-    private void loadUsers() {
+    private int countUsers() {
+        return Universal.db().queryOne(
+            "SELECT COUNT(*) cnt FROM users;",
+            rs -> rs.getInt("cnt")
+        );
+    }
+
+    private void loadAllUsers() {
         tableModel.setRowCount(0);
 
         List<User> userList = Universal.db().query(
             "SELECT * FROM users;",
-            rs -> new User(
-                rs.getInt("user_id"), 
-                rs.getString("email"), 
-                rs.getString("full_name"), 
-                rs.getString("role")
-            )
+            rs -> User.parseResultSet(rs)
         );
 
         for(User user: userList) {
@@ -228,13 +383,14 @@ public class UserManagementPanel extends JPanel {
             });
         }
 
-        int rowCount = tableModel.getRowCount();
-        numUsers = rowCount;
-        numTableRowCount.setText(rowCount + " result" + (rowCount > 1 ? "s" : ""));
+        numTableRowCount.setText(userList.size() + " result" + (userList.size() > 1 ? "s" : ""));
     }
 
-    private void searchUsers(String searchTerm, String role) {
+    private void loadUsersWithConstraints() {
         tableModel.setRowCount(0);
+        String searchTerm = searchField.getText().trim();
+        String role = "";
+        if(filterBox.getSelectedIndex() != 0) role = filterBox.getSelectedItem().toString();
 
         List<String> args = new ArrayList<String>();
 
@@ -252,12 +408,7 @@ public class UserManagementPanel extends JPanel {
 
         List<User> userList = Universal.db().query(
             sql,
-            rs -> new User(
-                rs.getInt("user_id"), 
-                rs.getString("email"), 
-                rs.getString("full_name"), 
-                rs.getString("role")
-            ),
+            rs -> User.parseResultSet(rs),
             args.toArray(new String[args.size()])
         );
 
@@ -270,7 +421,8 @@ public class UserManagementPanel extends JPanel {
             });
         }
 
-        int rowCount = tableModel.getRowCount();
-        numTableRowCount.setText(rowCount + " result" + (rowCount > 1 ? "s" : "") + " (" + numUsers + " total)");
+        int returnedSize = userList.size();
+        int numUsers = countUsers();
+        numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numUsers ? "" : " (" + numUsers + " total)"));
     }
 }
