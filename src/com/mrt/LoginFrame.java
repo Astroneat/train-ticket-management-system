@@ -105,6 +105,7 @@ public class LoginFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1), 
             BorderFactory.createEmptyBorder(5, 5, 5, 5))
         );
+        emailField.setToolTipText("Enter email address");
         gbc.gridy = 1;
         gbc.weightx = 1;
         loginForm.add(emailField, gbc);
@@ -122,6 +123,7 @@ public class LoginFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
+        passwordField.setToolTipText("Enter password");
         gbc.gridy = 3;
         gbc.weightx = 1;
         loginForm.add(passwordField, gbc);

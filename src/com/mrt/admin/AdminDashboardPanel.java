@@ -1,5 +1,7 @@
 package com.mrt.admin;
 
-public class AdminDashboardPanel {
+import javax.swing.JPanel;
+
+public class AdminDashboardPanel extends JPanel {
     
 }

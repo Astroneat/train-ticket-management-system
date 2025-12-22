@@ -8,10 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-interface ResultSetHandler<T> {
-    T map(ResultSet rs) throws SQLException;
-}
-
 public class EasyDB {
     private int port;
     private String dbName;

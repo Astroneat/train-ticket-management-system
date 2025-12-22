@@ -103,6 +103,7 @@ public class RegisterFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1), 
             BorderFactory.createEmptyBorder(5, 5, 5, 5))
         );
+        emailField.setToolTipText("Enter a new email adress");
         gbc.gridy = 1;
         gbc.weightx = 1;
         registerForm.add(emailField, gbc);
@@ -119,6 +120,7 @@ public class RegisterFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1), 
             BorderFactory.createEmptyBorder(5, 5, 5, 5))
         );
+        fullNameField.setToolTipText("Enter your full name");
         gbc.gridy = 3;
         gbc.weightx = 1;
         registerForm.add(fullNameField, gbc);
@@ -135,11 +137,12 @@ public class RegisterFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
+        passwordField.setToolTipText("Enter password");
         gbc.gridy = 5;
         gbc.weightx = 1;
         registerForm.add(passwordField, gbc);
 
-        JLabel confirmPasswordLabel = new JLabel("Confirm password:");
+        JLabel confirmPasswordLabel = new JLabel("Re-enter password:");
         confirmPasswordLabel.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
         gbc.gridy = 6;
         gbc.weightx = 1;
@@ -151,6 +154,7 @@ public class RegisterFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
+        confirmPasswordField.setToolTipText("Re-enter password to confirm");
         gbc.gridy = 7;
         gbc.weightx = 1;
         registerForm.add(confirmPasswordField, gbc);

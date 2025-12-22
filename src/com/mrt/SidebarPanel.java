@@ -46,6 +46,7 @@ public class SidebarPanel extends JPanel {
         btn.setAlignmentX(CENTER_ALIGNMENT);
         btn.setPreferredSize(new Dimension(180, 40));
         btn.setMaximumSize(new Dimension(180, 40));
+        btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         btn.setBackground(Universal.SKYBLUE);
         btn.addActionListener(e -> {
             frame.showPage(toPage);

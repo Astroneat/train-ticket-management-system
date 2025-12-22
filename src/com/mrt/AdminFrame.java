@@ -1,6 +1,7 @@
 package com.mrt;
 import javax.swing.*;
 
+import com.mrt.admin.AdminDashboardPanel;
 import com.mrt.admin.UserManagementPanel;
 
 import java.awt.*;
@@ -28,9 +29,12 @@ public class AdminFrame extends JFrame implements MyFrame {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
+        contentPanel.add("DASHBOARD", new AdminDashboardPanel());
         contentPanel.add("USERS", new UserManagementPanel());
         
         add(contentPanel, BorderLayout.CENTER);
+        // showPage("DASHBOARD");
+        showPage("USERS");
     }
 
     public void showPage(String page) {
