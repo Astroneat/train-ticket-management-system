@@ -1,8 +1,5 @@
 package com.mrt.dbobject;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class Route {
     private int routeId;
     private String routeCode;
@@ -47,14 +44,5 @@ public class Route {
         this.originalStation = originalStation;
         this.destinationStation = destinationStation;
         this.distanceKm = distanceKm;
-    }
-
-    public static Station parseResultSet(ResultSet rs) throws SQLException {
-        return new Station(
-            rs.getInt("station_id"),
-            rs.getString("staton_code"), 
-            rs.getString("station_name"), 
-            rs.getString("city")
-        );
     }
 }

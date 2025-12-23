@@ -107,7 +107,7 @@ public class SidebarPanel extends JPanel {
 
     public JButton createLogoutButton() {
         JButton logoutButton = new JButton("Logout");
-        logoutButton.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
+        logoutButton.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
         logoutButton.setAlignmentX(CENTER_ALIGNMENT);
         logoutButton.setPreferredSize(new Dimension(500, 50));
         logoutButton.setMaximumSize(new Dimension(500, 50));

@@ -71,7 +71,7 @@ public class TrainManagementPanel extends JPanel {
         topPanel.add(createActionPanel());
 
         add(topPanel, BorderLayout.NORTH);
-        add(createtrainTablePanel(), BorderLayout.CENTER);
+        add(createScrollPane(), BorderLayout.CENTER);
     }
 
     private JPanel createTitlePanel() {
@@ -110,6 +110,9 @@ public class TrainManagementPanel extends JPanel {
             BorderFactory.createLineBorder(Color.BLACK, 1),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
+        searchField.addActionListener(e -> {
+            loadTrainsWithConstraints();
+        });
         search.add(searchField);
 
         JButton searchButton = new JButton();
@@ -325,9 +328,10 @@ public class TrainManagementPanel extends JPanel {
             int seatCapacity = (int) trainTable.getValueAt(row, 2);
             String status = trainTable.getValueAt(row, 3).toString();
 
-            RouteAssignmentDialog dialog = new RouteAssignmentDialog(frame);
-
-
+            RouteAssignmentDialog dialog = new RouteAssignmentDialog(
+                frame,
+                new Train(trainId, trainCode, seatCapacity, status)
+            );
 
             dialog.setVisible(true);
         });
@@ -362,7 +366,7 @@ public class TrainManagementPanel extends JPanel {
         return btn;
     }
 
-    private JScrollPane createtrainTablePanel() {
+    private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
             new String[] {"ID", "Train Code", "Seat Capacity", "Status", "Active Routes"},
             0
@@ -380,6 +384,7 @@ public class TrainManagementPanel extends JPanel {
         trainTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         trainTable.getColumnModel().getColumn(0).setMaxWidth(40);
         trainTable.getColumnModel().getColumn(0).setMinWidth(40);
+        trainTable.setFocusable(false);
         trainTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
                 int selectedRow = trainTable.getSelectedRow();

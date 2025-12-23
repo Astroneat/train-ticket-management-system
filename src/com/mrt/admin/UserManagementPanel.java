@@ -100,6 +100,9 @@ public class UserManagementPanel extends JPanel {
             BorderFactory.createLineBorder(Color.BLACK, 1),
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
+        searchField.addActionListener(e -> {
+            loadUsersWithConstraints();
+        });
         search.add(searchField);
 
         JButton searchButton = new JButton();

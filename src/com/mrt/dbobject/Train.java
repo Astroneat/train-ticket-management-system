@@ -29,4 +29,9 @@ public class Train {
             rs.getString("status")
         );
     }
+
+    @Override
+    public String toString() {
+        return trainCode + " (" + seatCapacity + " seats)";
+    }
 }
