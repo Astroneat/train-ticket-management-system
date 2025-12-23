@@ -29,8 +29,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import com.mrt.AdminFrame;
-import com.mrt.Train;
 import com.mrt.Universal;
+import com.mrt.dbobject.Train;
 
 public class TrainManagementPanel extends JPanel {
 
@@ -46,8 +46,8 @@ public class TrainManagementPanel extends JPanel {
 
     private JButton addButton;
     private JButton editButton;
-    private JButton deleteButton;
     private JButton refreshButton;
+    private JButton manageRoutesButton;
 
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
@@ -114,7 +114,7 @@ public class TrainManagementPanel extends JPanel {
 
         JButton searchButton = new JButton();
         try {
-            ImageIcon icon = new ImageIcon("/Volumes/Data/ThanhDat/CS/VKU_uni/year1/java_oop/finals/src/com/mrt/img/search.png");
+            ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
             Image img = icon.getImage();
             Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
             searchButton.setIcon(new ImageIcon(newImg));
@@ -202,11 +202,11 @@ public class TrainManagementPanel extends JPanel {
 
         addButton = createActionButton("Add");
         editButton = createActionButton("Edit");
-        deleteButton = createActionButton("Delete");
         refreshButton = createActionButton("Refresh");
+        manageRoutesButton = createActionButton("Manage Routes");
 
         editButton.setEnabled(false);
-        deleteButton.setEnabled(false);
+        manageRoutesButton.setEnabled(false);
 
         addButton.addActionListener(e -> {
             FormDialog addDialog = new FormDialog(frame, "Add Train");
@@ -313,21 +313,23 @@ public class TrainManagementPanel extends JPanel {
             editDialog.setVisible(true);
         });
 
-        deleteButton.addActionListener(e -> {
+        manageRoutesButton.addActionListener(e -> {
             int row = trainTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
             int trainId = (int) trainTable.getValueAt(row, 0);
-            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this train (This will only retire the train)?", "Confirm", JOptionPane.YES_NO_OPTION);
-            if(confirm == JOptionPane.YES_OPTION) {
-                Universal.db().execute(
-                    "UPDATE trains SET status = \'retired\' WHERE train_id = ?",
-                    trainId
-                );
-                loadTrainsWithConstraints();
-            }
+            String trainCode = trainTable.getValueAt(row, 1).toString();
+            int seatCapacity = (int) trainTable.getValueAt(row, 2);
+            String status = trainTable.getValueAt(row, 3).toString();
+
+            RouteAssignmentDialog dialog = new RouteAssignmentDialog(frame);
+
+
+
+            dialog.setVisible(true);
         });
 
         refreshButton.addActionListener(e -> {
@@ -338,7 +340,7 @@ public class TrainManagementPanel extends JPanel {
 
         actionPanel.add(addButton);
         actionPanel.add(editButton);
-        actionPanel.add(deleteButton);
+        actionPanel.add(manageRoutesButton);
         actionPanel.add(refreshButton);
 
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -383,11 +385,16 @@ public class TrainManagementPanel extends JPanel {
                 int selectedRow = trainTable.getSelectedRow();
                 if(selectedRow != -1) {
                     editButton.setEnabled(true);
-                    deleteButton.setEnabled(true);
+
+                    String status = trainTable.getValueAt(selectedRow, 3).toString();
+                    if(status.equals("active")) {
+                        manageRoutesButton.setEnabled(true);
+                    }
+                    else manageRoutesButton.setEnabled(false);
                 }
                 else {
                     editButton.setEnabled(false);
-                    deleteButton.setEnabled(false);
+                    manageRoutesButton.setEnabled(false);
                 }
             }
         });

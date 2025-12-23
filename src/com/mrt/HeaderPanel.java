@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.mrt.dbobject.User;
+
 public class HeaderPanel extends JPanel {
     private User user;
 

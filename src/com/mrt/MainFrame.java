@@ -1,6 +1,11 @@
 package com.mrt;
 import javax.swing.*;
+
+import com.mrt.dbobject.User;
+
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame implements MyFrame {
 
@@ -45,14 +50,10 @@ public class MainFrame extends JFrame implements MyFrame {
         SidebarPanel sidebar = new SidebarPanel(this);
 
         int verticalStrut = 10;
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Home", "HOME"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Search Trains", "SEARCH"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("My Tickets", "TICKETS"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Profile", "PROFILE"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Home", "src/com/mrt/img/home.png", "HOME"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Search Trains", "src/com/mrt/img/train.png", "TRAINS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("My Tickets", "src/com/mrt/img/ticket.png", "TICKETS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", "PROFILE"));
 
         if(currentUser.getRole().equals("admin")) {
             sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
@@ -61,18 +62,35 @@ public class MainFrame extends JFrame implements MyFrame {
 
             JButton toAdmin = new JButton("Admin");
             toAdmin.setAlignmentX(CENTER_ALIGNMENT);
-            toAdmin.setPreferredSize(new Dimension(180, 40));
-            toAdmin.setMaximumSize(new Dimension(180, 40));
-            toAdmin.setBackground(Universal.SKYBLUE);
+            toAdmin.setPreferredSize(new Dimension(500, 50));
+            toAdmin.setMaximumSize(new Dimension(500, 50));
+
+            toAdmin.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
+
+            toAdmin.setBorderPainted(false);
+            toAdmin.setFocusPainted(false);
+            toAdmin.setForeground(Universal.BACKGROUND_WHITE);
+            toAdmin.setBackground(Universal.BACKGROUND_BLACK);
+            toAdmin.setOpaque(true);
+
             toAdmin.addActionListener(e -> {
                 dispose();
                 new AdminFrame(currentUser).setVisible(true);
+            });
+            toAdmin.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    toAdmin.setBackground(Color.BLACK);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    toAdmin.setBackground(Universal.BACKGROUND_BLACK);
+                }
             });
             sidebar.addToMenuPanel(toAdmin);
         }
 
         sidebar.addToLogoutPanel(sidebar.createLogoutButton());
-        sidebar.addToLogoutPanel(Box.createVerticalStrut(verticalStrut));
 
         return sidebar;
     }

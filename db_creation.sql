@@ -1,4 +1,5 @@
-CREATE DATABASE 
+CREATE DATABASE TrainTicketManagement;
+USE TrainTicketManagement;
 
 CREATE TABLE IF NOT EXISTS users (
 	user_id int AUTO_INCREMENT PRIMARY KEY,

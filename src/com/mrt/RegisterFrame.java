@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import com.mrt.dbobject.User;
+
 public class RegisterFrame extends JFrame {
     public RegisterFrame() {
         setTitle("MRT Viet Nam - Register Account");

@@ -4,8 +4,16 @@ import javax.swing.*;
 import com.mrt.admin.AdminDashboardPanel;
 import com.mrt.admin.TrainManagementPanel;
 import com.mrt.admin.UserManagementPanel;
+import com.mrt.dbobject.User;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class AdminFrame extends JFrame implements MyFrame {
 
@@ -36,7 +44,8 @@ public class AdminFrame extends JFrame implements MyFrame {
         
         add(contentPanel, BorderLayout.CENTER);
         // showPage("DASHBOARD");
-        showPage("USERS");
+        // showPage("USERS");
+        showPage("TRAINS");
     }
 
     public void showPage(String page) {
@@ -53,35 +62,44 @@ public class AdminFrame extends JFrame implements MyFrame {
     private JPanel createSidebarPanel() {
         SidebarPanel sidebar = new SidebarPanel(this);
 
-        int verticalStrut = 10;
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Dashboard", "DASHBOARD"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "USERS"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Trains", "TRAINS"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "ROUTES"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Train-Route Assignment", "TRAIN-ROUTE"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "TICKETS"));
-        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports & Analytics", "REPORTS"));
+        JButton dashboardBtn = sidebar.createSidebarButton("Dashboard", "src/com/mrt/img/dashboard.png", "DASHBOARD");
+        sidebar.addToMenuPanel(dashboardBtn);
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Trains", "src/com/mrt/img/train.png", "TRAINS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "src/com/mrt/img/route.png", "ROUTES"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "src/com/mrt/img/ticket.png", "TICKETS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", "USERS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", "REPORTS"));
+        sidebar.setActiveSidebarButton(dashboardBtn);
         
         JButton toHome = new JButton("Back to Home");
         toHome.setAlignmentX(CENTER_ALIGNMENT);
-        toHome.setPreferredSize(new Dimension(180, 40));
-        toHome.setMaximumSize(new Dimension(180, 40));
-        toHome.setBackground(Universal.SKYBLUE);
+        toHome.setPreferredSize(new Dimension(500, 50));
+        toHome.setMaximumSize(new Dimension(500, 50));
+        toHome.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
+
+        toHome.setBorderPainted(false);
+        toHome.setFocusPainted(false);
+        toHome.setForeground(Universal.BACKGROUND_WHITE);
+        toHome.setBackground(Universal.BACKGROUND_BLACK);
+        toHome.setOpaque(true);
+
+        toHome.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                toHome.setBackground(Color.BLACK);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                toHome.setBackground(Universal.BACKGROUND_BLACK);
+            }
+        });
+
         toHome.addActionListener(e -> {
             dispose();
             new MainFrame(currentUser).setVisible(true);;
         });
         sidebar.addToLogoutPanel(toHome);
-        sidebar.addToLogoutPanel(Box.createVerticalStrut(verticalStrut));
         sidebar.addToLogoutPanel(sidebar.createLogoutButton());
-        sidebar.addToLogoutPanel(Box.createVerticalStrut(verticalStrut));
 
         return sidebar;
     }

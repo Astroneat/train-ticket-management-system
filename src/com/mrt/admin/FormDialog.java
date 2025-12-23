@@ -29,6 +29,7 @@ public class FormDialog extends JDialog {
         super(frame, title, true);
         setSize(400, 300);
         setLocationRelativeTo(frame);
+        setResizable(false);
         getContentPane().setBackground(Universal.BACKGROUND_WHITE);
         setLayout(new BorderLayout(10, 10));
 

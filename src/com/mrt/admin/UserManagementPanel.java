@@ -28,7 +28,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mrt.AdminFrame;
 import com.mrt.Universal;
-import com.mrt.User;
+import com.mrt.dbobject.User;
 
 public class UserManagementPanel extends JPanel {
 
@@ -104,7 +104,7 @@ public class UserManagementPanel extends JPanel {
 
         JButton searchButton = new JButton();
         try {
-            ImageIcon icon = new ImageIcon("/Volumes/Data/ThanhDat/CS/VKU_uni/year1/java_oop/finals/src/com/mrt/img/search.png");
+            ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
             Image img = icon.getImage();
             Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
             searchButton.setIcon(new ImageIcon(newImg));
@@ -137,10 +137,18 @@ public class UserManagementPanel extends JPanel {
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         panel.add(filterBox);
 
+        JButton filterButton = new JButton("Filter");
+        filterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        filterButton.addActionListener(e -> {
+            loadUsersWithConstraints();
+        });
+        panel.add(filterButton);
+
         JButton clearFilterButton = new JButton("Clear filter");
         clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         clearFilterButton.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
+            loadUsersWithConstraints();
         });
         panel.add(clearFilterButton);
 

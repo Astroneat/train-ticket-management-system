@@ -1,4 +1,4 @@
-package com.mrt;
+package com.mrt.dbobject;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
