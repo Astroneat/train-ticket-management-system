@@ -2,6 +2,7 @@ package com.mrt;
 import javax.swing.*;
 
 import com.mrt.admin.AdminDashboardPanel;
+import com.mrt.admin.TrainManagementPanel;
 import com.mrt.admin.UserManagementPanel;
 
 import java.awt.*;
@@ -31,6 +32,7 @@ public class AdminFrame extends JFrame implements MyFrame {
 
         contentPanel.add("DASHBOARD", new AdminDashboardPanel());
         contentPanel.add("USERS", new UserManagementPanel(this, user));
+        contentPanel.add("TRAINS", new TrainManagementPanel(this));
         
         add(contentPanel, BorderLayout.CENTER);
         // showPage("DASHBOARD");

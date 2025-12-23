@@ -48,7 +48,7 @@ public class EasyDB {
         } catch(Exception ignored) {}
     }
 
-    public <T> List<T> query(String sql, ResultSetHandler<T> handler, String... args) {
+    public <T> List<T> query(String sql, ResultSetHandler<T> handler, Object... args) {
         List<T> results = new ArrayList<>();
         try(PreparedStatement ps = conn.prepareStatement(sql)) {
             for(int i = 0; i < args.length; i++) {
@@ -67,13 +67,13 @@ public class EasyDB {
         return results;
     }
 
-    public <T> T queryOne(String sql, ResultSetHandler<T> handler, String... args) {
+    public <T> T queryOne(String sql, ResultSetHandler<T> handler, Object... args) {
         List<T> results = query(sql, handler, args);
         if(results.isEmpty()) return null;
         return results.get(0);
     }
 
-    public int execute(String sql, String... args) {
+    public int execute(String sql, Object... args) {
         try(PreparedStatement ps = conn.prepareStatement(sql)) {
             for(int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1, args[i]);

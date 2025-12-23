@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,15 +28,14 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import com.mrt.AdminFrame;
+import com.mrt.Train;
 import com.mrt.Universal;
-import com.mrt.User;
 
-public class UserManagementPanel extends JPanel {
+public class TrainManagementPanel extends JPanel {
 
     private AdminFrame frame;
-    private User currentUser;
 
-    private JTable userTable;
+    private JTable trainTable;
     private DefaultTableModel tableModel;
 
     private JTextField searchField;
@@ -47,10 +47,10 @@ public class UserManagementPanel extends JPanel {
     private JButton refreshButton;
 
     private JLabel numTableRowCount;
+    private JLabel numActiveTrains;
 
-    public UserManagementPanel(AdminFrame frame, User currentUser) {
+    public TrainManagementPanel(AdminFrame frame) {
         this.frame = frame;
-        this.currentUser = currentUser;
 
         setLayout(new BorderLayout(0, 10));
         // setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -67,7 +67,7 @@ public class UserManagementPanel extends JPanel {
         topPanel.add(createActionPanel());
 
         add(topPanel, BorderLayout.NORTH);
-        add(createUserTablePanel(), BorderLayout.CENTER);
+        add(createtrainTablePanel(), BorderLayout.CENTER);
     }
 
     private JPanel createTitlePanel() {
@@ -76,9 +76,15 @@ public class UserManagementPanel extends JPanel {
         header.setOpaque(false);
         header.setMaximumSize(new Dimension(1000, 50));
 
-        JLabel title = new JLabel("User Management");
+        JLabel title = new JLabel("Train Management");
         title.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 28));
         header.add(title);
+
+        header.add(Box.createHorizontalStrut(5));
+
+        numActiveTrains = new JLabel();
+        numActiveTrains.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        header.add(numActiveTrains);
 
         return header;
     }
@@ -94,7 +100,7 @@ public class UserManagementPanel extends JPanel {
         search.add(searchLabel);
 
         searchField = new JTextField(30);
-        searchField.setToolTipText("Search by email or name");
+        searchField.setToolTipText("Search by code or route");
         searchField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         searchField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.BLACK, 1),
@@ -110,7 +116,7 @@ public class UserManagementPanel extends JPanel {
             searchButton.setIcon(new ImageIcon(newImg));
         } catch (Exception ignored) {}
         searchButton.addActionListener(e -> {
-            loadUsersWithConstraints();
+            loadTrainsWithConstraints();
         });
         search.add(searchButton);
 
@@ -127,12 +133,12 @@ public class UserManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        JLabel filterLabel = new JLabel("Filter by role:");
+        JLabel filterLabel = new JLabel("Filter by status:");
         filterLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
         panel.add(filterLabel);
 
         filterBox = new JComboBox<>(new String[] {
-            "---", "customer", "admin"
+            "---", "active", "maintenance", "retired"
         });
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         panel.add(filterBox);
@@ -161,46 +167,43 @@ public class UserManagementPanel extends JPanel {
         deleteButton.setEnabled(false);
 
         addButton.addActionListener(e -> {
-            MyDialog addDialog = new MyDialog(frame, "Add User");
+            MyDialog addDialog = new MyDialog(frame, "Add Train");
 
-            JTextField emailField = addDialog.addTextField("Email:");
-            JTextField fullNameField = addDialog.addTextField("Full Name:");
-            JTextField passwordField = addDialog.addTextField("Password:");
-            JComboBox<String> roleField = addDialog.addComboBox("Role:", new String[]{
-                "customer", "admin"
+            JTextField codeField = addDialog.addTextField("Train Code:");
+            JTextField seatCapacityField = addDialog.addTextField("Seat Capacity:");
+            JComboBox<String> statusBox = addDialog.addComboBox("Status:", new String[]{
+                "active", "maintenance", "retired"
             });
 
             JButton saveBtn = addDialog.addButtonRow();
             saveBtn.addActionListener(saveEv -> {
                 try {
-                    String email = emailField.getText().trim();
-                    String fullName = fullNameField.getText().trim();
-                    String pass = passwordField.getText().trim();
-                    String role = roleField.getSelectedItem().toString();
+                    String code = codeField.getText().trim();
+                    int seatCapacity = Integer.valueOf(seatCapacityField.getText().trim());
+                    String status = statusBox.getSelectedItem().toString();
 
-                    if(email.isBlank() || fullName.isBlank() || pass.isBlank() || role.isBlank()) {
+                    if(code.isBlank() || seatCapacityField.getText().trim().isBlank() || status.isBlank()) {
                         JOptionPane.showMessageDialog(addDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    User user = Universal.db().queryOne(
-                        "SELECT * FROM users WHERE email = ?",
-                        rs -> User.parseResultSet(rs),
-                        email
+                    Train train = Universal.db().queryOne(
+                        "SELECT * FROM trains WHERE train_code = ?",
+                        rs -> Train.parseResultSet(rs),
+                        code
                     );
-                    if(user != null) {
-                        JOptionPane.showMessageDialog(addDialog, "Email already in use! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
+                    if(train != null) {
+                        JOptionPane.showMessageDialog(addDialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
                     Universal.db().execute(
-                        "INSERT INTO users(email, full_name, password, role) VALUES (?, ?, ?, ?);",
-                        email,
-                        fullName,
-                        pass,
-                        role
+                        "INSERT INTO trains(train_code, seat_capacity, status) VALUES (?, ?, ?);",
+                        code,
+                        seatCapacity,
+                        status
                     );
 
-                    loadAllUsers();
+                    loadAllTrains();
                     addDialog.dispose();
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(addDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
@@ -211,98 +214,84 @@ public class UserManagementPanel extends JPanel {
         });
 
         editButton.addActionListener(e -> {
-            int row = userTable.getSelectedRow();
+            int row = trainTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            String userId = String.valueOf((int) userTable.getValueAt(row, 0));
-            if(userId.equals(String.valueOf(currentUser.getUserId()))) {
-                JOptionPane.showMessageDialog(frame, "You cannot edit yourself. Please edit in the database", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            int trainId = (int) trainTable.getValueAt(row, 0);
+            String currentTrainCode = trainTable.getValueAt(row, 1).toString();
+            int currentSeatCapacity = (int) trainTable.getValueAt(row, 2);
+            String currentStatus = trainTable.getValueAt(row, 3).toString();
 
-            String currentEmail = userTable.getValueAt(row, 1).toString();
-            String currentFullName = userTable.getValueAt(row, 2).toString();
-            String currentRole = userTable.getValueAt(row, 3).toString();
-
-            MyDialog editDialog = new MyDialog(frame, "Edit User");
-            JTextField emailField = editDialog.addTextField("Email:");
-            JTextField fullNameField = editDialog.addTextField("Full Name:");
-            JComboBox<String> roleBox = editDialog.addComboBox("Role:", new String[] {
-                "customer", "admin"
+            MyDialog editDialog = new MyDialog(frame, "Edit Train");
+            JTextField codeField = editDialog.addTextField("Train Code:");
+            JTextField seatCapacityField = editDialog.addTextField("Seat Capacity:");
+            JComboBox<String> statusBox = editDialog.addComboBox("Role:", new String[] {
+                "active", "maintenance", "retired"
             });
 
-            emailField.setText(currentEmail);
-            fullNameField.setText(currentFullName);
-            roleBox.setSelectedItem(currentRole);
+            codeField.setText(currentTrainCode);
+            seatCapacityField.setText(String.valueOf(currentSeatCapacity));
+            statusBox.setSelectedItem(currentStatus);
 
             JButton saveBtn = editDialog.addButtonRow();
-            saveBtn.addActionListener(editEv -> {
-                try {
-                    String email = emailField.getText().trim();
-                    String fullName = fullNameField.getText().trim();
-                    String role = roleBox.getSelectedItem().toString();
+            saveBtn.addActionListener(saveEv -> {
+                String code = codeField.getText().trim();
+                String seatCapacity = seatCapacityField.getText().trim();
+                String status = statusBox.getSelectedItem().toString();
 
-                    if(email.isBlank() || fullName.isBlank() || role.isBlank()) {
-                        JOptionPane.showMessageDialog(editDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    User user = Universal.db().queryOne(
-                        "SELECT * FROM users WHERE email = ?", 
-                        rs -> User.parseResultSet(rs), 
-                        email
-                    );
-                    if(!email.equals(currentEmail) && user != null) {
-                        JOptionPane.showMessageDialog(editDialog, "Email already in use! Please use another one.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    Universal.db().execute(
-                        "UPDATE users SET email = ?, full_name = ?, role = ? WHERE user_id = ?;",
-                        email,
-                        fullName,
-                        role,
-                        userId
-                    );
-
-                    loadUsersWithConstraints();
-                    editDialog.dispose();
-                } catch(Exception ex) {
-                    JOptionPane.showMessageDialog(editDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+                if(code.isBlank() || seatCapacity.isBlank() || status.isBlank()) {
+                    JOptionPane.showMessageDialog(editDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
+                Train train = Universal.db().queryOne(
+                    "SELECT * FROM trains WHERE train_code = ?", 
+                    rs -> Train.parseResultSet(rs), 
+                    code
+                );
+                if(!code.equals(currentTrainCode) && train != null) {
+                    JOptionPane.showMessageDialog(editDialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Universal.db().execute(
+                    "UPDATE trains SET train_code = ?, seat_capacity = ?, status = ? WHERE train_id = ?;",
+                    code,
+                    seatCapacity,
+                    status,
+                    trainId
+                );
+
+                loadTrainsWithConstraints();
+                editDialog.dispose();
             });
 
             editDialog.setVisible(true);
         });
 
         deleteButton.addActionListener(e -> {
-            int row = userTable.getSelectedRow();
+            int row = trainTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String userId = String.valueOf((int) userTable.getValueAt(row, 0));
-            if(userId.equals(String.valueOf(currentUser.getUserId()))) {
-                JOptionPane.showMessageDialog(frame, "Don\'t delete yourself", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm", JOptionPane.YES_NO_OPTION);
+            int trainId = (int) trainTable.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this train (This will only retire the train)?", "Confirm", JOptionPane.YES_NO_OPTION);
             if(confirm == JOptionPane.YES_OPTION) {
                 Universal.db().execute(
-                    "DELETE FROM users WHERE user_id = ?",
-                    userId
+                    "UPDATE trains SET status = \'retired\' WHERE train_id = ?",
+                    trainId
                 );
-                loadUsersWithConstraints();
+                loadTrainsWithConstraints();
             }
         });
 
         refreshButton.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
-            loadAllUsers();
+            loadAllTrains();
         });
 
         actionPanel.add(addButton);
@@ -329,9 +318,9 @@ public class UserManagementPanel extends JPanel {
         return btn;
     }
 
-    private JScrollPane createUserTablePanel() {
+    private JScrollPane createtrainTablePanel() {
         tableModel = new DefaultTableModel(
-            new String[] {"ID", "Email", "Full Name", "Role"},
+            new String[] {"ID", "Train Code", "Seat Capacity", "Status"},
             0
         ) {
             @Override
@@ -340,16 +329,16 @@ public class UserManagementPanel extends JPanel {
             }
         };
 
-        userTable = new JTable(tableModel);
-        userTable.setRowHeight(30);
-        userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
-        userTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        userTable.getColumnModel().getColumn(0).setMaxWidth(40);
-        userTable.getColumnModel().getColumn(0).setMinWidth(40);
-        userTable.getSelectionModel().addListSelectionListener(e -> {
+        trainTable = new JTable(tableModel);
+        trainTable.setRowHeight(30);
+        trainTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        trainTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
+        trainTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        trainTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        trainTable.getColumnModel().getColumn(0).setMinWidth(40);
+        trainTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
-                int selectedRow = userTable.getSelectedRow();
+                int selectedRow = trainTable.getSelectedRow();
                 if(selectedRow != -1) {
                     editButton.setEnabled(true);
                     deleteButton.setEnabled(true);
@@ -361,76 +350,83 @@ public class UserManagementPanel extends JPanel {
             }
         });
 
-        loadAllUsers();
+        loadAllTrains();
 
-        JScrollPane scrollPane = new JScrollPane(userTable);
+        JScrollPane scrollPane = new JScrollPane(trainTable);
         return scrollPane;
     }
 
-    private int countUsers() {
+    private int countAllTrains() {
         return Universal.db().queryOne(
-            "SELECT COUNT(*) cnt FROM users;",
+            "SELECT COUNT(*) cnt FROM trains;",
+            rs -> rs.getInt("cnt")
+        );
+    }
+    private int countActiveTrains() {
+        return Universal.db().queryOne(
+            "SELECT COUNT(*) cnt FROM trains WHERE status = \'active\'", 
             rs -> rs.getInt("cnt")
         );
     }
 
-    private void loadAllUsers() {
+    private void loadAllTrains() {
         tableModel.setRowCount(0);
 
-        List<User> userList = Universal.db().query(
-            "SELECT * FROM users;",
-            rs -> User.parseResultSet(rs)
+        List<Train> trainList = Universal.db().query(
+            "SELECT * FROM trains;",
+            rs -> Train.parseResultSet(rs)
         );
 
-        for(User user: userList) {
+        for(Train Train: trainList) {
             tableModel.addRow(new Object[] {
-                user.getUserId(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getRole()
+                Train.getTrainId(),
+                Train.getTrainCode(),
+                Train.getSeatCapacity(),
+                Train.getStatus()
             });
         }
 
-        numTableRowCount.setText(userList.size() + " result" + (userList.size() > 1 ? "s" : ""));
+        numTableRowCount.setText(trainList.size() + " result" + (trainList.size() > 1 ? "s" : ""));
+        numActiveTrains.setText(countActiveTrains() + " active trains");
     }
 
-    private void loadUsersWithConstraints() {
+    private void loadTrainsWithConstraints() {
         tableModel.setRowCount(0);
         String searchTerm = searchField.getText().trim();
-        String role = "";
-        if(filterBox.getSelectedIndex() != 0) role = filterBox.getSelectedItem().toString();
+        String status = "";
+        if(filterBox.getSelectedIndex() != 0) status = filterBox.getSelectedItem().toString();
 
         List<String> args = new ArrayList<String>();
 
-        String sql = "SELECT * FROM users WHERE true";
+        String sql = "SELECT * FROM trains WHERE true";
         if(!searchTerm.isBlank()) {
-            sql += " AND (email LIKE ? OR full_name LIKE ?)";
-            args.add("%" + searchTerm + "%");
+            sql += " AND (train_code LIKE ?)";
             args.add("%" + searchTerm + "%");
         }
-        if(!role.isBlank()) {
-            sql += " AND (role = ?)";
-            args.add(role);
+        if(!status.isBlank()) {
+            sql += " AND (status = ?)";
+            args.add(status);
         }
         sql += ";";
 
-        List<User> userList = Universal.db().query(
+        List<Train> trainList = Universal.db().query(
             sql,
-            rs -> User.parseResultSet(rs),
+            rs -> Train.parseResultSet(rs),
             args.toArray(new Object[args.size()])
         );
 
-        for(User user: userList) {
+        for(Train Train: trainList) {
             tableModel.addRow(new Object[] {
-                user.getUserId(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getRole()
+                Train.getTrainId(),
+                Train.getTrainCode(),
+                Train.getSeatCapacity(),
+                Train.getStatus()
             });
         }
 
-        int returnedSize = userList.size();
-        int numUsers = countUsers();
-        numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numUsers ? "" : " (" + numUsers + " total)"));
+        int returnedSize = trainList.size();
+        int numAllTrains = countAllTrains();
+        numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numAllTrains ? "" : " (" + numAllTrains + " total)"));
+        numActiveTrains.setText(countActiveTrains() + " active trains");
     }
 }

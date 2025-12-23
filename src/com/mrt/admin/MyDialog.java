@@ -34,6 +34,7 @@ public class MyDialog extends JDialog {
         formPanel = new JPanel();
         formPanel.setLayout(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        formPanel.setOpaque(false);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
@@ -42,6 +43,7 @@ public class MyDialog extends JDialog {
 
         buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        buttonsPanel.setOpaque(false);
 
         add(formPanel, BorderLayout.CENTER);
         add(buttonsPanel, BorderLayout.SOUTH);
