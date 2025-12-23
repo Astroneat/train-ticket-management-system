@@ -19,16 +19,17 @@ import javax.swing.JTextField;
 
 import com.mrt.Universal;
 
-public class MyDialog extends JDialog {
+public class FormDialog extends JDialog {
 
     private JPanel formPanel;
     private JPanel buttonsPanel;
     private GridBagConstraints gbc;
 
-    public MyDialog(JFrame frame, String title) {
+    public FormDialog(JFrame frame, String title) {
         super(frame, title, true);
         setSize(400, 300);
         setLocationRelativeTo(frame);
+        getContentPane().setBackground(Universal.BACKGROUND_WHITE);
         setLayout(new BorderLayout(10, 10));
 
         formPanel = new JPanel();
