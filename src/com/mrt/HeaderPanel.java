@@ -65,7 +65,7 @@ public class HeaderPanel extends JPanel {
         centerPanel.setOpaque(false);
 
         JLabel timeLabel = new JLabel();
-        timeLabel.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 18));
+        timeLabel.setFont(new Font("Consolas", Font.BOLD, 20));
 
         int delay = 1000;
         ActionListener timerListener = new ActionListener() {

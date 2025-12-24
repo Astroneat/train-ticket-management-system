@@ -87,7 +87,9 @@ public class FormDialog extends JDialog {
 
     public JButton addButtonRow() {
         JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         JButton saveBtn = new JButton("Save");
+        saveBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         cancelBtn.addActionListener(e -> dispose());
 
         buttonsPanel.add(cancelBtn);

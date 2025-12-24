@@ -207,11 +207,15 @@ public class LoginFrame extends JFrame {
         loginForm.add(loginButton, gbc);
 
         JPanel registerTextPanel = new JPanel(new FlowLayout());
+        registerTextPanel.setOpaque(false);
         JLabel registerPrompt = new JLabel("Don\'t have an account?");
         registerPrompt.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        JLabel registerLink = new JLabel("<html><u>Register</u></html>");
+        JButton registerLink = new JButton("[Register]");
         registerLink.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        registerLink.setPreferredSize(new Dimension(80, 20));
         registerLink.setForeground(Color.BLUE);
+        registerLink.setBorder(BorderFactory.createEmptyBorder());
+        registerLink.setFocusable(false);
         registerLink.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

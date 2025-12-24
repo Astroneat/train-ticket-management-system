@@ -48,6 +48,7 @@ public class TrainManagementPanel extends JPanel {
     private JButton editButton;
     private JButton refreshButton;
     private JButton manageRoutesButton;
+    private JButton manageSchedulesButton;
 
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
@@ -148,14 +149,10 @@ public class TrainManagementPanel extends JPanel {
             "---", "active", "maintenance", "retired"
         });
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        panel.add(filterBox);
-
-        JButton filterButton = new JButton("Filter");
-        filterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        filterButton.addActionListener(e -> {
+        filterBox.addActionListener(e -> {
             loadTrainsWithConstraints();
         });
-        panel.add(filterButton);
+        panel.add(filterBox);
 
         JButton clearFilterButton = new JButton("Clear filter");
         clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
@@ -182,18 +179,17 @@ public class TrainManagementPanel extends JPanel {
             "ID", "Active Routes"
         });
         sortBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        sortBox.addActionListener(e -> {
+            loadTrainsWithConstraints();
+        });
         panel.add(sortBox);
 
         sortDesc = new JCheckBox("Descending");
         sortDesc.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        panel.add(sortDesc);
-
-        JButton sortButton = new JButton("Sort");
-        sortButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        sortButton.addActionListener(e -> {
+        sortDesc.addActionListener(e -> {
             loadTrainsWithConstraints();
         });
-        panel.add(sortButton);
+        panel.add(sortDesc);
 
         return panel;
     }
@@ -206,10 +202,12 @@ public class TrainManagementPanel extends JPanel {
         addButton = createActionButton("Add");
         editButton = createActionButton("Edit");
         refreshButton = createActionButton("Refresh");
-        manageRoutesButton = createActionButton("Manage Routes");
+        manageRoutesButton = createActionButton("Routes...");
+        manageSchedulesButton = createActionButton("Schedules...");
 
         editButton.setEnabled(false);
         manageRoutesButton.setEnabled(false);
+        manageSchedulesButton.setEnabled(false);
 
         addButton.addActionListener(e -> {
             FormDialog addDialog = new FormDialog(frame, "Add Train");
@@ -330,7 +328,8 @@ public class TrainManagementPanel extends JPanel {
 
             RouteAssignmentDialog dialog = new RouteAssignmentDialog(
                 frame,
-                new Train(trainId, trainCode, seatCapacity, status)
+                new Train(trainId, trainCode, seatCapacity, status),
+                () -> loadTrainsWithConstraints()
             );
 
             dialog.setVisible(true);
@@ -345,6 +344,7 @@ public class TrainManagementPanel extends JPanel {
         actionPanel.add(addButton);
         actionPanel.add(editButton);
         actionPanel.add(manageRoutesButton);
+        actionPanel.add(manageSchedulesButton);
         actionPanel.add(refreshButton);
 
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -380,7 +380,9 @@ public class TrainManagementPanel extends JPanel {
         trainTable = new JTable(tableModel);
         trainTable.setRowHeight(30);
         trainTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        trainTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
+        trainTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
+        trainTable.getTableHeader().setPreferredSize(new Dimension(10, 25));
+        trainTable.getTableHeader().setReorderingAllowed(false);
         trainTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         trainTable.getColumnModel().getColumn(0).setMaxWidth(40);
         trainTable.getColumnModel().getColumn(0).setMinWidth(40);
@@ -394,12 +396,17 @@ public class TrainManagementPanel extends JPanel {
                     String status = trainTable.getValueAt(selectedRow, 3).toString();
                     if(status.equals("active")) {
                         manageRoutesButton.setEnabled(true);
+                        manageSchedulesButton.setEnabled(true);
                     }
-                    else manageRoutesButton.setEnabled(false);
+                    else {
+                        manageRoutesButton.setEnabled(false);
+                        manageSchedulesButton.setEnabled(false);
+                    }
                 }
                 else {
                     editButton.setEnabled(false);
                     manageRoutesButton.setEnabled(false);
+                    manageSchedulesButton.setEnabled(false);
                 }
             }
         });

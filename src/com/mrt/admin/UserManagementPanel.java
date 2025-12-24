@@ -138,14 +138,10 @@ public class UserManagementPanel extends JPanel {
             "---", "customer", "admin"
         });
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        panel.add(filterBox);
-
-        JButton filterButton = new JButton("Filter");
-        filterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        filterButton.addActionListener(e -> {
+        filterBox.addActionListener(e -> {
             loadUsersWithConstraints();
         });
-        panel.add(filterButton);
+        panel.add(filterBox);
 
         JButton clearFilterButton = new JButton("Clear filter");
         clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
@@ -354,8 +350,10 @@ public class UserManagementPanel extends JPanel {
         userTable = new JTable(tableModel);
         userTable.setRowHeight(30);
         userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
+        userTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
+        userTable.getTableHeader().setReorderingAllowed(false);
         userTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        userTable.getTableHeader().setPreferredSize(new Dimension(10, 25));
         userTable.getColumnModel().getColumn(0).setMaxWidth(40);
         userTable.getColumnModel().getColumn(0).setMinWidth(40);
         userTable.getSelectionModel().addListSelectionListener(e -> {

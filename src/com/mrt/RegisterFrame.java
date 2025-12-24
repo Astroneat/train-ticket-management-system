@@ -42,7 +42,7 @@ public class RegisterFrame extends JFrame {
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(Color.WHITE);
-        contentPanel.setPreferredSize(new Dimension(400, 550));
+        contentPanel.setPreferredSize(new Dimension(400, 575));
         contentPanel.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(220, 220, 220)));
 
         contentPanel.add(createBrandPanel());
@@ -235,6 +235,31 @@ public class RegisterFrame extends JFrame {
             }
         });
         registerForm.add(registerButton, gbc);
+
+        JPanel loginTextPanel = new JPanel(new FlowLayout());
+        loginTextPanel.setOpaque(false);
+        JLabel loginPrompt = new JLabel("Already have an account?");
+        loginPrompt.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        JButton loginLink = new JButton("[Login]");
+        loginLink.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        loginLink.setPreferredSize(new Dimension(70, 20));
+        loginLink.setForeground(Color.BLUE);
+        loginLink.setBorder(BorderFactory.createEmptyBorder());
+        loginLink.setFocusable(false);
+        loginLink.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                dispose();
+                new LoginFrame().setVisible(true);
+            }
+        });
+
+        loginTextPanel.add(loginPrompt);
+        loginTextPanel.add(loginLink);
+
+        gbc.gridy = 9;
+        gbc.weightx = 1;
+        registerForm.add(loginTextPanel, gbc);
 
         return registerForm;
     }
