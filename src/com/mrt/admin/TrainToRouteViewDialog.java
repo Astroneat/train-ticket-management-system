@@ -28,66 +28,72 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
+import com.mrt.dbobject.Route;
 import com.mrt.dbobject.Station;
 import com.mrt.dbobject.Train;
 
 class RouteRow {
-    private boolean isActive;
     private int routeId;
     private String routeCode;
     private String origin;
     private String destinaton;
     private BigDecimal distanceKm;
+    private int activeTrips;
+    private int completedTrips;
     
-    public RouteRow(boolean isActive, int routeId, String routeCode, String origin, String destinaton, BigDecimal distanceKm) {
-        this.isActive = isActive;
+    public RouteRow(int routeId, String routeCode, String origin, String destinaton, BigDecimal distanceKm, int activeTrips, int completedTrips) {
         this.routeId = routeId;
         this.routeCode = routeCode;
         this.origin = origin;
         this.destinaton = destinaton;
         this.distanceKm = distanceKm;
+        this.activeTrips = activeTrips;
+        this.completedTrips = completedTrips;
     }
 
-    public boolean getIsActive() { return isActive; }
     public int getRouteId() { return routeId; }
     public String getRouteCode() { return routeCode; }
     public String getOrigin() { return origin; }
     public String getDestination() { return destinaton; }
     public BigDecimal getDistanceKm() { return distanceKm; }
+    public int getActiveTrips() { return activeTrips; }
+    public int getCompletedTrips() { return completedTrips; }
 }
 
-class RouteAssignmentRow {
-    private String routeCode;
-    private boolean originalActive;
-    private boolean currentActive;
-    private boolean hasSchedule;
+// class RouteAssignmentRow {
+//     private String routeCode;
+//     private boolean originalActive;
+//     private boolean currentActive;
+//     private boolean hasSchedule;
 
-    public RouteAssignmentRow(String routeCode, boolean active) {
-        this.routeCode = routeCode;
-        this.originalActive = active;
-        this.currentActive = active;
-    }
-    public void setCurrentActive(boolean currentActive) { this.currentActive = currentActive; }
-    public boolean getCurrentActive() { return currentActive; }
-    public void setOriginalActive(boolean originalActive) { this.originalActive = originalActive; }
-    public boolean getOriginalActive() { return originalActive; }
-    public String getRouteCode() { return routeCode; }
-    public boolean getHasSchedule() { return hasSchedule; }
-    public void setHasSchedule(boolean hasSchedule) { this.hasSchedule = hasSchedule; } 
+//     public RouteAssignmentRow(String routeCode, boolean active) {
+//         this.routeCode = routeCode;
+//         this.originalActive = active;
+//         this.currentActive = active;
+//     }
+//     public void setCurrentActive(boolean currentActive) { this.currentActive = currentActive; }
+//     public boolean getCurrentActive() { return currentActive; }
+//     public void setOriginalActive(boolean originalActive) { this.originalActive = originalActive; }
+//     public boolean getOriginalActive() { return originalActive; }
+//     public String getRouteCode() { return routeCode; }
+//     public boolean getHasSchedule() { return hasSchedule; }
+//     public void setHasSchedule(boolean hasSchedule) { this.hasSchedule = hasSchedule; } 
 
-    public boolean isChanged() {
-        return originalActive != currentActive;
-    }
-}
+//     public boolean isChanged() {
+//         return originalActive != currentActive;
+//     }
+// }
 
-public class RouteAssignmentDialog extends JDialog {
+public class TrainToRouteViewDialog extends JDialog {
 
     private Train train;
-    private Runnable onSuccess;
 
     private JTextField searchField;
+    private JButton scheduleButton;
+
     private JComboBox<Station> originBox;
     private JComboBox<Station> destBox;
 
@@ -95,18 +101,14 @@ public class RouteAssignmentDialog extends JDialog {
     private DefaultTableModel tableModel;
 
     private List<RouteRow> routeList;
-    private HashMap<Integer, RouteAssignmentRow> changedRows;
 
     private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", "");
 
-    public RouteAssignmentDialog(JFrame frame, Train train, Runnable onSuccess) {
+    public TrainToRouteViewDialog(JFrame frame, Train train) {
         super(frame, "Route Assignment", true);
         this.train = train;
-        this.onSuccess = onSuccess;
 
-        changedRows = new HashMap<>();
-
-        setSize(800, 550);
+        setSize(900, 600);
         setLocationRelativeTo(frame);
         setResizable(false);
         JPanel contentPane = (JPanel) getContentPane();
@@ -178,6 +180,28 @@ public class RouteAssignmentDialog extends JDialog {
         });
         panel.add(searchButton);
 
+        scheduleButton = new JButton("Schedules...");
+        scheduleButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        scheduleButton.setPreferredSize(new Dimension(120, 36));
+        scheduleButton.addActionListener(e -> {
+            ScheduleDialog scheduleDialog = new ScheduleDialog(
+                this, 
+                train, 
+                Universal.db().queryOne(
+                    "SELECT *\n" + 
+                    "FROM train_routes tr\n" +
+                    "INNER JOIN stations s1 ON s1.station_id = tr.origin_station_id\n" +
+                    "INNER JOIN stations s2 ON s2.station_id = tr.destination_station_id\n" +
+                    "WHERE route_id = ?",
+                    rs -> Route.parseResultSet(rs),
+                    tableModel.getValueAt(routeTable.getSelectedRow(), 0)
+                )
+            );
+
+            scheduleDialog.setVisible(true);
+        });
+        panel.add(scheduleButton);
+
         return panel;
     }
 
@@ -213,7 +237,7 @@ public class RouteAssignmentDialog extends JDialog {
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"Active", "ID", "Route Code", "Origin", "Destination", "Distance (km)"},
+            new String[] {"ID", "Route Code", "Origin", "Destination", "Distance (km)", "Schedules"},
             0
         ) {
             @Override
@@ -221,22 +245,7 @@ public class RouteAssignmentDialog extends JDialog {
                 if(column == 0) return true;
                 return false;
             }
-
-            @Override
-            public Class<?> getColumnClass(int column) {
-                if(column == 0) return Boolean.class;
-                if(column == 5) return BigDecimal.class;
-                return String.class;
-            }
         };
-        tableModel.addTableModelListener(e -> {
-            if(e.getType() == TableModelEvent.UPDATE && e.getColumn() == 0) {
-                int row = e.getFirstRow();
-                boolean active = (boolean) tableModel.getValueAt(row, 0);
-                int routeId = (int) tableModel.getValueAt(row, 1);
-                changedRows.get(routeId).setCurrentActive(active);
-            }
-        });
 
         routeTable = new JTable(tableModel);
         routeTable.setRowHeight(30);
@@ -245,20 +254,18 @@ public class RouteAssignmentDialog extends JDialog {
         routeTable.getTableHeader().setPreferredSize(new Dimension(0, 20));
         routeTable.getTableHeader().setReorderingAllowed(false);
         routeTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        routeTable.getColumnModel().getColumn(0).setMaxWidth(50);
-        routeTable.getColumnModel().getColumn(0).setMinWidth(50);
-        routeTable.getColumnModel().getColumn(1).setMaxWidth(50);
-        routeTable.getColumnModel().getColumn(1).setMinWidth(50);
-        routeTable.getColumnModel().getColumn(2).setMaxWidth(100);
-        routeTable.getColumnModel().getColumn(2).setMinWidth(100);
-        routeTable.getColumnModel().getColumn(5).setMaxWidth(100);
-        routeTable.getColumnModel().getColumn(5).setMinWidth(100);
+
+        TableColumnModel columnModel = routeTable.getColumnModel();
+        columnModel.getColumn(1).setMaxWidth(100);
+        columnModel.getColumn(1).setMinWidth(100);
+        columnModel.removeColumn(columnModel.getColumn(0));
+
         routeTable.setFocusable(false);
 
         loadAllRoutes();
 
         JScrollPane scrollPane = new JScrollPane(routeTable);
-        scrollPane.setPreferredSize(new Dimension(1000, routeTable.getRowHeight() * 10 + routeTable.getTableHeader().getPreferredSize().height));
+        scrollPane.setPreferredSize(new Dimension(1000, routeTable.getRowHeight() * 12 + routeTable.getTableHeader().getPreferredSize().height));
         return scrollPane;
     }
 
@@ -266,55 +273,56 @@ public class RouteAssignmentDialog extends JDialog {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panel.setOpaque(false);
 
-        JButton cancelBtn = new JButton("Cancel");
+        JButton cancelBtn = new JButton("Exit");
+        cancelBtn.setPreferredSize(new Dimension(100, 33));
         cancelBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         cancelBtn.addActionListener(e -> dispose());
 
-        JButton saveBtn = new JButton("Save changes");
-        saveBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        saveBtn.addActionListener(e -> {
-            // for(RouteAssignmentRow row: changedRows) {
-            List<String> unassignedRoutes = new ArrayList<>();
-            for(Map.Entry<Integer, RouteAssignmentRow> entry: changedRows.entrySet()) {
-                int routeId = entry.getKey();
-                RouteAssignmentRow row = entry.getValue();
-                if(!row.isChanged()) continue;
+        // JButton saveBtn = new JButton("Save changes");
+        // saveBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // saveBtn.addActionListener(e -> {
+        //     // for(RouteAssignmentRow row: changedRows) {
+        //     List<String> unassignedRoutes = new ArrayList<>();
+        //     for(Map.Entry<Integer, RouteAssignmentRow> entry: changedRows.entrySet()) {
+        //         int routeId = entry.getKey();
+        //         RouteAssignmentRow row = entry.getValue();
+        //         if(!row.isChanged()) continue;
 
-                if(row.getCurrentActive()) {
-                    Universal.db().execute(
-                        "INSERT INTO train_route_assignments(train_id, route_id) VALUES (?, ?)",
-                        train.getTrainId(),
-                        routeId
-                    );
-                }
-                else {
-                    if(row.getOriginalActive() && row.getHasSchedule()) {
-                        unassignedRoutes.add(row.getRouteCode());
-                    }
-                    else {
-                        Universal.db().execute(
-                            "DELETE FROM train_route_assignments WHERE train_id = ? AND route_id = ?",
-                            train.getTrainId(),
-                            routeId
-                        );
-                    }
-                }
-            }
+        //         if(row.getCurrentActive()) {
+        //             Universal.db().execute(
+        //                 "INSERT INTO train_route_assignments(train_id, route_id) VALUES (?, ?)",
+        //                 train.getTrainId(),
+        //                 routeId
+        //             );
+        //         }
+        //         else {
+        //             if(row.getOriginalActive() && row.getHasSchedule()) {
+        //                 unassignedRoutes.add(row.getRouteCode());
+        //             }
+        //             else {
+        //                 Universal.db().execute(
+        //                     "DELETE FROM train_route_assignments WHERE train_id = ? AND route_id = ?",
+        //                     train.getTrainId(),
+        //                     routeId
+        //                 );
+        //             }
+        //         }
+        //     }
 
-            if(!unassignedRoutes.isEmpty()) {
-                JOptionPane.showMessageDialog(
-                    this, 
-                    "Cannot unassign scheduled routes: " + String.join(", ", unassignedRoutes),
-                    "Assignment Warning",
-                    JOptionPane.WARNING_MESSAGE
-                );
-            }
-            onSuccess.run();
-            dispose();
-        });
+        //     if(!unassignedRoutes.isEmpty()) {
+        //         JOptionPane.showMessageDialog(
+        //             this, 
+        //             "Cannot unassign scheduled routes: " + String.join(", ", unassignedRoutes),
+        //             "Assignment Warning",
+        //             JOptionPane.WARNING_MESSAGE
+        //         );
+        //     }
+        //     onSuccess.run();
+        //     dispose();
+        // });
 
         panel.add(cancelBtn);
-        panel.add(saveBtn);
+        // panel.add(saveBtn);
         return panel;
     }
 
@@ -324,17 +332,29 @@ public class RouteAssignmentDialog extends JDialog {
         Station dest = (Station) destBox.getSelectedItem();
 
         List<Object> args = new ArrayList<>();
-        String sql = "SELECT \n" + //
-                    "    tra.train_id IS NOT NULL is_assigned,\n" + //
-                    "    tr.route_id,\n" + //
-                    "    tr.route_code,\n" + //
-                    "    s1.station_name origin,\n" + //
-                    "    s2.station_name destination,\n" + //
-                    "    tr.distance_km\n" + //
-                    "FROM train_routes tr\n" + //
-                    "LEFT JOIN train_route_assignments tra ON tr.route_id = tra.route_id AND tra.train_id = ?\n" + //
-                    "INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id\n" + //
-                    "INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id\n" + //
+        String sql = "SELECT \n" + 
+                    "    tr.route_id,\n" + 
+                    "    tr.route_code,\n" + 
+                    "    s1.station_name AS origin,\n" + 
+                    "    s2.station_name AS destination,\n" + 
+                    "    tr.distance_km,\n" + 
+                    "    SUM(\n" + 
+                    "        CASE \n" + 
+                    "            WHEN ts.status = 'scheduled' THEN 1 \n" + 
+                    "            ELSE 0 \n" + 
+                    "        END\n" + 
+                    "    ) AS active_trips,\n" + 
+                    "    SUM(\n" + 
+                    "        CASE \n" + 
+                    "            WHEN ts.status IS NOT NULL \n" + 
+                    "             AND ts.status = 'completed' THEN 1 \n" + 
+                    "            ELSE 0 \n" + 
+                    "        END\n" + 
+                    "    ) AS total_trips\n" + 
+                    "FROM train_routes tr\n" + 
+                    "LEFT JOIN train_schedules ts ON tr.route_id = ts.route_id AND ts.train_id = ?\n" + 
+                    "INNER JOIN stations s1  ON tr.origin_station_id = s1.station_id\n" + 
+                    "INNER JOIN stations s2  ON tr.destination_station_id = s2.station_id\n" +
                     "WHERE TRUE";
 
         args.add(train.getTrainId());
@@ -353,17 +373,20 @@ public class RouteAssignmentDialog extends JDialog {
             args.add(dest.getStationCode());
         }
 
-        sql += " ORDER BY is_assigned DESC, tr.route_id ASC;";
+        sql += "\n";
+        sql += "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name, tr.distance_km\n";
+        sql += "ORDER BY active_trips DESC, total_trips DESC, tr.route_code ASC;";
 
         List<RouteRow> routes = Universal.db().query(
             sql,
             rs -> new RouteRow(
-                rs.getBoolean("is_assigned"),
                 rs.getInt("route_id"),
                 rs.getString("route_code"),
                 rs.getString("origin"),
                 rs.getString("destination"),
-                rs.getBigDecimal("distance_km")
+                rs.getBigDecimal("distance_km"),
+                rs.getInt("active_trips"),
+                rs.getInt("total_trips")
             ),
             args.toArray()
         );
@@ -372,25 +395,39 @@ public class RouteAssignmentDialog extends JDialog {
 
     private void loadAllRoutes() {
         routeList = Universal.db().query(
-            "SELECT \n" + //
-            "    tra.train_id IS NOT NULL is_assigned,\n" + //
-            "    tr.route_id,\n" + //
-            "    tr.route_code,\n" + //
-            "    s1.station_name origin,\n" + //
-            "    s2.station_name destination,\n" + //
-            "    tr.distance_km\n" + //
-            "FROM train_routes tr\n" + //
-            "LEFT JOIN train_route_assignments tra ON tr.route_id = tra.route_id AND tra.train_id = ?\n" + //
-            "INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id\n" + //
-            "INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id\n" + //
-            "ORDER BY is_assigned DESC, tr.route_id ASC;",
+            "SELECT \n" + 
+            "    tr.route_id,\n" + 
+            "    tr.route_code,\n" + 
+            "    s1.station_name AS origin,\n" + 
+            "    s2.station_name AS destination,\n" + 
+            "    tr.distance_km,\n" + 
+            "    SUM(\n" + 
+            "        CASE \n" + 
+            "            WHEN ts.status = 'scheduled' THEN 1 \n" + 
+            "            ELSE 0 \n" + 
+            "        END\n" + 
+            "    ) AS active_trips,\n" + 
+            "    SUM(\n" + 
+            "        CASE \n" + 
+            "            WHEN ts.status IS NOT NULL \n" + 
+            "             AND ts.status = 'completed' THEN 1 \n" + 
+            "            ELSE 0 \n" + 
+            "        END\n" + 
+            "    ) AS total_trips\n" + 
+            "FROM train_routes tr\n" + 
+            "LEFT JOIN train_schedules ts ON tr.route_id = ts.route_id AND ts.train_id = ?\n" + 
+            "INNER JOIN stations s1  ON tr.origin_station_id = s1.station_id\n" + 
+            "INNER JOIN stations s2  ON tr.destination_station_id = s2.station_id\n" + 
+            "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name, tr.distance_km\n" + 
+            "ORDER BY active_trips DESC, total_trips DESC, tr.route_code ASC;",
             rs -> new RouteRow(
-                rs.getBoolean("is_assigned"),
                 rs.getInt("route_id"),
                 rs.getString("route_code"),
                 rs.getString("origin"),
                 rs.getString("destination"),
-                rs.getBigDecimal("distance_km")
+                rs.getBigDecimal("distance_km"),
+                rs.getInt("active_trips"),
+                rs.getInt("total_trips")
             ),
             train.getTrainId()
         );
@@ -400,36 +437,13 @@ public class RouteAssignmentDialog extends JDialog {
     private void updateTable(List<RouteRow> routes) {
         tableModel.setRowCount(0);
         for(RouteRow row: routes) {
-            // changedRows.add(new RouteAssignmentRow(row.getRouteId(), row.getIsActive()));
-            boolean activeOverride = false;
-            RouteAssignmentRow currentAssignmentRow = changedRows.get(row.getRouteId());
-            if(currentAssignmentRow == null) {
-                changedRows.put(row.getRouteId(), new RouteAssignmentRow(row.getRouteCode(), row.getIsActive()));
-                currentAssignmentRow = changedRows.get(row.getRouteId());
-            }
-            else {
-                activeOverride = true;
-            }
-
-            currentAssignmentRow.setHasSchedule(Universal.db().queryOne(
-                "SELECT EXISTS (\n" + //
-                "   SELECT ts.schedule_id \n" + //
-                "   FROM train_schedules ts \n" + //
-                "   INNER JOIN train_route_assignments tra ON ts.assignment_id = tra.assignment_id\n" + //
-                "   WHERE tra.train_id = ? AND tra.route_id = ?\n" + //
-                ") exist;",
-                rs -> rs.getBoolean("exist"),
-                train.getTrainId(),
-                row.getRouteId()
-            ));
-
             tableModel.addRow(new Object[] {
-                activeOverride ? changedRows.get(row.getRouteId()).getCurrentActive() : row.getIsActive(),
                 row.getRouteId(),
                 row.getRouteCode(),
                 row.getOrigin(),
                 row.getDestination(),
-                row.getDistanceKm()
+                row.getDistanceKm(),
+                row.getActiveTrips() + " scheduled, " + row.getCompletedTrips() + " completed"
             });
         }
     }

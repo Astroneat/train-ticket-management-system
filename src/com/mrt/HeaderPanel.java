@@ -39,7 +39,7 @@ public class HeaderPanel extends JPanel {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
         leftPanel.setOpaque(false);
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("./img/logo_train.png"));
+            ImageIcon icon = new ImageIcon("src/com/mrt/img/logo_train.png");
             Image img = icon.getImage();
             float imgScaleFactor = 0.03f;
             float newWidth = img.getWidth(this) * imgScaleFactor;

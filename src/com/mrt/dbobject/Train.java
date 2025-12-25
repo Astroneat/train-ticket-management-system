@@ -32,6 +32,6 @@ public class Train {
 
     @Override
     public String toString() {
-        return trainCode + " (" + seatCapacity + " seats)";
+        return trainCode;
     }
 }

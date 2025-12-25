@@ -2,6 +2,7 @@ package com.mrt.admin;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -25,9 +26,9 @@ public class FormDialog extends JDialog {
     private JPanel buttonsPanel;
     private GridBagConstraints gbc;
 
-    public FormDialog(JFrame frame, String title) {
+    public FormDialog(JFrame frame, String title, Dimension dimension) {
         super(frame, title, true);
-        setSize(400, 300);
+        setSize(dimension);
         setLocationRelativeTo(frame);
         setResizable(false);
         getContentPane().setBackground(Universal.BACKGROUND_WHITE);
@@ -64,6 +65,7 @@ public class FormDialog extends JDialog {
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
         gbc.gridx = 1;
+        gbc.weightx = 1;
         formPanel.add(field, gbc);
 
         gbc.gridy++;
@@ -87,8 +89,10 @@ public class FormDialog extends JDialog {
 
     public JButton addButtonRow() {
         JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setPreferredSize(new Dimension(80, 32));
         cancelBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         JButton saveBtn = new JButton("Save");
+        saveBtn.setPreferredSize(new Dimension(80, 32));
         saveBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         cancelBtn.addActionListener(e -> dispose());
 

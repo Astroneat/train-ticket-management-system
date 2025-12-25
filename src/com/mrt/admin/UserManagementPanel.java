@@ -168,7 +168,7 @@ public class UserManagementPanel extends JPanel {
         deleteButton.setEnabled(false);
 
         addButton.addActionListener(e -> {
-            FormDialog addDialog = new FormDialog(frame, "Add User");
+            FormDialog addDialog = new FormDialog(frame, "Add User", new Dimension(400, 310));
 
             JTextField emailField = addDialog.addTextField("Email:");
             JTextField fullNameField = addDialog.addTextField("Full Name:");
@@ -234,7 +234,7 @@ public class UserManagementPanel extends JPanel {
             String currentFullName = userTable.getValueAt(row, 2).toString();
             String currentRole = userTable.getValueAt(row, 3).toString();
 
-            FormDialog editDialog = new FormDialog(frame, "Edit User");
+            FormDialog editDialog = new FormDialog(frame, "Edit User", new Dimension(400, 310));
             JTextField emailField = editDialog.addTextField("Email:");
             JTextField fullNameField = editDialog.addTextField("Full Name:");
             JComboBox<String> roleBox = editDialog.addComboBox("Role:", new String[] {

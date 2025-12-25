@@ -48,7 +48,6 @@ public class TrainManagementPanel extends JPanel {
     private JButton editButton;
     private JButton refreshButton;
     private JButton manageRoutesButton;
-    private JButton manageSchedulesButton;
 
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
@@ -203,14 +202,12 @@ public class TrainManagementPanel extends JPanel {
         editButton = createActionButton("Edit");
         refreshButton = createActionButton("Refresh");
         manageRoutesButton = createActionButton("Routes...");
-        manageSchedulesButton = createActionButton("Schedules...");
 
         editButton.setEnabled(false);
         manageRoutesButton.setEnabled(false);
-        manageSchedulesButton.setEnabled(false);
 
         addButton.addActionListener(e -> {
-            FormDialog addDialog = new FormDialog(frame, "Add Train");
+            FormDialog addDialog = new FormDialog(frame, "Add Train", new Dimension(400, 300));
 
             JTextField codeField = addDialog.addTextField("Train Code:");
             JTextField seatCapacityField = addDialog.addTextField("Seat Capacity:");
@@ -268,7 +265,7 @@ public class TrainManagementPanel extends JPanel {
             int currentSeatCapacity = (int) trainTable.getValueAt(row, 2);
             String currentStatus = trainTable.getValueAt(row, 3).toString();
 
-            FormDialog editDialog = new FormDialog(frame, "Edit Train");
+            FormDialog editDialog = new FormDialog(frame, "Edit Train", new Dimension(400, 300));
             JTextField codeField = editDialog.addTextField("Train Code:");
             JTextField seatCapacityField = editDialog.addTextField("Seat Capacity:");
             JComboBox<String> statusBox = editDialog.addComboBox("Role:", new String[] {
@@ -326,10 +323,9 @@ public class TrainManagementPanel extends JPanel {
             int seatCapacity = (int) trainTable.getValueAt(row, 2);
             String status = trainTable.getValueAt(row, 3).toString();
 
-            RouteAssignmentDialog dialog = new RouteAssignmentDialog(
+            TrainToRouteViewDialog dialog = new TrainToRouteViewDialog(
                 frame,
-                new Train(trainId, trainCode, seatCapacity, status),
-                () -> loadTrainsWithConstraints()
+                new Train(trainId, trainCode, seatCapacity, status)
             );
 
             dialog.setVisible(true);
@@ -344,7 +340,6 @@ public class TrainManagementPanel extends JPanel {
         actionPanel.add(addButton);
         actionPanel.add(editButton);
         actionPanel.add(manageRoutesButton);
-        actionPanel.add(manageSchedulesButton);
         actionPanel.add(refreshButton);
 
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -359,10 +354,8 @@ public class TrainManagementPanel extends JPanel {
 
     private JButton createActionButton(String text) {
         JButton btn = new JButton(text);
-        // btn.setMaximumSize(new Dimension(180, 40));
         btn.setPreferredSize(new Dimension(120, 36));
         btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        btn.setVerticalAlignment(SwingConstants.CENTER);
         return btn;
     }
 
@@ -392,21 +385,11 @@ public class TrainManagementPanel extends JPanel {
                 int selectedRow = trainTable.getSelectedRow();
                 if(selectedRow != -1) {
                     editButton.setEnabled(true);
-
-                    String status = trainTable.getValueAt(selectedRow, 3).toString();
-                    if(status.equals("active")) {
-                        manageRoutesButton.setEnabled(true);
-                        manageSchedulesButton.setEnabled(true);
-                    }
-                    else {
-                        manageRoutesButton.setEnabled(false);
-                        manageSchedulesButton.setEnabled(false);
-                    }
+                    manageRoutesButton.setEnabled(true);
                 }
                 else {
                     editButton.setEnabled(false);
                     manageRoutesButton.setEnabled(false);
-                    manageSchedulesButton.setEnabled(false);
                 }
             }
         });
@@ -435,29 +418,29 @@ public class TrainManagementPanel extends JPanel {
 
         List<Integer> numRoutes = new ArrayList<>();
         List<Train> trainList = Universal.db().query(
-            "SELECT\n" + //
-            "    t.train_id,\n" + //
-            "    t.train_code,\n" + //
-            "    t.seat_capacity,\n" + //
-            "    t.status,\n" + //
-            "    COUNT(tra.route_id) routes\n" + //
-            "FROM trains t\n" + //
-            "LEFT JOIN train_route_assignments tra ON t.train_id = tra.train_id\n" + //
-            "GROUP BY t.train_id;",
+            "SELECT \n" + 
+            "    t.train_id,\n" + 
+            "    t.train_code,\n" + 
+            "    t.seat_capacity,\n" + 
+            "    t.status,\n" + 
+            "    COUNT(DISTINCT ts.route_id) active_routes\n" + 
+            "FROM trains t\n" + 
+            "LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'\n" + 
+            "GROUP BY t.train_id, t.train_code, t.seat_capacity;",
             rs -> {
                 Train ret = Train.parseResultSet(rs);
-                numRoutes.add(rs.getInt("routes"));
+                numRoutes.add(rs.getInt("active_routes"));
                 return ret;
             }
         );
 
         int numRoutesIdx = 0;
-        for(Train Train: trainList) {
+        for(Train train: trainList) {
             tableModel.addRow(new Object[] {
-                Train.getTrainId(),
-                Train.getTrainCode(),
-                Train.getSeatCapacity(),
-                Train.getStatus(),
+                train.getTrainId(),
+                train.getTrainCode(),
+                train.getSeatCapacity(),
+                train.getStatus(),
                 numRoutes.get(numRoutesIdx)
             });
             numRoutesIdx++;
@@ -479,7 +462,7 @@ public class TrainManagementPanel extends JPanel {
                 orderBy = "t.train_id";
                 break;
             case "Active Routes":
-                orderBy = "routes";
+                orderBy = "active_routes";
                 break;
         }
         String sortOrder = "ASC";
@@ -487,14 +470,14 @@ public class TrainManagementPanel extends JPanel {
 
         List<String> args = new ArrayList<String>();
 
-        String sql = "SELECT \n" + //
-                    "   t.train_id, \n" + //
-                    "   t.train_code, \n" + //
-                    "   t.seat_capacity, \n" + //
-                    "   t.status, \n" + //
-                    "   COUNT(tra.route_id) routes\n" + //
-                    "FROM trains t\n" + //
-                    "LEFT JOIN train_route_assignments tra ON t.train_id = tra.train_id\n" + //
+        String sql = "SELECT \n" +
+                    "    t.train_id,\n" +
+                    "    t.train_code,\n" +
+                    "    t.seat_capacity,\n" +
+                    "    t.status,\n" +
+                    "    COUNT(DISTINCT ts.route_id) active_routes\n" +
+                    "FROM trains t\n" +
+                    "LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'\n" +
                     "WHERE true";
         if(!searchTerm.isBlank()) {
             sql += " AND (t.train_code LIKE ?)";
@@ -505,7 +488,7 @@ public class TrainManagementPanel extends JPanel {
             args.add(status);
         }
         sql += "\n";
-        sql += "GROUP BY t.train_id\n" + //
+        sql += "GROUP BY t.train_id, t.train_code, t.seat_capacity\n" +
                 "ORDER BY " + orderBy + " " + sortOrder + ";";
 
         List<Integer> numRoutes = new ArrayList<>();
@@ -513,19 +496,19 @@ public class TrainManagementPanel extends JPanel {
             sql,
             rs -> {
                 Train ret = Train.parseResultSet(rs);
-                numRoutes.add(rs.getInt("routes"));
+                numRoutes.add(rs.getInt("active_routes"));
                 return ret;
             },
             args.toArray(new Object[args.size()])
         );
 
         int numRoutesIdx = 0;
-        for(Train Train: trainList) {
+        for(Train train: trainList) {
             tableModel.addRow(new Object[] {
-                Train.getTrainId(),
-                Train.getTrainCode(),
-                Train.getSeatCapacity(),
-                Train.getStatus(),
+                train.getTrainId(),
+                train.getTrainCode(),
+                train.getSeatCapacity(),
+                train.getStatus(),
                 numRoutes.get(numRoutesIdx)
             });
             numRoutesIdx++;
