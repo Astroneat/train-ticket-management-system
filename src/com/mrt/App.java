@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import com.mrt.dbobject.User;
+import com.mrt.model.User;
 
 public class App {
     public static void main(String[] args) throws Exception {

@@ -1,13 +1,19 @@
-package com.mrt.admin;
+package com.mrt.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,21 +22,35 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
 
 import com.mrt.Universal;
 
 public class FormDialog extends JDialog {
 
+    private Component owner;
+
     private JPanel formPanel;
     private JPanel buttonsPanel;
     private GridBagConstraints gbc;
 
-    public FormDialog(JFrame frame, String title, Dimension dimension) {
-        super(frame, title, true);
+    public FormDialog(JFrame owner, String title, Dimension dimension) {
+        super(owner, title, true);
+        this.owner = owner;
+        initFormDialog(title, dimension);
+    }
+    public FormDialog(JDialog owner, String title, Dimension dimension) {
+        super(owner, title, true);
+        this.owner = owner;
+        initFormDialog(title, dimension);
+    }
+    
+    void initFormDialog(String title, Dimension dimension) {
         setSize(dimension);
-        setLocationRelativeTo(frame);
         setResizable(false);
+        setLocationRelativeTo(owner);
         getContentPane().setBackground(Universal.BACKGROUND_WHITE);
         setLayout(new BorderLayout(10, 10));
 
@@ -40,7 +60,6 @@ public class FormDialog extends JDialog {
         formPanel.setOpaque(false);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
         gbc.gridy = 0;
 
@@ -52,10 +71,36 @@ public class FormDialog extends JDialog {
         add(buttonsPanel, BorderLayout.SOUTH);
     }
 
+    public JSpinner addDateTimePicker(String text, LocalDateTime initialDateTime) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        formPanel.add(label, gbc);
+
+        Date initialDate = Date.from(initialDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        SpinnerDateModel spinnerModel = new SpinnerDateModel(initialDate, null, null, Calendar.MINUTE);
+        JSpinner spinner = new JSpinner(spinnerModel);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm dd-MM-yyyy");
+        spinner.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        editor.getTextField().setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.BLACK, 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        spinner.setEditor(editor);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        formPanel.add(spinner, gbc);
+
+        gbc.gridy++;
+        return spinner;
+    }
+
     public JTextField addTextField(String title) {
         JLabel label = new JLabel(title);
         label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
         formPanel.add(label, gbc);
 
         JTextField field = new JTextField(18);
@@ -65,7 +110,7 @@ public class FormDialog extends JDialog {
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
         gbc.gridx = 1;
-        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
         formPanel.add(field, gbc);
 
         gbc.gridy++;
@@ -76,11 +121,13 @@ public class FormDialog extends JDialog {
         JLabel label = new JLabel(title);
         label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
         formPanel.add(label, gbc);
 
         JComboBox<T> box = new JComboBox<>(options);
         box.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
         formPanel.add(box, gbc);
 
         gbc.gridy++;

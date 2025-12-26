@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.mrt.dbobject.User;
+import com.mrt.model.User;
 
 public class LoginFrame extends JFrame {
 

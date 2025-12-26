@@ -4,7 +4,7 @@ import javax.swing.*;
 import com.mrt.admin.AdminDashboardPanel;
 import com.mrt.admin.TrainManagementPanel;
 import com.mrt.admin.UserManagementPanel;
-import com.mrt.dbobject.User;
+import com.mrt.model.User;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -24,7 +24,7 @@ public class AdminFrame extends JFrame implements MyFrame {
         this.currentUser = user;
 
         setTitle("MRT Viet Nam - Admin");
-        setSize(1100, 700);
+        setSize(1200, 800);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

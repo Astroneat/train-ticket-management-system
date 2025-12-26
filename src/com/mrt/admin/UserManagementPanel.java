@@ -28,7 +28,8 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mrt.AdminFrame;
 import com.mrt.Universal;
-import com.mrt.dbobject.User;
+import com.mrt.dialog.FormDialog;
+import com.mrt.model.User;
 
 public class UserManagementPanel extends JPanel {
 
@@ -296,7 +297,7 @@ public class UserManagementPanel extends JPanel {
                 return;
             }
 
-            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this user?", "Confirm deletion", JOptionPane.YES_NO_OPTION);
             if(confirm == JOptionPane.YES_OPTION) {
                 Universal.db().execute(
                     "DELETE FROM users WHERE user_id = ?",

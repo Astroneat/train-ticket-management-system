@@ -20,72 +20,19 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
-import com.mrt.dbobject.Route;
-import com.mrt.dbobject.Station;
-import com.mrt.dbobject.Train;
-
-class RouteRow {
-    private int routeId;
-    private String routeCode;
-    private String origin;
-    private String destinaton;
-    private BigDecimal distanceKm;
-    private int activeTrips;
-    private int completedTrips;
-    
-    public RouteRow(int routeId, String routeCode, String origin, String destinaton, BigDecimal distanceKm, int activeTrips, int completedTrips) {
-        this.routeId = routeId;
-        this.routeCode = routeCode;
-        this.origin = origin;
-        this.destinaton = destinaton;
-        this.distanceKm = distanceKm;
-        this.activeTrips = activeTrips;
-        this.completedTrips = completedTrips;
-    }
-
-    public int getRouteId() { return routeId; }
-    public String getRouteCode() { return routeCode; }
-    public String getOrigin() { return origin; }
-    public String getDestination() { return destinaton; }
-    public BigDecimal getDistanceKm() { return distanceKm; }
-    public int getActiveTrips() { return activeTrips; }
-    public int getCompletedTrips() { return completedTrips; }
-}
-
-// class RouteAssignmentRow {
-//     private String routeCode;
-//     private boolean originalActive;
-//     private boolean currentActive;
-//     private boolean hasSchedule;
-
-//     public RouteAssignmentRow(String routeCode, boolean active) {
-//         this.routeCode = routeCode;
-//         this.originalActive = active;
-//         this.currentActive = active;
-//     }
-//     public void setCurrentActive(boolean currentActive) { this.currentActive = currentActive; }
-//     public boolean getCurrentActive() { return currentActive; }
-//     public void setOriginalActive(boolean originalActive) { this.originalActive = originalActive; }
-//     public boolean getOriginalActive() { return originalActive; }
-//     public String getRouteCode() { return routeCode; }
-//     public boolean getHasSchedule() { return hasSchedule; }
-//     public void setHasSchedule(boolean hasSchedule) { this.hasSchedule = hasSchedule; } 
-
-//     public boolean isChanged() {
-//         return originalActive != currentActive;
-//     }
-// }
+import com.mrt.dialog.ScheduleDialog;
+import com.mrt.model.Route;
+import com.mrt.model.Station;
+import com.mrt.model.Train;
 
 public class TrainToRouteViewDialog extends JDialog {
 
@@ -102,13 +49,16 @@ public class TrainToRouteViewDialog extends JDialog {
 
     private List<RouteRow> routeList;
 
+    private Runnable parentRefresh;
+
     private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", "");
 
-    public TrainToRouteViewDialog(JFrame frame, Train train) {
+    public TrainToRouteViewDialog(JFrame frame, Train train, Runnable parentRefresh) {
         super(frame, "Route Assignment", true);
         this.train = train;
+        this.parentRefresh = parentRefresh;
 
-        setSize(900, 600);
+        setSize(900, 700);
         setLocationRelativeTo(frame);
         setResizable(false);
         JPanel contentPane = (JPanel) getContentPane();
@@ -136,15 +86,20 @@ public class TrainToRouteViewDialog extends JDialog {
     }
 
     private JPanel createContentPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setOpaque(false);
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
 
-        panel.add(createSearchPanel());
-        panel.add(createFilterPanel());
-        panel.add(createScrollPane());
+        JPanel top = new JPanel();
+        top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
+        top.setOpaque(false);
 
-        return panel;
+        top.add(createSearchPanel());
+        top.add(createFilterPanel());
+        wrapper.add(top, BorderLayout.NORTH);
+
+        wrapper.add(createScrollPane(), BorderLayout.CENTER);
+
+        return wrapper;
     }
 
     private JPanel createSearchPanel() {
@@ -183,6 +138,7 @@ public class TrainToRouteViewDialog extends JDialog {
         scheduleButton = new JButton("Schedules...");
         scheduleButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         scheduleButton.setPreferredSize(new Dimension(120, 36));
+        scheduleButton.setEnabled(false);
         scheduleButton.addActionListener(e -> {
             ScheduleDialog scheduleDialog = new ScheduleDialog(
                 this, 
@@ -195,7 +151,8 @@ public class TrainToRouteViewDialog extends JDialog {
                     "WHERE route_id = ?",
                     rs -> Route.parseResultSet(rs),
                     tableModel.getValueAt(routeTable.getSelectedRow(), 0)
-                )
+                ),
+                () -> loadRoutesWithConstraints()
             );
 
             scheduleDialog.setVisible(true);
@@ -251,9 +208,19 @@ public class TrainToRouteViewDialog extends JDialog {
         routeTable.setRowHeight(30);
         routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         routeTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
-        routeTable.getTableHeader().setPreferredSize(new Dimension(0, 20));
+        routeTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
         routeTable.getTableHeader().setReorderingAllowed(false);
         routeTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        routeTable.getSelectionModel().addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting()) {
+                int row = routeTable.getSelectedRow();
+                if(row != -1) {
+                    scheduleButton.setEnabled(true);
+                } else {
+                    scheduleButton.setEnabled(false);
+                }
+            }
+        });
 
         TableColumnModel columnModel = routeTable.getColumnModel();
         columnModel.getColumn(1).setMaxWidth(100);
@@ -265,7 +232,6 @@ public class TrainToRouteViewDialog extends JDialog {
         loadAllRoutes();
 
         JScrollPane scrollPane = new JScrollPane(routeTable);
-        scrollPane.setPreferredSize(new Dimension(1000, routeTable.getRowHeight() * 12 + routeTable.getTableHeader().getPreferredSize().height));
         return scrollPane;
     }
 
@@ -278,51 +244,7 @@ public class TrainToRouteViewDialog extends JDialog {
         cancelBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         cancelBtn.addActionListener(e -> dispose());
 
-        // JButton saveBtn = new JButton("Save changes");
-        // saveBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        // saveBtn.addActionListener(e -> {
-        //     // for(RouteAssignmentRow row: changedRows) {
-        //     List<String> unassignedRoutes = new ArrayList<>();
-        //     for(Map.Entry<Integer, RouteAssignmentRow> entry: changedRows.entrySet()) {
-        //         int routeId = entry.getKey();
-        //         RouteAssignmentRow row = entry.getValue();
-        //         if(!row.isChanged()) continue;
-
-        //         if(row.getCurrentActive()) {
-        //             Universal.db().execute(
-        //                 "INSERT INTO train_route_assignments(train_id, route_id) VALUES (?, ?)",
-        //                 train.getTrainId(),
-        //                 routeId
-        //             );
-        //         }
-        //         else {
-        //             if(row.getOriginalActive() && row.getHasSchedule()) {
-        //                 unassignedRoutes.add(row.getRouteCode());
-        //             }
-        //             else {
-        //                 Universal.db().execute(
-        //                     "DELETE FROM train_route_assignments WHERE train_id = ? AND route_id = ?",
-        //                     train.getTrainId(),
-        //                     routeId
-        //                 );
-        //             }
-        //         }
-        //     }
-
-        //     if(!unassignedRoutes.isEmpty()) {
-        //         JOptionPane.showMessageDialog(
-        //             this, 
-        //             "Cannot unassign scheduled routes: " + String.join(", ", unassignedRoutes),
-        //             "Assignment Warning",
-        //             JOptionPane.WARNING_MESSAGE
-        //         );
-        //     }
-        //     onSuccess.run();
-        //     dispose();
-        // });
-
         panel.add(cancelBtn);
-        // panel.add(saveBtn);
         return panel;
     }
 
@@ -446,6 +368,7 @@ public class TrainToRouteViewDialog extends JDialog {
                 row.getActiveTrips() + " scheduled, " + row.getCompletedTrips() + " completed"
             });
         }
+        parentRefresh.run();
     }
 
     private void loadAllStations() {
@@ -460,5 +383,33 @@ public class TrainToRouteViewDialog extends JDialog {
             originBox.addItem(s);
             destBox.addItem(s);
         }
+    }
+
+    private class RouteRow {
+        private int routeId;
+        private String routeCode;
+        private String origin;
+        private String destinaton;
+        private BigDecimal distanceKm;
+        private int activeTrips;
+        private int completedTrips;
+        
+        public RouteRow(int routeId, String routeCode, String origin, String destinaton, BigDecimal distanceKm, int activeTrips, int completedTrips) {
+            this.routeId = routeId;
+            this.routeCode = routeCode;
+            this.origin = origin;
+            this.destinaton = destinaton;
+            this.distanceKm = distanceKm;
+            this.activeTrips = activeTrips;
+            this.completedTrips = completedTrips;
+        }
+
+        public int getRouteId() { return routeId; }
+        public String getRouteCode() { return routeCode; }
+        public String getOrigin() { return origin; }
+        public String getDestination() { return destinaton; }
+        public BigDecimal getDistanceKm() { return distanceKm; }
+        public int getActiveTrips() { return activeTrips; }
+        public int getCompletedTrips() { return completedTrips; }
     }
 }

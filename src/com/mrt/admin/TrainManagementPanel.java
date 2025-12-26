@@ -30,7 +30,8 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mrt.AdminFrame;
 import com.mrt.Universal;
-import com.mrt.dbobject.Train;
+import com.mrt.dialog.FormDialog;
+import com.mrt.model.Train;
 
 public class TrainManagementPanel extends JPanel {
 
@@ -325,7 +326,8 @@ public class TrainManagementPanel extends JPanel {
 
             TrainToRouteViewDialog dialog = new TrainToRouteViewDialog(
                 frame,
-                new Train(trainId, trainCode, seatCapacity, status)
+                new Train(trainId, trainCode, seatCapacity, status),
+                () -> loadTrainsWithConstraints()
             );
 
             dialog.setVisible(true);

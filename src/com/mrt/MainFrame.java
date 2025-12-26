@@ -1,7 +1,7 @@
 package com.mrt;
 import javax.swing.*;
 
-import com.mrt.dbobject.User;
+import com.mrt.model.User;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

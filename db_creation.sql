@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS train_schedules (
     schedule_id INT AUTO_INCREMENT PRIMARY KEY,
     train_id INT NOT NULL,
     route_id INT NOT NULL,
-    departure_time DATETIME NOT NULL,
-    arrival_time DATETIME NOT NULL,
+    departure_time TIMESTAMP NOT NULL,
+    arrival_time TIMESTAMP NOT NULL,
     status enum('scheduled', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
