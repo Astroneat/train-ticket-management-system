@@ -10,22 +10,29 @@ import com.mrt.Universal;
 import com.mrt.model.Schedule;
 
 public class ScheduleService {
-    
-    public void createSchedule(int trainId, int routeId, LocalDateTime departure, LocalDateTime arrival) {
-        validateSchedule(departure, arrival);
 
-        Instant departureUTC = departure.atZone(ZoneId.systemDefault()).toInstant();
-        Instant arrivalUTC = arrival.atZone(ZoneId.systemDefault()).toInstant();
+    public static final int SCHEDULE_VALID = 0;
+    public static final int SCHEDULE_CONFLICT = 1;
+    public static final int SCHEDULE_DEPARTURE_AFTER_ARRIVAL = 2;
+    public static final int SCHEDULE_DEPARTURE_IN_THE_PAST = 3;
+
+    public int createSchedule(int trainId, int routeId, LocalDateTime departure, LocalDateTime arrival) {
+        Instant departureUTC = toUTC(departure);
+        Instant arrivalUTC = toUTC(arrival);
+
+        int state = validateSchedule(trainId, departureUTC, arrivalUTC);
+        if(state != SCHEDULE_VALID) return state;
 
         Universal.db().execute(
             """
-            INSERT INTO train_schedules(train_id, route_id, departure_utc, arrival_utc, status) VALUES (?, ?, ?, ?, 'scheduled');   
+            INSERT INTO train_schedules(train_id, route_id, departure_utc, arrival_utc) VALUES (?, ?, ?, ?);   
             """,
             trainId,
             routeId,
             Timestamp.from(departureUTC),
             Timestamp.from(arrivalUTC)
         );
+        return state;
     }
 
     public void cancelSchedule(int scheduleId) {
@@ -39,29 +46,44 @@ public class ScheduleService {
         );
     }
 
-    public List<Schedule> getSchedulesByTrain(int trainId, String status) {
-        String sortOrder = status.equals("scheduled") ? "ASC" : "DESC";
-        String sql = """
-                SELECT * FROM train_schedules
-                WHERE train_id = ? AND (status = ? OR status = 'cancelled')
-                ORDER BY departure_utc 
-                """ + sortOrder + ", status DESC;";
+    public List<Object[]> getSchedulesByTrain(int trainId, String status) {
+        String sql = 
+            """
+            SELECT *
+            FROM train_schedules ts
+            INNER JOIN train_routes tr ON ts.route_id = tr.route_id AND ts.train_id = ?
+            INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
+            INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
+            WHERE (ts.status = 'cancelled' OR ts.status = ?)
+            """;
+
+        if(status.equals("scheduled")) {
+            sql += " AND Now() <= ts.departure_utc\n";
+            sql += "ORDER BY ts.status ASC, ts.departure_utc ASC";
+        } else if(status.equals("completed")) {
+            sql += " AND ts.arrival_utc < NOW()";
+            sql += "ORDER BY ts.status ASC, ts.departure_utc DESC";
+        }
+        sql += ";";
 
         return Universal.db().query(
             sql,
-            rs -> Schedule.parseResultSet(rs),
+            rs -> new Object[] {
+                Schedule.parseResultSet(rs),
+                rs.getString("s1.station_name") + " → " + rs.getString("s2.station_name") + " (" + rs.getString("route_code") + ")",
+            },
             trainId,
             status
         );
     }
 
-    public List<Schedule> getSchedulesByRoutSchedules(int routeId, String status) {
+    public List<Schedule> getSchedulesByRoute(int routeId, String status) {
         String sortOrder = status.equals("scheduled") ? "ASC" : "DESC";
         String sql = """
                 SELECT * FROM train_schedules
                 WHERE route_id = ? AND (status = ? OR status = 'cancelled')
-                ORDER BY departure_utc 
-                """ + sortOrder + ", status DESC;";
+                ORDER BY status DESC, departure_utc 
+                """ + sortOrder + ";";
 
         return Universal.db().query(
             sql,
@@ -71,12 +93,47 @@ public class ScheduleService {
         );
     }
 
-    private void validateSchedule(LocalDateTime departure, LocalDateTime arrival) {
+    private int validateSchedule(int trainId, Instant departure, Instant arrival) {
         if(departure.isAfter(arrival)) {
-            throw new IllegalArgumentException("Departure time must be before arrival time");
+            System.out.println(departure + " " + arrival);
+            // throw new IllegalArgumentException("Departure time must be before arrival time");
+            return SCHEDULE_DEPARTURE_AFTER_ARRIVAL;
         }
-        if(arrival.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Arrival time must occur in the future");
+        if(arrival.isBefore(Instant.now())) {
+            // throw new IllegalArgumentException("Arrival time must occur in the future");
+            return SCHEDULE_DEPARTURE_IN_THE_PAST;
         }
+
+        String anotherSchedule = Universal.db().queryOne(
+            """
+            SELECT *
+            FROM train_schedules ts
+            INNER JOIN train_routes tr ON ts.route_id = tr.route_id AND ts.train_id = ?
+            INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
+            INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
+            WHERE (? <= arrival_utc AND ? >= departure_utc); 
+            """,
+            rs -> new String(
+                rs.getString("s1.station_name") + " → " + rs.getString("s2.station_name")
+            ),
+            trainId,
+            Timestamp.from(departure),
+            Timestamp.from(arrival)
+        );
+        if(anotherSchedule != null) {
+            return SCHEDULE_CONFLICT;
+            // JOptionPane.showMessageDialog(
+            //     this, 
+            //     "Another schedule already exists: " + anotherSchedule,
+            //     "Schedule Error",
+            //     JOptionPane.ERROR_MESSAGE
+            // );
+            // return;
+        }
+        return SCHEDULE_VALID;
+    }
+
+    private Instant toUTC(LocalDateTime dt) {
+        return dt.atZone(ZoneId.systemDefault()).toInstant();
     }
 }

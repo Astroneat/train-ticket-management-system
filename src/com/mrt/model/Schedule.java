@@ -2,14 +2,16 @@ package com.mrt.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class Schedule {
     private int scheduleId;
     private int trainId;
     private int routeId;
-    private LocalDateTime departure_time;
-    private LocalDateTime arrival_time;
+    private LocalDateTime departureTime;
+    private LocalDateTime arrivalTime;
     private String status;
 
     public int getScheduleId() {
@@ -24,25 +26,29 @@ public class Schedule {
         return routeId;
     }
 
-    public LocalDateTime getDeparture_time() {
-        return departure_time;
+    public LocalDateTime getDepartureTime() {
+        return departureTime;
     }
 
-    public LocalDateTime getArrival_time() {
-        return arrival_time;
+    public LocalDateTime getArrivalTime() {
+        return arrivalTime;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public Schedule(int scheduleId, int trainId, int routeId, LocalDateTime departure_time, LocalDateTime arrival_time, String status) {
+    public Schedule(int scheduleId, int trainId, int routeId, LocalDateTime departureTime, LocalDateTime arrivalTime, String status) {
         this.scheduleId = scheduleId;
         this.trainId = trainId;
         this.routeId = routeId;
-        this.departure_time = departure_time;
-        this.arrival_time = arrival_time;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
         this.status = status;
+    }
+
+    private static LocalDateTime toLocalDateTime(Timestamp timestamp) {
+        return timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     public static Schedule parseResultSet(ResultSet rs) throws SQLException {
@@ -50,8 +56,8 @@ public class Schedule {
             rs.getInt("schedule_id"),
             rs.getInt("train_id"),
             rs.getInt("route_id"),
-            rs.getTimestamp("departure_time").toLocalDateTime(),
-            rs.getTimestamp("arrival_time").toLocalDateTime(),
+            toLocalDateTime(rs.getTimestamp("departure_utc")),
+            toLocalDateTime(rs.getTimestamp("arrival_utc")),
             rs.getString("status")
         );
     }

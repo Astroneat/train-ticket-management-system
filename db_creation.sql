@@ -67,15 +67,15 @@ CREATE TABLE IF NOT EXISTS train_schedules (
     schedule_id INT AUTO_INCREMENT PRIMARY KEY,
     train_id INT NOT NULL,
     route_id INT NOT NULL,
-    departure_time TIMESTAMP NOT NULL,
-    arrival_time TIMESTAMP NOT NULL,
+    departure_utc TIMESTAMP NOT NULL,
+    arrival_utc TIMESTAMP NOT NULL,
     status enum('scheduled', 'completed', 'cancelled') NOT NULL DEFAULT 'scheduled',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (train_id) REFERENCES trains(train_id),
     FOREIGN KEY (route_id) REFERENCES train_routes(route_id),
     
-    CONSTRAINT chk_time_valid CHECK (departure_time < arrival_time)
+    CONSTRAINT chk_time_valid CHECK (departure_utc < arrival_utc)
 );
 
 INSERT INTO users (email, full_name, role, password) VALUES
@@ -141,7 +141,7 @@ INSERT INTO train_route_assignments (train_id, route_id, active) VALUES
 (2, 3, TRUE),  -- MRT-T02 on HU-HN
 (4, 4, TRUE);  -- MRT-T04 on HN-HP
 
-INSERT INTO train_schedules (train_id, route_id, departure_time, arrival_time, status) VALUES
+INSERT INTO train_schedules (train_id, route_id, departure_utc, arrival_utc, status) VALUES
 (1, 1, '2025-06-28 08:00:00', '2025-06-28 11:00:00', 'completed'),
 (1, 1, '2026-01-01 08:00:00', '2026-01-01 11:00:00', 'scheduled'),
 (1, 2, '2026-01-09 06:00:00', '2026-01-09 20:30:00', 'scheduled'),

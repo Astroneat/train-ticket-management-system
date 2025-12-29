@@ -71,31 +71,6 @@ public class FormDialog extends JDialog {
         add(buttonsPanel, BorderLayout.SOUTH);
     }
 
-    public JSpinner addDateTimePicker(String text, LocalDateTime initialDateTime) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        formPanel.add(label, gbc);
-
-        Date initialDate = Date.from(initialDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        SpinnerDateModel spinnerModel = new SpinnerDateModel(initialDate, null, null, Calendar.MINUTE);
-        JSpinner spinner = new JSpinner(spinnerModel);
-        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm dd-MM-yyyy");
-        spinner.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        editor.getTextField().setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.BLACK, 1),
-            BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
-        spinner.setEditor(editor);
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        formPanel.add(spinner, gbc);
-
-        gbc.gridy++;
-        return spinner;
-    }
-
     public JTextField addTextField(String title) {
         JLabel label = new JLabel(title);
         label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
