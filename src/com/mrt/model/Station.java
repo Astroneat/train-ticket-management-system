@@ -3,6 +3,8 @@ package com.mrt.model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.mrt.Universal;
+
 public class Station {
     private int stationId;
     private String stationCode;
@@ -21,6 +23,17 @@ public class Station {
     public String getStationCode() { return stationCode; }
     public String getStationName() { return stationName; }
     public String getCity() { return city; }
+    
+    public static Station getStationFromId(int stationId) {
+        return Universal.db().queryOne(
+            """
+            SELECT * FROM stations
+            WHERE station_id = ?     
+            """,
+            rs -> parseResultSet(rs),
+            stationId
+        );
+    }
 
     public static Station parseResultSet(ResultSet rs) throws SQLException {
         return new Station(

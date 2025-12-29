@@ -2,8 +2,8 @@ package com.mrt;
 import javax.swing.*;
 
 import com.mrt.admin.AdminDashboardPanel;
-import com.mrt.admin.TrainManagementPanel;
-import com.mrt.admin.UserManagementPanel;
+import com.mrt.admin.trains.TrainManagementPanel;
+import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.model.User;
 
 import java.awt.BorderLayout;

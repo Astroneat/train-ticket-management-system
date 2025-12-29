@@ -1,4 +1,4 @@
-package com.mrt.admin;
+package com.mrt.admin.users;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

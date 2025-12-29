@@ -1,4 +1,4 @@
-package com.mrt.admin;
+package com.mrt.admin.trains;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,7 +30,6 @@ import javax.swing.table.DefaultTableModel;
 import com.mrt.AdminFrame;
 import com.mrt.Universal;
 import com.mrt.dialog.FormDialog;
-import com.mrt.dialog.trainschedules.TrainSchedulesDialog;
 import com.mrt.model.Train;
 
 public class TrainManagementPanel extends JPanel {

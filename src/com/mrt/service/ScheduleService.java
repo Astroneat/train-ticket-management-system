@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mrt.Universal;
@@ -16,7 +17,7 @@ public class ScheduleService {
     public static final int SCHEDULE_DEPARTURE_AFTER_ARRIVAL = 2;
     public static final int SCHEDULE_DEPARTURE_IN_THE_PAST = 3;
 
-    public int createSchedule(int trainId, int routeId, LocalDateTime departure, LocalDateTime arrival) {
+    public static int createSchedule(int trainId, int routeId, LocalDateTime departure, LocalDateTime arrival) {
         Instant departureUTC = toUTC(departure);
         Instant arrivalUTC = toUTC(arrival);
 
@@ -35,7 +36,7 @@ public class ScheduleService {
         return state;
     }
 
-    public void cancelSchedule(int scheduleId) {
+    public static void cancelSchedule(int scheduleId) {
         Universal.db().execute(
             """
             UPDATE train_schedules
@@ -46,7 +47,29 @@ public class ScheduleService {
         );
     }
 
-    public List<Object[]> getSchedulesByTrain(int trainId, String status) {
+    public static int updateSchedule(int scheduleId, int trainId, LocalDateTime departure, LocalDateTime arrival) {
+        Instant departureUTC = toUTC(departure);
+        Instant arrivalUTC = toUTC(arrival);
+
+        int state = validateSchedule(scheduleId, trainId, departureUTC, arrivalUTC);
+        if(state != SCHEDULE_VALID) {
+            return state;
+        }
+
+        Universal.db().execute(
+            """
+            UPDATE train_schedules
+            SET departure_utc = ?, arrival_utc = ?
+            WHERE schedule_id = ?
+            """,
+            Timestamp.from(departureUTC),
+            Timestamp.from(arrivalUTC),
+            scheduleId
+        );
+        return SCHEDULE_VALID;
+    }   
+
+    public static List<Object[]> getSchedulesByTrain(int trainId, String status) {
         String sql = 
             """
             SELECT *
@@ -77,7 +100,7 @@ public class ScheduleService {
         );
     }
 
-    public List<Schedule> getSchedulesByRoute(int routeId, String status) {
+    public static List<Schedule> getSchedulesByRoute(int routeId, String status) {
         String sortOrder = status.equals("scheduled") ? "ASC" : "DESC";
         String sql = """
                 SELECT * FROM train_schedules
@@ -93,47 +116,69 @@ public class ScheduleService {
         );
     }
 
-    private int validateSchedule(int trainId, Instant departure, Instant arrival) {
+    private static int validateSchedule(int excludeScheduleId, int trainId, Instant departure, Instant arrival) {
         if(departure.isAfter(arrival)) {
-            System.out.println(departure + " " + arrival);
-            // throw new IllegalArgumentException("Departure time must be before arrival time");
             return SCHEDULE_DEPARTURE_AFTER_ARRIVAL;
         }
         if(arrival.isBefore(Instant.now())) {
-            // throw new IllegalArgumentException("Arrival time must occur in the future");
             return SCHEDULE_DEPARTURE_IN_THE_PAST;
         }
-
-        String anotherSchedule = Universal.db().queryOne(
-            """
-            SELECT *
-            FROM train_schedules ts
-            INNER JOIN train_routes tr ON ts.route_id = tr.route_id AND ts.train_id = ?
-            INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
-            INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
-            WHERE (? <= arrival_utc AND ? >= departure_utc); 
-            """,
-            rs -> new String(
-                rs.getString("s1.station_name") + " → " + rs.getString("s2.station_name")
-            ),
-            trainId,
-            Timestamp.from(departure),
-            Timestamp.from(arrival)
-        );
-        if(anotherSchedule != null) {
+        if(hasOverlap(excludeScheduleId, trainId, departure, arrival)) {
             return SCHEDULE_CONFLICT;
-            // JOptionPane.showMessageDialog(
-            //     this, 
-            //     "Another schedule already exists: " + anotherSchedule,
-            //     "Schedule Error",
-            //     JOptionPane.ERROR_MESSAGE
-            // );
-            // return;
         }
+
         return SCHEDULE_VALID;
     }
 
-    private Instant toUTC(LocalDateTime dt) {
+    private static int validateSchedule(int trainId, Instant departure, Instant arrival) {
+        if(departure.isAfter(arrival)) {
+            return SCHEDULE_DEPARTURE_AFTER_ARRIVAL;
+        }
+        if(arrival.isBefore(Instant.now())) {
+            return SCHEDULE_DEPARTURE_IN_THE_PAST;
+        }
+        if(hasOverlap(-1, trainId, departure, arrival)) {
+            return SCHEDULE_CONFLICT;
+        }
+
+        return SCHEDULE_VALID;
+    }
+
+    private static boolean hasOverlap(int excludeScheduleId, int trainId, Instant departure, Instant arrival) {
+        String sql = 
+        """
+        SELECT *
+        FROM train_schedules ts
+        INNER JOIN train_routes tr ON ts.route_id = tr.route_id AND ts.train_id = ?
+        INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
+        INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
+        WHERE (? <= arrival_utc AND ? >= departure_utc) 
+        """;
+
+        List<Object> args = new ArrayList<>();
+        if(excludeScheduleId != -1) {
+            sql += " AND ts.schedule_id != ?";
+            args.add(excludeScheduleId);
+        }
+        sql += ";";
+
+        args.add(trainId);
+        args.add(Timestamp.from(departure));
+        args.add(Timestamp.from(arrival));
+        String anotherSchedule = Universal.db().queryOne(
+            sql,
+            rs -> new String(
+                rs.getString("s1.station_name") + " → " + rs.getString("s2.station_name")
+            ),
+            args.toArray()
+        );
+        if(anotherSchedule != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private static Instant toUTC(LocalDateTime dt) {
         return dt.atZone(ZoneId.systemDefault()).toInstant();
     }
 }

@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import com.mrt.Universal;
+
 public class Schedule {
     private int scheduleId;
     private int trainId;
@@ -49,6 +51,17 @@ public class Schedule {
 
     private static LocalDateTime toLocalDateTime(Timestamp timestamp) {
         return timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public static Schedule getScheduleFromId(int scheduleId) {
+        return Universal.db().queryOne(
+            """
+            SELECT * FROM train_schedules
+            WHERE schedule_id = ?       
+            """,
+            rs -> parseResultSet(rs),
+            scheduleId
+        );
     }
 
     public static Schedule parseResultSet(ResultSet rs) throws SQLException {

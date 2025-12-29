@@ -1,4 +1,4 @@
-package com.mrt.dialog.trainschedules;
+package com.mrt.admin.trains;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -13,7 +13,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -26,11 +25,8 @@ import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.Route;
 import com.mrt.model.Station;
-import com.mrt.model.Train;
 
 public class RoutePickerDialog extends JDialog {
-
-    private Train train;
 
     private JTextField searchField;
 
@@ -46,9 +42,8 @@ public class RoutePickerDialog extends JDialog {
 
     private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", "");
 
-    public RoutePickerDialog(JDialog frame, Train train) {
+    public RoutePickerDialog(JDialog frame) {
         super(frame, "Route Picker", true);
-        this.train = train;
 
         setSize(800, 600);
         setLocationRelativeTo(frame);
@@ -146,7 +141,7 @@ public class RoutePickerDialog extends JDialog {
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"route_id", "Route Code", "Origin", "Destination", "Distance (km)"},
+            new String[] {"route_id", "origin_station_id", "destination_station_id", "Route Code", "Origin", "Destination", "Distance (km)"},
             0
         ) {
             @Override
@@ -175,9 +170,11 @@ public class RoutePickerDialog extends JDialog {
         });
 
         TableColumnModel columnModel = routeTable.getColumnModel();
-        columnModel.getColumn(1).setMaxWidth(100);
-        columnModel.getColumn(1).setMinWidth(100);
+        columnModel.removeColumn(columnModel.getColumn(2));
+        columnModel.removeColumn(columnModel.getColumn(1));
         columnModel.removeColumn(columnModel.getColumn(0));
+        columnModel.getColumn(0).setMaxWidth(100);
+        columnModel.getColumn(0).setMinWidth(100);
 
         routeTable.setFocusable(false);
 
@@ -210,9 +207,9 @@ public class RoutePickerDialog extends JDialog {
             if(row != -1) {
                 selectedRoute = new Route(
                     (int) tableModel.getValueAt(row, 0),
-                    (String) tableModel.getValueAt(row, 1),
-                    (String) tableModel.getValueAt(row, 2),
                     (String) tableModel.getValueAt(row, 3),
+                    (int) tableModel.getValueAt(row, 1),
+                    (int) tableModel.getValueAt(row, 2),
                     (BigDecimal) tableModel.getValueAt(row, 4)
                 );
                 dispose();
@@ -264,8 +261,8 @@ public class RoutePickerDialog extends JDialog {
             rs -> new Route(
                 rs.getInt("route_id"),
                 rs.getString("route_code"),
-                rs.getString("s1.station_name"),
-                rs.getString("s2.station_name"),
+                rs.getInt("s1.station_id"),
+                rs.getInt("s2.station_id"),
                 rs.getBigDecimal("distance_km")
             ),
             args.toArray()
@@ -275,9 +272,11 @@ public class RoutePickerDialog extends JDialog {
         for(Route row: routes) {
             tableModel.addRow(new Object[] {
                 row.getRouteId(),
+                row.getOriginStationId(),
+                row.getDestinationStationId(),
                 row.getRouteCode(),
-                row.getOriginName(),
-                row.getDestinationName(),
+                Station.getStationFromId(row.getOriginStationId()).getStationName(),
+                Station.getStationFromId(row.getDestinationStationId()).getStationId(),
                 row.getDistanceKm(),
             });
         }

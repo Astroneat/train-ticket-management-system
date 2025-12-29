@@ -1,4 +1,4 @@
-package com.mrt.dialog.trainschedules;
+package com.mrt.admin.trains;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -124,12 +124,12 @@ public class TrainAddScheduleDialog extends JDialog {
         pickRouteBtn = UIFactory.createButton("...");
         pickRouteBtn.setPreferredSize(new Dimension(40, 40));
         pickRouteBtn.addActionListener(e -> {
-            RoutePickerDialog dialog = new RoutePickerDialog(this, train);
+            RoutePickerDialog dialog = new RoutePickerDialog(this);
             dialog.setVisible(true);
 
             Route pickedRoute = dialog.getSelectedRoute();
             if(pickedRoute != null) {
-                routeField.setText(pickedRoute.getRouteCode() + " (" + pickedRoute.getOriginName() + " → " + pickedRoute.getDestinationName() + ")");
+                routeField.setText(pickedRoute.getRouteSummary());
                 selectedRoute = pickedRoute;
                 saveBtn.setEnabled(true);
             } else {
@@ -155,8 +155,6 @@ public class TrainAddScheduleDialog extends JDialog {
         saveBtn.setPreferredSize(btnDim);
         saveBtn.setEnabled(false);
 
-        ScheduleService scheduleService = new ScheduleService();
-
         cancelBtn.addActionListener(e -> dispose());
         saveBtn.addActionListener(e -> {
             if(selectedRoute == null) {
@@ -166,9 +164,9 @@ public class TrainAddScheduleDialog extends JDialog {
 
             LocalDateTime departure = getLocalDateTime(departureSpinner);
             LocalDateTime arrival = getLocalDateTime(arrivalSpinner);
-            System.out.println("ldt " + departure + " " + arrival);
+            // System.out.println("ldt " + departure + " " + arrival);
 
-            int state = scheduleService.createSchedule(train.getTrainId(), selectedRoute.getRouteId(), departure, arrival);
+            int state = ScheduleService.createSchedule(train.getTrainId(), selectedRoute.getRouteId(), departure, arrival);
             if(state == ScheduleService.SCHEDULE_CONFLICT) {
                 JOptionPane.showMessageDialog(this, "Another schedule already exists", "Schedule Error", JOptionPane.ERROR_MESSAGE);
                 return;

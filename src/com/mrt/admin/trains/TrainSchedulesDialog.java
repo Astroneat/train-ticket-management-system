@@ -1,4 +1,4 @@
-package com.mrt.dialog.trainschedules;
+package com.mrt.admin.trains;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -46,14 +46,11 @@ public class TrainSchedulesDialog extends JDialog {
     private JButton editButton;
     private JButton refreshButton;
 
-    private ScheduleService scheduleService;
-
     public TrainSchedulesDialog(JFrame parent, Train train) {
         super(parent, "Schedules - Train " + train.toString(), true);
 
         this.train = train;
         renderer = new ScheduleCellRenderer();
-        scheduleService = new ScheduleService();
         
         setSize(new Dimension(800, 600));
         setResizable(false);
@@ -114,11 +111,11 @@ public class TrainSchedulesDialog extends JDialog {
         return panel;
     }
 
-    private JPanel createOngoingSchedulePanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    // private JPanel createOngoingSchedulePanel() {
+    //     JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        return panel;
-    }
+    //     return panel;
+    // }
 
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -152,6 +149,38 @@ public class TrainSchedulesDialog extends JDialog {
             TrainAddScheduleDialog dialog = new TrainAddScheduleDialog(this, train);
             dialog.setVisible(true);
             refresh();
+        });
+
+        cancelButton.addActionListener(e -> {
+            int row = futureTable.getSelectedRow();
+            if(row != -1) {
+                String status = (String) futureModel.getValueAt(row, 5);
+                if(status.equals("scheduled")) {
+                    int option = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel this schedule? (This action cannot be undone)", "Confirm cancellation", JOptionPane.YES_NO_OPTION);
+                    if(option == JOptionPane.YES_OPTION) {  
+                        ScheduleService.cancelSchedule((int) futureModel.getValueAt(row, 0));
+                        refresh();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "This schedule is already cancelled", "Schedule Info", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+
+        editButton.addActionListener(e -> {
+            int row = futureTable.getSelectedRow();
+            if(row != -1) {
+                String status = (String) futureModel.getValueAt(row, 5);
+                if(status.equals("scheduled")) {
+                    int scheduleId = (int) futureModel.getValueAt(row, 0);
+                    TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, Schedule.getScheduleFromId(scheduleId));
+                    dialog.setVisible(true);
+
+                    refresh();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cannot edit a cancelled schedule", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
 
         refreshButton.addActionListener(e -> {
@@ -306,7 +335,7 @@ public class TrainSchedulesDialog extends JDialog {
         String status = "";
         if(tableModel == futureModel) status = "scheduled";
         else if(tableModel == pastModel) status = "completed";
-        List<Object[]> schedules = scheduleService.getSchedulesByTrain(train.getTrainId(), status);
+        List<Object[]> schedules = ScheduleService.getSchedulesByTrain(train.getTrainId(), status);
 
         for(Object[] obj: schedules) {
             Schedule s = (Schedule) obj[0];
