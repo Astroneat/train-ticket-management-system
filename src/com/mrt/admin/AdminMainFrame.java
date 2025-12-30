@@ -1,7 +1,13 @@
-package com.mrt;
+package com.mrt.admin;
 import javax.swing.*;
 
-import com.mrt.admin.AdminDashboardPanel;
+import com.mrt.HeaderPanel;
+import com.mrt.LoginFrame;
+import com.mrt.MainFrame;
+import com.mrt.MyFrame;
+import com.mrt.SidebarPanel;
+import com.mrt.Universal;
+import com.mrt.admin.routes.StationManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.model.User;
@@ -14,13 +20,13 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class AdminFrame extends JFrame implements MyFrame {
+public class AdminMainFrame extends JFrame implements MyFrame {
 
     private CardLayout cardLayout;
     private JPanel contentPanel;
     private User currentUser;
 
-    public AdminFrame(User user) {
+    public AdminMainFrame(User user) {
         this.currentUser = user;
 
         setTitle("MRT Viet Nam - Admin");
@@ -38,13 +44,15 @@ public class AdminFrame extends JFrame implements MyFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add("DASHBOARD", new AdminDashboardPanel());
-        contentPanel.add("USERS", new UserManagementPanel(this, user));
         contentPanel.add("TRAINS", new TrainManagementPanel(this));
+        contentPanel.add("STATIONS", new StationManagementPanel(this));
+        contentPanel.add("USERS", new UserManagementPanel(this, user));
         
         add(contentPanel, BorderLayout.CENTER);
         // showPage("DASHBOARD");
         // showPage("USERS");
-        showPage("TRAINS");
+        // showPage("TRAINS");
+        showPage("STATIONS");
     }
 
     public void showPage(String page) {
@@ -64,6 +72,7 @@ public class AdminFrame extends JFrame implements MyFrame {
         JButton dashboardBtn = sidebar.createSidebarButton("Dashboard", "src/com/mrt/img/dashboard.png", "DASHBOARD");
         sidebar.addToMenuPanel(dashboardBtn);
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Trains", "src/com/mrt/img/train.png", "TRAINS"));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Stations", "src/com/mrt/img/location.png", "STATIONS"));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "src/com/mrt/img/route.png", "ROUTES"));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "src/com/mrt/img/ticket.png", "TICKETS"));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", "USERS"));

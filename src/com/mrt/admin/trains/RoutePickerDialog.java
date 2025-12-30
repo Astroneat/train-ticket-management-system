@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class RoutePickerDialog extends JDialog {
 
     private Route selectedRoute;
 
-    private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", "");
+    private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", -1);
 
     public RoutePickerDialog(JDialog frame) {
         super(frame, "Route Picker", true);
@@ -141,7 +140,7 @@ public class RoutePickerDialog extends JDialog {
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"route_id", "origin_station_id", "destination_station_id", "Route Code", "Origin", "Destination", "Distance (km)"},
+            new String[] {"route_id", "origin_station_id", "destination_station_id", "Route Code", "Origin", "Destination"},
             0
         ) {
             @Override
@@ -209,8 +208,7 @@ public class RoutePickerDialog extends JDialog {
                     (int) tableModel.getValueAt(row, 0),
                     (String) tableModel.getValueAt(row, 3),
                     (int) tableModel.getValueAt(row, 1),
-                    (int) tableModel.getValueAt(row, 2),
-                    (BigDecimal) tableModel.getValueAt(row, 4)
+                    (int) tableModel.getValueAt(row, 2)
                 );
                 dispose();
             }
@@ -253,7 +251,7 @@ public class RoutePickerDialog extends JDialog {
         }
 
         sql += "\n";
-        sql += "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name, tr.distance_km\n";
+        sql += "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name\n";
         sql += "ORDER BY tr.route_code ASC;";
 
         List<Route> routes = Universal.db().query(
@@ -262,8 +260,7 @@ public class RoutePickerDialog extends JDialog {
                 rs.getInt("route_id"),
                 rs.getString("route_code"),
                 rs.getInt("s1.station_id"),
-                rs.getInt("s2.station_id"),
-                rs.getBigDecimal("distance_km")
+                rs.getInt("s2.station_id")
             ),
             args.toArray()
         );
@@ -276,8 +273,7 @@ public class RoutePickerDialog extends JDialog {
                 row.getDestinationStationId(),
                 row.getRouteCode(),
                 Station.getStationFromId(row.getOriginStationId()).getStationName(),
-                Station.getStationFromId(row.getDestinationStationId()).getStationId(),
-                row.getDistanceKm(),
+                Station.getStationFromId(row.getDestinationStationId()).getStationId()
             });
         }
     }

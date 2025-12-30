@@ -8,6 +8,7 @@ import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -61,5 +62,17 @@ public class UIFactory {
         }
         btn.setFocusable(false);
         return btn;
+    }
+
+    public static <T> JComboBox<T> createComboBox(T[] items) {
+        JComboBox<T> comboBox = new JComboBox<>(items);
+        comboBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        return comboBox;
+    }
+
+    public static <T> JComboBox<T> createComboBox() {
+        JComboBox<T> comboBox = new JComboBox<>();
+        comboBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        return comboBox;
     }
 }

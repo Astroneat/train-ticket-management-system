@@ -11,14 +11,12 @@ public class Route {
     private String routeCode;
     private int originStationId;
     private int destinationStationId;
-    private BigDecimal distanceKm;
 
-    public Route(int routeId, String routeCode, int originStationId, int destinationStationId, BigDecimal distanceKm) {
+    public Route(int routeId, String routeCode, int originStationId, int destinationStationId) {
         this.routeId = routeId;
         this.routeCode = routeCode;
         this.originStationId = originStationId;
         this.destinationStationId = destinationStationId;
-        this.distanceKm = distanceKm;
     }
 
     public int getRouteId() {
@@ -33,11 +31,8 @@ public class Route {
     public int getDestinationStationId() {
         return destinationStationId;
     }
-    public BigDecimal getDistanceKm() {
-        return distanceKm;
-    }
     public String getRouteSummary() {
-        return routeCode + " (" + distanceKm + " km)";
+        return routeCode;
     }
 
     public static Route getRouteFromId(int routeId) {
@@ -56,8 +51,7 @@ public class Route {
             rs.getInt("route_id"),
             rs.getString("route_code"),
             rs.getInt("origin_station_id"),
-            rs.getInt("destination_station_id"),
-            rs.getBigDecimal("distance_km")
+            rs.getInt("destination_station_id")
         );
     }
 }

@@ -40,7 +40,7 @@ public class TrainEditScheduleDialog extends JDialog {
 
         this.schedule = schedule;
 
-        setSize(new Dimension(400, 300));
+        setSize(new Dimension(350, 250));
         setResizable(false);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
@@ -55,7 +55,7 @@ public class TrainEditScheduleDialog extends JDialog {
     private JPanel createHeaderPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setOpaque(false);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         panel.add(UIFactory.createBoldLabel(
             "<html>Route: <font color='#00b8ff'>" + Route.getRouteFromId(schedule.getRouteId()).getRouteSummary() + "</font></html>", 

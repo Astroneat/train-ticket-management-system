@@ -78,6 +78,11 @@ CREATE TABLE IF NOT EXISTS train_schedules (
     CONSTRAINT chk_time_valid CHECK (departure_utc < arrival_utc)
 );
 
+CREATE TABLE IF NOT EXISTS cities (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL
+);
+
 INSERT INTO users (email, full_name, role, password) VALUES
 ('nguyen.anh@gmail.com', 'Nguyen Minh Anh', 'customer', 'Anh@4821'),
 ('tran.huy@gmail.com', 'Tran Quang Huy', 'customer', 'Huy#7392'),

@@ -27,14 +27,14 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
-import com.mrt.AdminFrame;
 import com.mrt.Universal;
+import com.mrt.admin.AdminMainFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.model.Train;
 
 public class TrainManagementPanel extends JPanel {
 
-    private AdminFrame frame;
+    private AdminMainFrame frame;
 
     private JTable trainTable;
     private DefaultTableModel tableModel;
@@ -52,7 +52,7 @@ public class TrainManagementPanel extends JPanel {
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
 
-    public TrainManagementPanel(AdminFrame frame) {
+    public TrainManagementPanel(AdminMainFrame frame) {
         this.frame = frame;
 
         setLayout(new BorderLayout(0, 10));

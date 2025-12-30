@@ -1,6 +1,7 @@
 package com.mrt;
 import javax.swing.*;
 
+import com.mrt.admin.AdminMainFrame;
 import com.mrt.model.User;
 
 import java.awt.*;
@@ -75,7 +76,7 @@ public class MainFrame extends JFrame implements MyFrame {
 
             toAdmin.addActionListener(e -> {
                 dispose();
-                new AdminFrame(currentUser).setVisible(true);
+                new AdminMainFrame(currentUser).setVisible(true);
             });
             toAdmin.addMouseListener(new MouseAdapter() {
                 @Override
