@@ -19,6 +19,15 @@ public class City {
         this.cityName = cityName;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if(this == other) return true;
+        if(other instanceof City) {
+            return cityId == ((City) other).getCityId();
+        }
+        return false;
+    }
+
     public static City getCityFromId(int cityId) {
         return Universal.db().queryOne(
             "SELECT * FROM cities WHERE city_id = ?", 

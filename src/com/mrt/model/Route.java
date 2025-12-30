@@ -1,6 +1,5 @@
 package com.mrt.model;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

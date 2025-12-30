@@ -1,4 +1,4 @@
-package com.mrt.admin.routes;
+package com.mrt.admin.stations;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -249,11 +249,12 @@ public class StationManagementPanel extends JPanel {
             String currentCode = tableModel.getValueAt(row, 2).toString();
             String currentName = tableModel.getValueAt(row, 3).toString();
             City currentCity = City.getCityFromId(cityId);
+            System.out.println(cityId);
 
             FormDialog editDialog = new FormDialog(frame, "Edit Station", new Dimension(400, 310));
             JTextField codeField = editDialog.addTextField("Station code:");
             JTextField nameField = editDialog.addTextField("Station name:");
-            JComboBox<City> cityBox = editDialog.addComboBox("City:", (City[]) cities.toArray());
+            JComboBox<City> cityBox = editDialog.addComboBox("City:", cities.toArray(new City[cities.size()]));
 
             codeField.setText(currentCode);
             nameField.setText(currentName);

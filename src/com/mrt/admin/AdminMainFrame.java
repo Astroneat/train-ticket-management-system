@@ -7,7 +7,7 @@ import com.mrt.MainFrame;
 import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
 import com.mrt.Universal;
-import com.mrt.admin.routes.StationManagementPanel;
+import com.mrt.admin.stations.StationManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.model.User;
