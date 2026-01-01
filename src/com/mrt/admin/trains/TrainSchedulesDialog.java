@@ -49,7 +49,7 @@ public class TrainSchedulesDialog extends JDialog {
     private JButton refreshButton;
 
     public TrainSchedulesDialog(JFrame parent, Train train) {
-        super(parent, "Schedules - Train " + train.toString(), true);
+        super(parent, "Schedules - Train " + train.getTrainSummary(), true);
 
         this.train = train;
         renderer = new ScheduleCellRenderer();
@@ -123,7 +123,7 @@ public class TrainSchedulesDialog extends JDialog {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerPanel.setOpaque(false);
         headerPanel.add(UIFactory.createBoldLabel(
-            "<html>Schedule of Train: <font color='#00b8ff'>" + train.toString() + "</font></html>",
+            "<html>Schedule of Train: <font color='#00b8ff'>" + train.getTrainSummary() + "</font></html>",
             18
         ));
         return headerPanel;

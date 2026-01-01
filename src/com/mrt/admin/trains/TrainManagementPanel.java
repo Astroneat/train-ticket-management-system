@@ -26,11 +26,14 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.admin.AdminMainFrame;
 import com.mrt.dialog.FormDialog;
+import com.mrt.factory.UIFactory;
 import com.mrt.model.Train;
+import com.mrt.services.TrainService;
 
 public class TrainManagementPanel extends JPanel {
 
@@ -44,10 +47,10 @@ public class TrainManagementPanel extends JPanel {
     private JComboBox<String> sortBox;
     private JCheckBox sortDesc;
 
-    private JButton addButton;
-    private JButton editButton;
-    private JButton refreshButton;
-    private JButton schedulesButton;
+    private JButton addBtn;
+    private JButton editBtn;
+    private JButton refreshBtn;
+    private JButton schedulesBtn;
 
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
@@ -80,14 +83,17 @@ public class TrainManagementPanel extends JPanel {
         header.setOpaque(false);
         header.setMaximumSize(new Dimension(1000, 50));
 
-        JLabel title = new JLabel("Train Management");
-        title.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 28));
-        header.add(title);
+        // JLabel title = new JLabel("Train Management");
+        // title.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 28));
+        // header.add(title);
+        header.add(UIFactory.createBoldLabel("Train Management", 28));
 
         header.add(Box.createHorizontalStrut(5));
 
-        numActiveTrains = new JLabel();
-        numActiveTrains.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // numActiveTrains = new JLabel();
+        // numActiveTrains.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // header.add(numActiveTrains);
+        numActiveTrains = UIFactory.createPlainLabel("", 14);
         header.add(numActiveTrains);
 
         return header;
@@ -99,36 +105,42 @@ public class TrainManagementPanel extends JPanel {
         search.setOpaque(false);
         search.setMaximumSize(new Dimension(1000, 50));
 
-        JLabel searchLabel = new JLabel("Search:");
-        searchLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        search.add(searchLabel);
+        // JLabel searchLabel = new JLabel("Search:");
+        // searchLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
+        // search.add(searchLabel);
+        search.add(UIFactory.createPlainLabel("Search:", 16));
 
-        searchField = new JTextField(30);
-        searchField.setToolTipText("Search by code");
-        searchField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.BLACK, 1),
-            BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
+        // searchField = new JTextField(30);
+        // searchField.setToolTipText("Search by code");
+        // searchField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // searchField.setBorder(BorderFactory.createCompoundBorder(
+        //     BorderFactory.createLineBorder(Color.BLACK, 1),
+        //     BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        // ));
+        searchField = UIFactory.createTextField(30);
+        searchField.setToolTipText("Search by code or seat capacity");
         searchField.addActionListener(e -> {
             loadTrains();
         });
         search.add(searchField);
 
-        JButton searchButton = new JButton();
-        try {
-            ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
-            Image img = icon.getImage();
-            Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-            searchButton.setIcon(new ImageIcon(newImg));
-        } catch (Exception ignored) {}
-        searchButton.addActionListener(e -> {
+        // JButton searchBtn = new JButton();
+        // try {
+        //     ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
+        //     Image img = icon.getImage();
+        //     Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        //     searchBtn.setIcon(new ImageIcon(newImg));
+        // } catch (Exception ignored) {}
+        JButton searchBtn = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
+        searchBtn.addActionListener(e -> {
             loadTrains();
         });
-        search.add(searchButton);
+        search.add(searchBtn);
 
-        numTableRowCount = new JLabel();
-        numTableRowCount.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // numTableRowCount = new JLabel();
+        // numTableRowCount.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // search.add(numTableRowCount);
+        numTableRowCount = UIFactory.createPlainLabel("", 14);
         search.add(numTableRowCount);
 
         return search;
@@ -140,26 +152,31 @@ public class TrainManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        JLabel filterLabel = new JLabel("Filter by status:");
-        filterLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        panel.add(filterLabel);
+        // JLabel filterLabel = new JLabel("Filter by status:");
+        // filterLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
+        // panel.add(filterLabel);
+        panel.add(UIFactory.createPlainLabel("Filter by status:", 16));
 
-        filterBox = new JComboBox<>(new String[] {
+        // filterBox = new JComboBox<>(new String[] {
+        //     "---", "active", "maintenance", "retired"
+        // });
+        // filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        filterBox = UIFactory.createComboBox(new String[] {
             "---", "active", "maintenance", "retired"
         });
-        filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         filterBox.addActionListener(e -> {
             loadTrains();
         });
         panel.add(filterBox);
 
-        JButton clearFilterButton = new JButton("Clear filter");
-        clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        clearFilterButton.addActionListener(e -> {
+        // JButton clearFilterBtn = new JButton("Clear filter");
+        // clearFilterBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        JButton clearFilterBtn = UIFactory.createButton("Clear filter");
+        clearFilterBtn.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
             loadTrains();
         });
-        panel.add(clearFilterButton);
+        panel.add(clearFilterBtn);
 
         return panel;
     }
@@ -170,21 +187,26 @@ public class TrainManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        JLabel sortLabel = new JLabel("Sort by:");
-        sortLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        panel.add(sortLabel);
+        // JLabel sortLabel = new JLabel("Sort by:");
+        // sortLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
+        // panel.add(sortLabel);
+        panel.add(UIFactory.createPlainLabel("Sort by:", 16));
 
-        sortBox = new JComboBox<>(new String[] {
-            "ID", "Scheduled"
+        // sortBox = new JComboBox<>(new String[] {
+        //     "ID", "Scheduled"
+        // });
+        // sortBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        sortBox = UIFactory.createComboBox(new String[] {
+            "Code", "Schedules"
         });
-        sortBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         sortBox.addActionListener(e -> {
             loadTrains();
         });
         panel.add(sortBox);
 
-        sortDesc = new JCheckBox("Descending");
-        sortDesc.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        // sortDesc = new JCheckBox("Descending");
+        // sortDesc.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        sortDesc = UIFactory.createCheckBox("Descending");
         sortDesc.addActionListener(e -> {
             loadTrains();
         });
@@ -198,149 +220,181 @@ public class TrainManagementPanel extends JPanel {
         actionPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         actionPanel.setOpaque(false);
 
-        addButton = createActionButton("Add");
-        editButton = createActionButton("Edit");
-        refreshButton = createActionButton("Refresh");
-        schedulesButton = createActionButton("Schedules...");
+        // addBtn = createActionButton("Add");
+        // editBtn = createActionButton("Edit");
+        // refreshBtn = createActionButton("Refresh");
+        // schedulesBtn = createActionButton("Schedules...");
+        Dimension btnDim = new Dimension(120, 36);
+        addBtn = UIFactory.createButton("Add");
+        addBtn.setPreferredSize(btnDim);
+        editBtn = UIFactory.createButton("Edit");
+        editBtn.setPreferredSize(btnDim);
+        refreshBtn = UIFactory.createButton("Refresh");
+        refreshBtn.setPreferredSize(btnDim);
+        schedulesBtn = UIFactory.createButton("Schedules...");
+        schedulesBtn.setPreferredSize(btnDim);
 
-        editButton.setEnabled(false);
-        schedulesButton.setEnabled(false);
+        editBtn.setEnabled(false);
+        schedulesBtn.setEnabled(false);
 
-        addButton.addActionListener(e -> {
-            FormDialog addDialog = new FormDialog(frame, "Add Train", new Dimension(400, 300));
+        addBtn.addActionListener(e -> {
+            FormDialog dialog = new FormDialog(frame, "Add Train", new Dimension(400, 300));
 
-            JTextField codeField = addDialog.addTextField("Train Code:");
-            JTextField seatCapacityField = addDialog.addTextField("Seat Capacity:");
-            JComboBox<String> statusBox = addDialog.addComboBox("Status:", new String[]{
-                "active", "maintenance", "retired"
-            });
+            JTextField codeField = dialog.addTextField("Train Code:");
+            JTextField seatCapacityField = dialog.addTextField("Seat Capacity:");
 
-            JButton saveBtn = addDialog.addButtonRow();
-            saveBtn.addActionListener(saveEv -> {
-                try {
-                    String code = codeField.getText().trim();
-                    int seatCapacity = Integer.valueOf(seatCapacityField.getText().trim());
-                    String status = statusBox.getSelectedItem().toString();
-
-                    if(code.isBlank() || seatCapacityField.getText().trim().isBlank() || status.isBlank()) {
-                        JOptionPane.showMessageDialog(addDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    Train train = Universal.db().queryOne(
-                        "SELECT * FROM trains WHERE train_code = ?",
-                        rs -> Train.parseResultSet(rs),
-                        code
-                    );
-                    if(train != null) {
-                        JOptionPane.showMessageDialog(addDialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    Universal.db().execute(
-                        "INSERT INTO trains(train_code, seat_capacity, status) VALUES (?, ?, ?);",
-                        code,
-                        seatCapacity,
-                        status
-                    );
-
-                    loadTrains();
-                    addDialog.dispose();
-                } catch(Exception ex) {
-                    JOptionPane.showMessageDialog(addDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
-
-            addDialog.setVisible(true);
-        });
-
-        editButton.addActionListener(e -> {
-            int row = trainTable.getSelectedRow();
-            if(row == -1) {
-                JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            int trainId = (int) trainTable.getValueAt(row, 0);
-            String currentTrainCode = trainTable.getValueAt(row, 1).toString();
-            int currentSeatCapacity = (int) trainTable.getValueAt(row, 2);
-            String currentStatus = trainTable.getValueAt(row, 3).toString();
-
-            FormDialog editDialog = new FormDialog(frame, "Edit Train", new Dimension(400, 300));
-            JTextField codeField = editDialog.addTextField("Train Code:");
-            JTextField seatCapacityField = editDialog.addTextField("Seat Capacity:");
-            JComboBox<String> statusBox = editDialog.addComboBox("Role:", new String[] {
-                "active", "maintenance", "retired"
-            });
-
-            codeField.setText(currentTrainCode);
-            seatCapacityField.setText(String.valueOf(currentSeatCapacity));
-            statusBox.setSelectedItem(currentStatus);
-
-            JButton saveBtn = editDialog.addButtonRow();
+            JButton saveBtn = dialog.addButtonRow();
             saveBtn.addActionListener(saveEv -> {
                 String code = codeField.getText().trim();
-                String seatCapacity = seatCapacityField.getText().trim();
-                String status = statusBox.getSelectedItem().toString();
+                int seatCapacity = Integer.valueOf(seatCapacityField.getText().trim());
 
-                if(code.isBlank() || seatCapacity.isBlank() || status.isBlank()) {
-                    JOptionPane.showMessageDialog(editDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                int state = TrainService.createTrain(code, seatCapacity);
+                switch(state) {
+                    case TrainService.BLANK_TRAIN_CODE:
+                        JOptionPane.showMessageDialog(dialog, "Please provide a train code", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.INVALID_SEAT_CAPACITY:
+                        JOptionPane.showMessageDialog(dialog, "Please provide a valid seat capacity", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.ANOTHER_TRAIN_CODE_EXISTS:
+                        JOptionPane.showConfirmDialog(dialog, "Another train with this code already exists", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.OK:
+                        dialog.dispose();
+                        loadTrains();
+                        break;
                 }
-                Train train = Universal.db().queryOne(
-                    "SELECT * FROM trains WHERE train_code = ?", 
-                    rs -> Train.parseResultSet(rs), 
-                    code
-                );
-                if(!code.equals(currentTrainCode) && train != null) {
-                    JOptionPane.showMessageDialog(editDialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                // if(code.isBlank() || seatCapacityField.getText().trim().isBlank() || status.isBlank()) {
+                //     JOptionPane.showMessageDialog(addDialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                //     return;
+                // }
+                // Train train = Universal.db().queryOne(
+                //     "SELECT * FROM trains WHERE train_code = ?",
+                //     rs -> Train.parseResultSet(rs),
+                //     code
+                // );
+                // if(train != null) {
+                //     JOptionPane.showMessageDialog(addDialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
+                //     return;
+                // }
 
-                Universal.db().execute(
-                    "UPDATE trains SET train_code = ?, seat_capacity = ?, status = ? WHERE train_id = ?;",
-                    code,
-                    seatCapacity,
-                    status,
-                    trainId
-                );
-
-                loadTrains();
-                editDialog.dispose();
+                // Universal.db().execute(
+                //     "INSERT INTO trains(train_code, seat_capacity, status) VALUES (?, ?, ?);",
+                //     code,
+                //     seatCapacity,
+                //     status
+                // );
             });
 
-            editDialog.setVisible(true);
+            dialog.setVisible(true);
         });
 
-        schedulesButton.addActionListener(e -> {
+        editBtn.addActionListener(e -> {
             int row = trainTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            int trainId = (int) trainTable.getValueAt(row, 0);
-            String trainCode = trainTable.getValueAt(row, 1).toString();
-            int seatCapacity = (int) trainTable.getValueAt(row, 2);
-            String status = trainTable.getValueAt(row, 3).toString();
+            // int trainId = (int) trainTable.getValueAt(row, 0);
+            // String currentTrainCode = trainTable.getValueAt(row, 1).toString();
+            // int currentSeatCapacity = (int) trainTable.getValueAt(row, 2);
+            // String currentStatus = trainTable.getValueAt(row, 3).toString();
+            
+            FormDialog dialog = new FormDialog(frame, "Edit Train", new Dimension(400, 300));
+            JTextField codeField = dialog.addTextField("Train Code:");
+            JTextField seatCapacityField = dialog.addTextField("Seat Capacity:");
+            JComboBox<String> statusBox = dialog.addComboBox("Role:", new String[] {
+                "active", "maintenance", "retired"
+            });
+            
+            Train selectedTrain = (Train) tableModel.getValueAt(row, 0);
+            codeField.setText(String.valueOf(selectedTrain.getTrainId()));
+            seatCapacityField.setText(String.valueOf(selectedTrain.getSeatCapacity()));
+            statusBox.setSelectedItem(selectedTrain.getStatus());
+
+            JButton saveBtn = dialog.addButtonRow();
+            saveBtn.addActionListener(saveEv -> {
+                String code = codeField.getText().trim();
+                int seatCapacity = Integer.valueOf(seatCapacityField.getText().trim());
+                String status = statusBox.getSelectedItem().toString();
+
+                int state = TrainService.updateTrain(selectedTrain.getTrainId(), code, seatCapacity, status);
+                switch(state) {
+                    case TrainService.BLANK_TRAIN_CODE:
+                        JOptionPane.showMessageDialog(dialog, "Please provide a train code", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.INVALID_SEAT_CAPACITY:
+                        JOptionPane.showMessageDialog(dialog, "Please provide a valid seat capacity", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.ANOTHER_TRAIN_CODE_EXISTS:
+                        JOptionPane.showConfirmDialog(dialog, "Another train with this code already exists", "Train Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                    case TrainService.OK:
+                        dialog.dispose();
+                        loadTrains();
+                        break;
+                }
+
+                // if(code.isBlank() || seatCapacity.isBlank() || status.isBlank()) {
+                //     JOptionPane.showMessageDialog(dialog, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+                //     return;
+                // }
+                // Train train = Universal.db().queryOne(
+                //     "SELECT * FROM trains WHERE train_code = ?", 
+                //     rs -> Train.parseResultSet(rs), 
+                //     code
+                // );
+                // if(!code.equals(currentTrainCode) && train != null) {
+                //     JOptionPane.showMessageDialog(dialog, "Another train with this code already exists! Please use another one", "Error", JOptionPane.ERROR_MESSAGE);
+                //     return;
+                // }
+
+                // Universal.db().execute(
+                //     "UPDATE trains SET train_code = ?, seat_capacity = ?, status = ? WHERE train_id = ?;",
+                //     code,
+                //     seatCapacity,
+                //     status,
+                //     trainId
+                // );
+
+                dialog.dispose();
+            });
+
+            dialog.setVisible(true);
+        });
+
+        schedulesBtn.addActionListener(e -> {
+            int row = trainTable.getSelectedRow();
+            if(row == -1) {
+                JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // int trainId = (int) trainTable.getValueAt(row, 0);
+            // String trainCode = trainTable.getValueAt(row, 1).toString();
+            // int seatCapacity = (int) trainTable.getValueAt(row, 2);
+            // String status = trainTable.getValueAt(row, 3).toString();
+            Train selectedTrain = (Train) tableModel.getValueAt(row, 0);
 
             TrainSchedulesDialog dialog = new TrainSchedulesDialog(
                 frame,
-                new Train(trainId, trainCode, seatCapacity, status)
+                selectedTrain
             );
 
             dialog.setVisible(true);
         });
 
-        refreshButton.addActionListener(e -> {
+        refreshBtn.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
             loadTrains();
         });
 
-        actionPanel.add(addButton);
-        actionPanel.add(editButton);
-        actionPanel.add(schedulesButton);
-        actionPanel.add(refreshButton);
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(schedulesBtn);
+        actionPanel.add(refreshBtn);
 
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setMaximumSize(new Dimension(1000, 60));
@@ -352,16 +406,16 @@ public class TrainManagementPanel extends JPanel {
         return wrapper;
     }
 
-    private JButton createActionButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(120, 36));
-        btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        return btn;
-    }
+    // private JButton createActionButton(String text) {
+    //     JButton btn = new JButton(text);
+    //     btn.setPreferredSize(new Dimension(120, 36));
+    //     btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+    //     return btn;
+    // }
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"ID", "Train Code", "Seat Capacity", "Status", "Schedules"},
+            new String[] {"obj_train", "Train Code", "Seat Capacity", "Status", "Schedules"},
             0
         ) {
             @Override
@@ -377,19 +431,23 @@ public class TrainManagementPanel extends JPanel {
         trainTable.getTableHeader().setPreferredSize(new Dimension(10, 25));
         trainTable.getTableHeader().setReorderingAllowed(false);
         trainTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        trainTable.getColumnModel().getColumn(0).setMaxWidth(40);
-        trainTable.getColumnModel().getColumn(0).setMinWidth(40);
+
+        TableColumnModel columnModel = trainTable.getColumnModel();
+        // columnModel.getColumn(0).setMaxWidth(40);
+        // columnModel.getColumn(0).setMinWidth(40);
+        columnModel.removeColumn(columnModel.getColumn(0));
+        
         trainTable.setFocusable(false);
         trainTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
                 int selectedRow = trainTable.getSelectedRow();
                 if(selectedRow != -1) {
-                    editButton.setEnabled(true);
-                    schedulesButton.setEnabled(true);
+                    editBtn.setEnabled(true);
+                    schedulesBtn.setEnabled(true);
                 }
                 else {
-                    editButton.setEnabled(false);
-                    schedulesButton.setEnabled(false);
+                    editBtn.setEnabled(false);
+                    schedulesBtn.setEnabled(false);
                 }
             }
         });
@@ -421,11 +479,11 @@ public class TrainManagementPanel extends JPanel {
 
         String orderBy = "";
         switch(sortBox.getSelectedItem().toString()) {
-            case "ID":
-                orderBy = "t.train_id";
+            case "Code":
+                orderBy = "t.train_code";
                 break;
-            case "Scheduled":
-                orderBy = "scheduled";
+            case "Schedules":
+                orderBy = "schedules";
                 break;
         }
         String sortOrder = "ASC";
@@ -438,7 +496,7 @@ public class TrainManagementPanel extends JPanel {
                     "    t.train_code,\n" +
                     "    t.seat_capacity,\n" +
                     "    t.status,\n" +
-                    "    COUNT(ts.route_id) scheduled\n" +
+                    "    COUNT(ts.route_id) schedules\n" +
                     "FROM trains t\n" +
                     "LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'\n" +
                     "WHERE true";
@@ -459,7 +517,7 @@ public class TrainManagementPanel extends JPanel {
             sql,
             rs -> {
                 Train ret = Train.parseResultSet(rs);
-                numScheduled.add(rs.getInt("scheduled"));
+                numScheduled.add(rs.getInt("schedules"));
                 return ret;
             },
             args.toArray(new Object[args.size()])
@@ -468,7 +526,7 @@ public class TrainManagementPanel extends JPanel {
         int numScheduledIdx = 0;
         for(Train train: trainList) {
             tableModel.addRow(new Object[] {
-                train.getTrainId(),
+                train,
                 train.getTrainCode(),
                 train.getSeatCapacity(),
                 train.getStatus(),

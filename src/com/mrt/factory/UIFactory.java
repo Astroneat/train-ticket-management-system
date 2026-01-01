@@ -73,18 +73,21 @@ public class UIFactory {
     public static <T> JComboBox<T> createComboBox(T[] items) {
         JComboBox<T> comboBox = new JComboBox<>(items);
         comboBox.setFont(createDefaultPlainFont(14));
+        comboBox.setFocusable(false);
         return comboBox;
     }
 
     public static <T> JComboBox<T> createComboBox() {
         JComboBox<T> comboBox = new JComboBox<>();
         comboBox.setFont(createDefaultPlainFont(14));
+        comboBox.setFocusable(false);
         return comboBox;
     }
 
     public static JCheckBox createCheckBox(String text) {
         JCheckBox checkBox = new JCheckBox(text);
         checkBox.setFont(createDefaultPlainFont(14));
+        checkBox.setFocusable(false);
         return checkBox;
     }
 }

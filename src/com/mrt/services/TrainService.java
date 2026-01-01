@@ -27,18 +27,19 @@ public class TrainService {
         return OK;
     }
 
-    public static int updateTrain(int trainId, String trainCode, int seatCapacity) {
+    public static int updateTrain(int trainId, String trainCode, int seatCapacity, String status) {
         int state = validateTrain(trainCode, seatCapacity);
         if(state != OK) return state;
 
         Universal.db().execute(
             """
                 UPDATE trains 
-                SET train_code = ?, seat_capacity = ?
+                SET train_code = ?, seat_capacity = ?, status = ?
                 WHERE train_id = ?
             """,
             trainCode,
             seatCapacity,
+            status,
             trainId
         );
         return OK;
