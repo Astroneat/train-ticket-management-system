@@ -1,20 +1,17 @@
 package com.mrt.admin.routes;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -30,12 +27,10 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.admin.AdminMainFrame;
-import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.City;
 import com.mrt.model.Route;
 import com.mrt.model.Station;
-import com.mrt.model.Train;
 import com.mrt.services.RouteService;
 
 public class RouteManagementPanel extends JPanel {
@@ -50,11 +45,11 @@ public class RouteManagementPanel extends JPanel {
     private JComboBox<String> sortBox;
     private JCheckBox sortDesc;
 
-    private JButton addButton;
-    private JButton editButton;
-    private JButton deleteButton;
-    private JButton refreshButton;
-    private JButton schedulesButton;
+    private JButton addBtn;
+    private JButton editBtn;
+    private JButton deleteBtn;
+    private JButton refreshBtn;
+    private JButton schedulesBtn;
 
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
@@ -63,7 +58,6 @@ public class RouteManagementPanel extends JPanel {
         this.frame = frame;
 
         setLayout(new BorderLayout(0, 10));
-        // setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Universal.BACKGROUND_WHITE);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -87,15 +81,10 @@ public class RouteManagementPanel extends JPanel {
         header.setOpaque(false);
         header.setMaximumSize(new Dimension(1000, 50));
 
-        // JLabel title = new JLabel("Route Management");
-        // title.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 28));
-        // header.add(title);
         header.add(UIFactory.createBoldLabel("Route Management", 28));
 
         header.add(Box.createHorizontalStrut(5));
 
-        // numActiveTrains = new JLabel();
-        // numActiveTrains.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         numActiveTrains = UIFactory.createPlainLabel("", 14);
         header.add(numActiveTrains);
 
@@ -108,18 +97,8 @@ public class RouteManagementPanel extends JPanel {
         search.setOpaque(false);
         search.setMaximumSize(new Dimension(1000, 50));
 
-        // JLabel searchLabel = new JLabel("Search:");
-        // searchLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        // search.add(searchLabel);
         search.add(UIFactory.createPlainLabel("Search:", 16));
 
-        // searchField = new JTextField(30);
-        // searchField.setToolTipText("Search by code");
-        // searchField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        // searchField.setBorder(BorderFactory.createCompoundBorder(
-        //     BorderFactory.createLineBorder(Color.BLACK, 1),
-        //     BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        // ));
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search by code or station");
         searchField.addActionListener(e -> {
@@ -127,21 +106,12 @@ public class RouteManagementPanel extends JPanel {
         });
         search.add(searchField);
 
-        // JButton searchButton = new JButton();
-        // try {
-        //     ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
-        //     Image img = icon.getImage();
-        //     Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        //     searchButton.setIcon(new ImageIcon(newImg));
-        // } catch (Exception ignored) {}
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.addActionListener(e -> {
             loadRoutes();
         });
         search.add(searchButton);
 
-        // numTableRowCount = new JLabel();
-        // numTableRowCount.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         numTableRowCount = UIFactory.createPlainLabel("", 14);
         search.add(numTableRowCount);
 
@@ -154,27 +124,22 @@ public class RouteManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        // JLabel filterLabel = new JLabel("Filter by status:");
-        // filterLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        // panel.add(filterLabel);
         panel.add(UIFactory.createPlainLabel("Filter by status:", 16));
 
-        activeFilter = new JComboBox<>(new String[] {
+        activeFilter = UIFactory.createComboBox(new String[] {
             "---", "active", "inactive"
         });
-        activeFilter.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         activeFilter.addActionListener(e -> {
             loadRoutes();
         });
         panel.add(activeFilter);
 
-        JButton clearFilterButton = new JButton("Clear filter");
-        clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        clearFilterButton.addActionListener(e -> {
+        JButton clearFilterBtn = UIFactory.createButton("Clear filter");
+        clearFilterBtn.addActionListener(e -> {
             activeFilter.setSelectedIndex(0);
             loadRoutes();
         });
-        panel.add(clearFilterButton);
+        panel.add(clearFilterBtn);
 
         return panel;
     }
@@ -185,21 +150,17 @@ public class RouteManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        JLabel sortLabel = new JLabel("Sort by:");
-        sortLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        panel.add(sortLabel);
+        panel.add(UIFactory.createPlainLabel("Sort by:", 16));
 
-        sortBox = new JComboBox<>(new String[] {
-            "ID", "Scheduled"
+        sortBox = UIFactory.createComboBox(new String[] {
+            "Code", "Schedules"
         });
-        sortBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         sortBox.addActionListener(e -> {
             loadRoutes();
         });
         panel.add(sortBox);
 
-        sortDesc = new JCheckBox("Descending");
-        sortDesc.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        sortDesc = UIFactory.createCheckBox("Descending");
         sortDesc.addActionListener(e -> {
             loadRoutes();
         });
@@ -213,24 +174,30 @@ public class RouteManagementPanel extends JPanel {
         actionPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         actionPanel.setOpaque(false);
 
-        addButton = createActionButton("Add");
-        editButton = createActionButton("Edit");
-        deleteButton = createActionButton("Delete");
-        refreshButton = createActionButton("Refresh");
-        schedulesButton = createActionButton("Schedules...");
+        Dimension btnDim = new Dimension(120, 36);
+        addBtn = UIFactory.createButton("Add");
+        addBtn.setPreferredSize(btnDim);
+        editBtn = UIFactory.createButton("Edit");
+        editBtn.setPreferredSize(btnDim);
+        deleteBtn = UIFactory.createButton("Delete");
+        deleteBtn.setPreferredSize(btnDim);
+        refreshBtn = UIFactory.createButton("Refresh");
+        refreshBtn.setPreferredSize(btnDim);
+        schedulesBtn = UIFactory.createButton("Schedules...");
+        schedulesBtn.setPreferredSize(btnDim);
 
-        editButton.setEnabled(false);
-        deleteButton.setEnabled(false);
-        schedulesButton.setEnabled(false);
+        editBtn.setEnabled(false);
+        deleteBtn.setEnabled(false);
+        schedulesBtn.setEnabled(false);
 
-        addButton.addActionListener(e -> {
+        addBtn.addActionListener(e -> {
             AddRouteDialog dialog = new AddRouteDialog(frame);
 
             dialog.setVisible(true);
             loadRoutes();
         });
 
-        editButton.addActionListener(e -> {
+        editBtn.addActionListener(e -> {
             int row = routeTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
@@ -244,7 +211,7 @@ public class RouteManagementPanel extends JPanel {
             loadRoutes();
         });
 
-        deleteButton.addActionListener(e -> {
+        deleteBtn.addActionListener(e -> {
             int row = routeTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
@@ -263,7 +230,7 @@ public class RouteManagementPanel extends JPanel {
             }
         });
 
-        schedulesButton.addActionListener(e -> {
+        schedulesBtn.addActionListener(e -> {
             int row = routeTable.getSelectedRow();
             if(row == -1) {
                 JOptionPane.showMessageDialog(frame, "This cannot happen. Please contact nvtd.", "???", JOptionPane.ERROR_MESSAGE);
@@ -276,17 +243,17 @@ public class RouteManagementPanel extends JPanel {
             loadRoutes();
         });
 
-        refreshButton.addActionListener(e -> {
+        refreshBtn.addActionListener(e -> {
             searchField.setText("");
             activeFilter.setSelectedIndex(0);
             loadRoutes();
         });
 
-        actionPanel.add(addButton);
-        actionPanel.add(editButton);
-        actionPanel.add(deleteButton);
-        actionPanel.add(schedulesButton);
-        actionPanel.add(refreshButton);
+        actionPanel.add(addBtn);
+        actionPanel.add(editBtn);
+        actionPanel.add(deleteBtn);
+        actionPanel.add(schedulesBtn);
+        actionPanel.add(refreshBtn);
 
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setMaximumSize(new Dimension(1000, 60));
@@ -298,12 +265,6 @@ public class RouteManagementPanel extends JPanel {
         return wrapper;
     }
 
-    private JButton createActionButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(120, 36));
-        btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        return btn;
-    }
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
@@ -338,14 +299,14 @@ public class RouteManagementPanel extends JPanel {
             if(!e.getValueIsAdjusting()) {
                 int selectedRow = routeTable.getSelectedRow();
                 if(selectedRow != -1) {
-                    editButton.setEnabled(true);
-                    deleteButton.setEnabled(true);
-                    schedulesButton.setEnabled(true);
+                    editBtn.setEnabled(true);
+                    deleteBtn.setEnabled(true);
+                    schedulesBtn.setEnabled(true);
                 }
                 else {
-                    editButton.setEnabled(false);
-                    deleteButton.setEnabled(false);
-                    schedulesButton.setEnabled(false);
+                    editBtn.setEnabled(false);
+                    deleteBtn.setEnabled(false);
+                    schedulesBtn.setEnabled(false);
                 }
             }
         });
@@ -377,11 +338,11 @@ public class RouteManagementPanel extends JPanel {
 
         String orderBy = "";
         switch(sortBox.getSelectedItem().toString()) {
-            case "ID":
+            case "Code":
                 orderBy = "tr.route_id";
                 break;
-            case "Scheduled":
-                orderBy = "scheduled";
+            case "Schedules":
+                orderBy = "schedules";
                 break;
         }
         String sortOrder = "ASC";
@@ -399,7 +360,7 @@ public class RouteManagementPanel extends JPanel {
                 c1.city_name,
                 s2.station_name,
                 c2.city_name,
-                COUNT(ts.schedule_id) scheduled,
+                COUNT(ts.schedule_id) schedules,
                 tr.status
             FROM train_routes tr
             INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
@@ -436,7 +397,7 @@ public class RouteManagementPanel extends JPanel {
                     rs.getInt("tr.destination_station_id"),
                     rs.getString("tr.status")
                 );
-                numScheduled.add(rs.getInt("scheduled"));
+                numScheduled.add(rs.getInt("schedules"));
                 return route;
             },
             args.toArray(new Object[args.size()])
