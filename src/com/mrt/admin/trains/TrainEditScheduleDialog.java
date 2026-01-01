@@ -25,7 +25,7 @@ import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.Route;
 import com.mrt.model.Schedule;
-import com.mrt.service.ScheduleService;
+import com.mrt.services.ScheduleService;
 
 public class TrainEditScheduleDialog extends JDialog {
     private Schedule schedule;

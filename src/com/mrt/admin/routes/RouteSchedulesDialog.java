@@ -1,4 +1,4 @@
-package com.mrt.admin.trains;
+package com.mrt.admin.routes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -32,10 +32,11 @@ import com.mrt.model.Schedule;
 import com.mrt.model.Station;
 import com.mrt.model.Train;
 import com.mrt.services.ScheduleService;
+import com.mrt.services.TrainService;
 
-public class TrainSchedulesDialog extends JDialog {
+public class RouteSchedulesDialog extends JDialog {
 
-    private Train train;
+    private Route route;
 
     private DefaultTableModel futureModel;
     private DefaultTableModel pastModel;
@@ -48,13 +49,13 @@ public class TrainSchedulesDialog extends JDialog {
     private JButton editButton;
     private JButton refreshButton;
 
-    public TrainSchedulesDialog(JFrame parent, Train train) {
-        super(parent, "Schedules - Train " + train.toString(), true);
+    public RouteSchedulesDialog(JFrame parent, Route route) {
+        super(parent, "Schedules - Route " + route.getRouteSummary(), true);
 
-        this.train = train;
+        this.route = route;
         renderer = new ScheduleCellRenderer();
         
-        setSize(new Dimension(800, 600));
+        setSize(new Dimension(700, 600));
         setResizable(false);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(0, 0));
@@ -123,7 +124,7 @@ public class TrainSchedulesDialog extends JDialog {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerPanel.setOpaque(false);
         headerPanel.add(UIFactory.createBoldLabel(
-            "<html>Schedule of Train: <font color='#00b8ff'>" + train.toString() + "</font></html>",
+            "<html>Schedule of Route: <font color='#00b8ff'>" + route.getRouteSummary() + "</font></html>",
             18
         ));
         return headerPanel;
@@ -148,7 +149,7 @@ public class TrainSchedulesDialog extends JDialog {
         refreshButton.setPreferredSize(btnDim);
 
         addButton.addActionListener(e -> {
-            TrainAddScheduleDialog dialog = new TrainAddScheduleDialog(this, train);
+            RouteAddScheduleDialog dialog = new RouteAddScheduleDialog(this, route);
             dialog.setVisible(true);
             refresh();
         });
@@ -170,19 +171,19 @@ public class TrainSchedulesDialog extends JDialog {
         });
 
         editButton.addActionListener(e -> {
-            int row = futureTable.getSelectedRow();
-            if(row != -1) {
-                String status = (String) futureModel.getValueAt(row, 5);
-                if(status.equals("scheduled")) {
-                    int scheduleId = (int) futureModel.getValueAt(row, 0);
-                    TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, Schedule.getScheduleFromId(scheduleId));
-                    dialog.setVisible(true);
+            // int row = futureTable.getSelectedRow();
+            // if(row != -1) {
+            //     String status = (String) futureModel.getValueAt(row, 5);
+            //     if(status.equals("scheduled")) {
+            //         int scheduleId = (int) futureModel.getValueAt(row, 0);
+            //         TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, Schedule.getScheduleFromId(scheduleId));
+            //         dialog.setVisible(true);
 
-                    refresh();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cannot edit a cancelled schedule", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            //         refresh();
+            //     } else {
+            //         JOptionPane.showMessageDialog(this, "Cannot edit a cancelled schedule", "Error", JOptionPane.ERROR_MESSAGE);
+            //     }
+            // }
         });
 
         refreshButton.addActionListener(e -> {
@@ -204,7 +205,7 @@ public class TrainSchedulesDialog extends JDialog {
 
     private JScrollPane createFutureSchedulesScrollPane() {
         futureModel = new DefaultTableModel(
-            new String[] {"schedule_id", "route_id", "Departs", "Arrives", "Route", "Status"},
+            new String[] {"obj_schedule", "Departs", "Arrives", "Train", "Status"},
             0
         ) {
             @Override
@@ -221,7 +222,6 @@ public class TrainSchedulesDialog extends JDialog {
         futureTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumnModel columnModel = futureTable.getColumnModel();
-        columnModel.removeColumn(columnModel.getColumn(1));
         columnModel.removeColumn(columnModel.getColumn(0));
 
         int width = 136;
@@ -258,7 +258,7 @@ public class TrainSchedulesDialog extends JDialog {
 
     private JScrollPane createPastSchedulesScrollPane() {
         pastModel = new DefaultTableModel(
-            new String[] {"schedule_id", "route_id", "Departed", "Arrived", "Route", "Status"},
+            new String[] {"obj_schedule", "Departed", "Arrived", "Train", "Status"},
             0
         ) {
             @Override
@@ -275,7 +275,6 @@ public class TrainSchedulesDialog extends JDialog {
         pastTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumnModel columnModel = pastTable.getColumnModel();
-        columnModel.removeColumn(columnModel.getColumn(1));
         columnModel.removeColumn(columnModel.getColumn(0));
 
         int width = 136;
@@ -327,6 +326,7 @@ public class TrainSchedulesDialog extends JDialog {
     }
 
     private void refresh() {
+        ScheduleService.updateCompletedSchedules();
         loadAllSchedules(futureModel);
         loadAllSchedules(pastModel);
     }
@@ -337,21 +337,15 @@ public class TrainSchedulesDialog extends JDialog {
         String status = "";
         if(tableModel == futureModel) status = "scheduled";
         else if(tableModel == pastModel) status = "completed";
-        List<Schedule> schedules = ScheduleService.getSchedulesByTrain(train.getTrainId(), status);
+        List<Schedule> schedules = ScheduleService.getSchedulesByRoute(route.getRouteId(), status);
 
         for(Schedule s: schedules) {
-            // Schedule s = (Schedule) obj[0];
-            // String routeDisplayName = (String) obj[1];
-            Route route = Route.getRouteFromId(s.getRouteId());
-            String originName = Station.getStationFromId(route.getOriginStationId()).getStationName();
-            String destinationName = Station.getStationFromId(route.getDestinationStationId()).getStationName();
-            String routeDisplayName = originName + " → " + destinationName;
+            Train train = TrainService.getTrainFromId(s.getTrainId());
             tableModel.addRow(new Object[] {
-                s.getScheduleId(),
-                s.getRouteId(),
+                s,
                 s.getDepartureTime(),
                 s.getArrivalTime(),
-                routeDisplayName,
+                train.getTrainSummary(),
                 s.getStatus()
             });
         }

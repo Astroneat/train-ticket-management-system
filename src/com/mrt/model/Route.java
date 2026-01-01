@@ -10,12 +10,14 @@ public class Route {
     private String routeCode;
     private int originStationId;
     private int destinationStationId;
+    private String status;
 
-    public Route(int routeId, String routeCode, int originStationId, int destinationStationId) {
+    public Route(int routeId, String routeCode, int originStationId, int destinationStationId, String status) {
         this.routeId = routeId;
         this.routeCode = routeCode;
         this.originStationId = originStationId;
         this.destinationStationId = destinationStationId;
+        this.status = status;
     }
 
     public int getRouteId() {
@@ -32,6 +34,9 @@ public class Route {
     }
     public String getRouteSummary() {
         return routeCode;
+    }
+    public String getStatus() {
+        return status;
     }
 
     public static Route getRouteFromId(int routeId) {
@@ -50,7 +55,8 @@ public class Route {
             rs.getInt("route_id"),
             rs.getString("route_code"),
             rs.getInt("origin_station_id"),
-            rs.getInt("destination_station_id")
+            rs.getInt("destination_station_id"),
+            rs.getString("status")
         );
     }
 }

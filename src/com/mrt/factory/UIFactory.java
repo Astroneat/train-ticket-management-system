@@ -8,6 +8,7 @@ import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -15,22 +16,29 @@ import javax.swing.JTextField;
 import com.mrt.Universal;
 
 public class UIFactory {
+
+    private static Font createDefaultPlainFont(int size) {
+        return new Font(Universal.defaultFontFamily, Font.PLAIN, size);
+    }
+    private static Font createDefaultBoldFont(int size) {
+        return new Font(Universal.defaultFontFamily, Font.BOLD, size);
+    }
     
     public static JLabel createPlainLabel(String text, int size) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, size));
+        label.setFont(createDefaultPlainFont(size));
         return label;
     }
 
     public static JLabel createBoldLabel(String text, int size) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, size));
+        label.setFont(createDefaultBoldFont(size));
         return label;
     }
 
     public static JTextField createTextField(int columns) {
         JTextField field = new JTextField(columns);
-        field.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        field.setFont(createDefaultPlainFont(14));
         field.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.BLACK, 1), 
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -44,10 +52,8 @@ public class UIFactory {
 
     public static JButton createButton(String text) {
         JButton btn = new JButton(text);
-        btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        btn.setFont(createDefaultPlainFont(14));
         btn.setFocusable(false);
-        // btn.setPreferredSize(dimension);
-        // btn.setMaximumSize(dimension);
         return btn;
     }
 
@@ -66,13 +72,19 @@ public class UIFactory {
 
     public static <T> JComboBox<T> createComboBox(T[] items) {
         JComboBox<T> comboBox = new JComboBox<>(items);
-        comboBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        comboBox.setFont(createDefaultPlainFont(14));
         return comboBox;
     }
 
     public static <T> JComboBox<T> createComboBox() {
         JComboBox<T> comboBox = new JComboBox<>();
-        comboBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        comboBox.setFont(createDefaultPlainFont(14));
         return comboBox;
+    }
+
+    public static JCheckBox createCheckBox(String text) {
+        JCheckBox checkBox = new JCheckBox(text);
+        checkBox.setFont(createDefaultPlainFont(14));
+        return checkBox;
     }
 }

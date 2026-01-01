@@ -1,4 +1,4 @@
-package com.mrt.admin.trains;
+package com.mrt.admin.routes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -24,25 +25,23 @@ import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.Route;
 import com.mrt.model.Station;
+import com.mrt.model.Train;
 
-public class RoutePickerDialog extends JDialog {
+public class TrainPickerDialog extends JDialog {
 
     private JTextField searchField;
+    private JComboBox<String> sortByBox;
+    private JCheckBox sortOrderBox;
 
-    private JComboBox<Station> originBox;
-    private JComboBox<Station> destBox;
-
-    private JTable routeTable;
+    private JTable trainTable;
     private DefaultTableModel tableModel;
 
     private JButton pickBtn;
 
-    private Route selectedRoute;
+    private Train selectedTrain;
 
-    private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", -1);
-
-    public RoutePickerDialog(JDialog frame) {
-        super(frame, "Route Picker", true);
+    public TrainPickerDialog(JDialog frame) {
+        super(frame, "Train Picker", true);
 
         setSize(800, 600);
         setLocationRelativeTo(frame);
@@ -63,7 +62,7 @@ public class RoutePickerDialog extends JDialog {
         panel.setOpaque(false);
 
         panel.add(UIFactory.createBoldLabel(
-            "Select a route",
+            "Select a train",
             18
         ));
 
@@ -80,7 +79,7 @@ public class RoutePickerDialog extends JDialog {
         top.setOpaque(false);
 
         top.add(createSearchPanel());
-        top.add(createFilterPanel());
+        top.add(createSortPanel());
         wrapper.add(top, BorderLayout.NORTH);
 
         wrapper.add(createScrollPane(), BorderLayout.CENTER);
@@ -96,51 +95,49 @@ public class RoutePickerDialog extends JDialog {
         panel.add(UIFactory.createPlainLabel("Search:", 14));
 
         searchField = UIFactory.createTextField(15);
-        searchField.setToolTipText("Search by route code or station");
+        searchField.setToolTipText("Search by train code or seat capacity");
         searchField.addActionListener(e -> {
-            loadRoutes();
+            loadTrains();
         });
         panel.add(searchField);
 
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.setPreferredSize(new Dimension(40, 40));
         searchButton.addActionListener(e -> {
-            loadRoutes();
+            loadTrains();
         });
         panel.add(searchButton);
 
         return panel;
     }
 
-    private JPanel createFilterPanel() {
+    private JPanel createSortPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
         panel.setOpaque(false);
 
-        panel.add(UIFactory.createPlainLabel("Origin:", 14));
+        panel.add(UIFactory.createPlainLabel("Sort by:", 14));
 
-        originBox = new JComboBox<>();
-        panel.add(originBox);
-        
-        panel.add(UIFactory.createPlainLabel("Destination:", 14));
-        
-        destBox = new JComboBox<>();
-        panel.add(destBox);
+        sortByBox = UIFactory.createComboBox(new String[] {
+            "Code", "Seat Capacity"
+        });
+        sortByBox.addActionListener(e -> {
+            loadTrains();
+        });
+        panel.add(sortByBox);
 
-        loadAllStations();
-        originBox.addActionListener(e -> {
-            loadRoutes();
+        sortOrderBox = UIFactory.createCheckBox("Descending");
+        sortByBox.addActionListener(e -> {
+            loadTrains();
         });
-        destBox.addActionListener(e -> {
-            loadRoutes();
-        });
+        panel.add(sortOrderBox);
 
         return panel;
     }
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"obj_route", "Route Code", "Origin", "Destination"},
+            new String[] {"obj_train", "Train Code", "Seat Capacity", "Status"},
             0
         ) {
             @Override
@@ -150,16 +147,16 @@ public class RoutePickerDialog extends JDialog {
             }
         };
 
-        routeTable = new JTable(tableModel);
-        routeTable.setRowHeight(30);
-        routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        routeTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
-        routeTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
-        routeTable.getTableHeader().setReorderingAllowed(false);
-        routeTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        routeTable.getSelectionModel().addListSelectionListener(e -> {
+        trainTable = new JTable(tableModel);
+        trainTable.setRowHeight(30);
+        trainTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        trainTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
+        trainTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
+        trainTable.getTableHeader().setReorderingAllowed(false);
+        trainTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        trainTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
-                int row = routeTable.getSelectedRow();
+                int row = trainTable.getSelectedRow();
                 if(row != -1) {
                     pickBtn.setEnabled(true);
                 } else {
@@ -168,16 +165,16 @@ public class RoutePickerDialog extends JDialog {
             }
         });
 
-        TableColumnModel columnModel = routeTable.getColumnModel();
+        TableColumnModel columnModel = trainTable.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
-        columnModel.getColumn(0).setMaxWidth(100);
-        columnModel.getColumn(0).setMinWidth(100);
+        // columnModel.getColumn(0).setMaxWidth(100);
+        // columnModel.getColumn(0).setMinWidth(100);
 
-        routeTable.setFocusable(false);
+        trainTable.setFocusable(false);
 
-        loadRoutes();
+        loadTrains();
 
-        JScrollPane scrollPane = new JScrollPane(routeTable);
+        JScrollPane scrollPane = new JScrollPane(trainTable);
         return scrollPane;
     }
 
@@ -192,7 +189,7 @@ public class RoutePickerDialog extends JDialog {
         JButton cancelBtn = UIFactory.createButton("Cancel");
         cancelBtn.setPreferredSize(new Dimension(100, 33));
         cancelBtn.addActionListener(e -> {
-            selectedRoute = null;
+            selectedTrain = null;
             dispose();
         });
 
@@ -200,12 +197,12 @@ public class RoutePickerDialog extends JDialog {
         pickBtn.setPreferredSize(new Dimension(100, 33));
         pickBtn.setEnabled(false);
         pickBtn.addActionListener(e -> {
-            int row = routeTable.getSelectedRow();
+            int row = trainTable.getSelectedRow();
             if(row != -1) {
-                selectedRoute = (Route) tableModel.getValueAt(row, 0);
+                selectedTrain = (Train) tableModel.getValueAt(row, 0);
                 dispose();
             }
-            else selectedRoute = null;
+            else selectedTrain = null;
         });
 
         panel.add(cancelBtn);
@@ -213,78 +210,50 @@ public class RoutePickerDialog extends JDialog {
         return panel;
     }
 
-    private void loadRoutes() {
+    private void loadTrains() {
         String searchTerm = searchField.getText().trim();
-        Station origin = (Station) originBox.getSelectedItem();
-        Station dest = (Station) destBox.getSelectedItem();
+        String sortBy = sortByBox.getSelectedItem().toString();
+        if(sortBy.equals("Code")) {
+            sortBy = "train_code";
+        } else if(sortBy.equals("Seat Capacity")) {
+            sortBy = "seat_capacity";
+        }
+        String sortOrder = sortOrderBox.isSelected() ? "DESC" : "ASC";
 
         List<Object> args = new ArrayList<>();
         String sql = 
         """
         SELECT * 
-        FROM train_routes tr
-        INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
-        INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
-        WHERE tr.status = 'active' 
+        FROM trains 
+        WHERE status = 'active' 
         """;
 
         if(!searchTerm.isBlank()) {
-            sql += " AND (tr.route_code LIKE ? OR s1.station_name LIKE ? OR s2.station_name LIKE ?)";
-            args.add("%" + searchTerm + "%");
+            sql += " AND (train_code LIKE ? OR seat_capacity LIKE ?)";
             args.add("%" + searchTerm + "%");
             args.add("%" + searchTerm + "%");
         }
-        if(origin != ALL_STATIONS) {
-            sql += " AND (s1.station_code = ?)";
-            args.add(origin.getStationCode());
-        }
-        if(dest != ALL_STATIONS) {
-            sql += " AND (s2.station_code = ?)";
-            args.add(dest.getStationCode());
-        }
-
         sql += "\n";
-        sql += "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name\n";
-        sql += "ORDER BY tr.route_code ASC;";
+        sql += "ORDER BY " + sortBy + " " + sortOrder + ";";
 
-        List<Route> routes = Universal.db().query(
+        List<Train> trains = Universal.db().query(
             sql,
-            rs -> new Route(
-                rs.getInt("tr.route_id"),
-                rs.getString("tr.route_code"),
-                rs.getInt("s1.station_id"),
-                rs.getInt("s2.station_id"),
-                rs.getString("tr.status")
-            ),
+            rs -> Train.parseResultSet(rs),
             args.toArray()
         );
 
         tableModel.setRowCount(0);
-        for(Route row: routes) {
+        for(Train t: trains) {
             tableModel.addRow(new Object[] {
-                row,
-                row.getRouteCode(),
-                Station.getStationFromId(row.getOriginStationId()).getStationName(),
-                Station.getStationFromId(row.getDestinationStationId()).getStationName()
+                t,
+                t.getTrainCode(),
+                t.getSeatCapacity(),
+                "active"
             });
         }
     }
 
-    private void loadAllStations() {
-        List<Station> allStations = Universal.db().query(
-            "SELECT * FROM stations ORDER BY station_name",
-            rs -> Station.parseResultSet(rs)
-        );
-
-        originBox.addItem(ALL_STATIONS);
-        destBox.addItem(ALL_STATIONS);
-        for(Station s: allStations) {
-            originBox.addItem(s);
-            destBox.addItem(s);
-        }
-    }
-
-    public Route getSelectedRoute() {
-        return selectedRoute;
+    public Train getSelectedTrain() {
+        return selectedTrain;
     }
 }

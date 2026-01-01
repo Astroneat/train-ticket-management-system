@@ -79,9 +79,6 @@ public class StationManagementPanel extends JPanel {
         header.setOpaque(false);
         header.setMaximumSize(new Dimension(1000, 50));
 
-        // JLabel title = new JLabel("Station Management");
-        // title.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 28));
-        // header.add(title);
         header.add(UIFactory.createBoldLabel("Station Management", 28));
 
         return header;
@@ -93,18 +90,8 @@ public class StationManagementPanel extends JPanel {
         search.setOpaque(false);
         search.setMaximumSize(new Dimension(1000, 50));
 
-        // JLabel searchLabel = new JLabel("Search:");
-        // searchLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        // search.add(searchLabel);
         search.add(UIFactory.createPlainLabel("Search:", 16));
 
-        // searchField = new JTextField(30);
-        // searchField.setToolTipText("Search by code, name, or city");
-        // searchField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        // searchField.setBorder(BorderFactory.createCompoundBorder(
-        //     BorderFactory.createLineBorder(Color.BLACK, 1),
-        //     BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        // ));
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search by code, name, or city");
         searchField.addActionListener(e -> {
@@ -112,22 +99,12 @@ public class StationManagementPanel extends JPanel {
         });
         search.add(searchField);
 
-        // JButton searchButton = new JButton();
-        // try {
-        //     ImageIcon icon = new ImageIcon("src/com/mrt/img/search.png");
-        //     Image img = icon.getImage();
-        //     Image newImg = img.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        //     searchButton.setIcon(new ImageIcon(newImg));
-        // } catch (Exception ignored) {}
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.addActionListener(e -> {
             loadStations();
         });
         search.add(searchButton);
 
-        // numTableRowCount = new JLabel();
-        // numTableRowCount.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        // search.add(numTableRowCount);
         numTableRowCount = UIFactory.createPlainLabel("", 14);
         search.add(numTableRowCount);
 
@@ -140,13 +117,8 @@ public class StationManagementPanel extends JPanel {
         panel.setMaximumSize(new Dimension(1000, 30));
         panel.setOpaque(false);
 
-        // JLabel filterLabel = new JLabel("Filter by role:");
-        // filterLabel.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 16));
-        // panel.add(filterLabel);
         panel.add(UIFactory.createPlainLabel("City:", 16));
 
-        // filterBox = new JComboBox<>();
-        // filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         filterBox = UIFactory.createComboBox();
         filterBox.addItem(ALL_CITIES);
         for(City c: cities) {
@@ -157,8 +129,6 @@ public class StationManagementPanel extends JPanel {
         });
         panel.add(filterBox);
 
-        // JButton clearFilterButton = new JButton("Clear filter");
-        // clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         JButton clearFilterButton = UIFactory.createButton("Clear filter");
         clearFilterButton.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
@@ -174,10 +144,6 @@ public class StationManagementPanel extends JPanel {
         actionPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         actionPanel.setOpaque(false);
 
-        // addButton = createActionButton("Add");
-        // editButton = createActionButton("Edit");
-        // deleteButton = createActionButton("Delete");
-        // refreshButton = createActionButton("Refresh");
         Dimension btnDim = new Dimension(120, 36);
         addButton = UIFactory.createButton("Add");
         addButton.setPreferredSize(btnDim);
@@ -245,11 +211,11 @@ public class StationManagementPanel extends JPanel {
             }
 
             int stationId = (int) tableModel.getValueAt(row, 0);
-            int cityId = (int) tableModel.getValueAt(row, 1);
-            String currentCode = tableModel.getValueAt(row, 2).toString();
-            String currentName = tableModel.getValueAt(row, 3).toString();
+            int cityId = Station.getStationFromId(stationId).getCityId();
+            String currentCode = tableModel.getValueAt(row, 1).toString();
+            String currentName = tableModel.getValueAt(row, 2).toString();
             City currentCity = City.getCityFromId(cityId);
-            System.out.println(cityId);
+            // System.out.println(cityId);
 
             FormDialog editDialog = new FormDialog(frame, "Edit Station", new Dimension(400, 310));
             JTextField codeField = editDialog.addTextField("Station code:");
@@ -317,7 +283,7 @@ public class StationManagementPanel extends JPanel {
                 stationId
             );
             if(used != null) {
-                JOptionPane.showMessageDialog(this, "Cannot delete this station as it is being used", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Cannot delete this station as it is being used", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -352,18 +318,9 @@ public class StationManagementPanel extends JPanel {
         return wrapper;
     }
 
-    // private JButton createActionButton(String text) {
-    //     JButton btn = new JButton(text);
-    //     // btn.setMaximumSize(new Dimension(180, 40));
-    //     btn.setPreferredSize(new Dimension(120, 36));
-    //     btn.setVerticalAlignment(SwingConstants.CENTER);
-    //     btn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-    //     return btn;
-    // }
-
     private JScrollPane createstationTablePanel() {
         tableModel = new DefaultTableModel(
-            new String[] {"station_id", "city_id", "Station Code", "Station Name", "City"},
+            new String[] {"station_id", "Station Code", "Station Name", "City"},
             0
         ) {
             @Override
@@ -381,10 +338,9 @@ public class StationManagementPanel extends JPanel {
         stationTable.getTableHeader().setPreferredSize(new Dimension(10, 25));
 
         TableColumnModel columnModel = stationTable.getColumnModel();
-        columnModel.removeColumn(columnModel.getColumn(1));
         columnModel.removeColumn(columnModel.getColumn(0));
-        // columnModel.getColumn(0).setMaxWidth(40);
-        // columnModel.getColumn(0).setMinWidth(40);
+        columnModel.getColumn(0).setMinWidth(100);
+        columnModel.getColumn(0).setMaxWidth(100);
 
         stationTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
@@ -448,7 +404,6 @@ public class StationManagementPanel extends JPanel {
         for(Station s: stationList) {
             tableModel.addRow(new Object[] {
                 s.getStationId(),
-                s.getCityId(),
                 s.getStationCode(),
                 s.getStationName(),
                 City.getCityFromId(s.getCityId()).getCityName()

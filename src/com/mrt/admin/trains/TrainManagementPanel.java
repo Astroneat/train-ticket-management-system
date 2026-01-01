@@ -361,7 +361,7 @@ public class TrainManagementPanel extends JPanel {
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"ID", "Train Code", "Seat Capacity", "Status", "Scheduled"},
+            new String[] {"ID", "Train Code", "Seat Capacity", "Status", "Schedules"},
             0
         ) {
             @Override

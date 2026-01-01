@@ -7,6 +7,7 @@ import com.mrt.MainFrame;
 import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
 import com.mrt.Universal;
+import com.mrt.admin.routes.RouteManagementPanel;
 import com.mrt.admin.stations.StationManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
@@ -46,13 +47,15 @@ public class AdminMainFrame extends JFrame implements MyFrame {
         contentPanel.add("DASHBOARD", new AdminDashboardPanel());
         contentPanel.add("TRAINS", new TrainManagementPanel(this));
         contentPanel.add("STATIONS", new StationManagementPanel(this));
+        contentPanel.add("ROUTES", new RouteManagementPanel(this));
         contentPanel.add("USERS", new UserManagementPanel(this, user));
         
         add(contentPanel, BorderLayout.CENTER);
         // showPage("DASHBOARD");
         // showPage("USERS");
         // showPage("TRAINS");
-        showPage("STATIONS");
+        // showPage("STATIONS");
+        showPage("ROUTES");
     }
 
     public void showPage(String page) {

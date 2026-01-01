@@ -30,8 +30,7 @@ public class Train {
         );
     }
 
-    @Override
-    public String toString() {
-        return trainCode;
+    public String getTrainSummary() {
+        return trainCode + " (" + seatCapacity + " seats)";
     }
 }

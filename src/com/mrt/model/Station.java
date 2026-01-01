@@ -23,6 +23,9 @@ public class Station {
     public String getStationCode() { return stationCode; }
     public String getStationName() { return stationName; }
     public int getCityId() { return cityId; }
+    public String getStationSummary() {
+        return stationName + " (" + stationCode + ")";
+    }
 
     public static Station getStationFromId(int stationId) {
         return Universal.db().queryOne(

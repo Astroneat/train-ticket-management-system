@@ -1,4 +1,4 @@
-package com.mrt.admin.trains;
+package com.mrt.admin.routes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,27 +21,22 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Route;
+import com.mrt.model.City;
 import com.mrt.model.Station;
 
-public class RoutePickerDialog extends JDialog {
+public class StationPickerDialog extends JDialog {
 
     private JTextField searchField;
 
-    private JComboBox<Station> originBox;
-    private JComboBox<Station> destBox;
-
-    private JTable routeTable;
+    private JTable stationTable;
     private DefaultTableModel tableModel;
 
     private JButton pickBtn;
 
-    private Route selectedRoute;
+    private Station selectedStation;
 
-    private static final Station ALL_STATIONS = new Station(-1, "ALL", "All", -1);
-
-    public RoutePickerDialog(JDialog frame) {
-        super(frame, "Route Picker", true);
+    public StationPickerDialog(JDialog frame) {
+        super(frame, "Station Picker", true);
 
         setSize(800, 600);
         setLocationRelativeTo(frame);
@@ -63,7 +57,7 @@ public class RoutePickerDialog extends JDialog {
         panel.setOpaque(false);
 
         panel.add(UIFactory.createBoldLabel(
-            "Select a route",
+            "Select a Station",
             18
         ));
 
@@ -80,7 +74,6 @@ public class RoutePickerDialog extends JDialog {
         top.setOpaque(false);
 
         top.add(createSearchPanel());
-        top.add(createFilterPanel());
         wrapper.add(top, BorderLayout.NORTH);
 
         wrapper.add(createScrollPane(), BorderLayout.CENTER);
@@ -96,51 +89,25 @@ public class RoutePickerDialog extends JDialog {
         panel.add(UIFactory.createPlainLabel("Search:", 14));
 
         searchField = UIFactory.createTextField(15);
-        searchField.setToolTipText("Search by route code or station");
+        searchField.setToolTipText("Search by code, name, or city");
         searchField.addActionListener(e -> {
-            loadRoutes();
+            loadStations();
         });
         panel.add(searchField);
 
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.setPreferredSize(new Dimension(40, 40));
         searchButton.addActionListener(e -> {
-            loadRoutes();
+            loadStations();
         });
         panel.add(searchButton);
 
         return panel;
     }
 
-    private JPanel createFilterPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.setOpaque(false);
-
-        panel.add(UIFactory.createPlainLabel("Origin:", 14));
-
-        originBox = new JComboBox<>();
-        panel.add(originBox);
-        
-        panel.add(UIFactory.createPlainLabel("Destination:", 14));
-        
-        destBox = new JComboBox<>();
-        panel.add(destBox);
-
-        loadAllStations();
-        originBox.addActionListener(e -> {
-            loadRoutes();
-        });
-        destBox.addActionListener(e -> {
-            loadRoutes();
-        });
-
-        return panel;
-    }
-
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new String[] {"obj_route", "Route Code", "Origin", "Destination"},
+            new String[] {"obj_station", "Station Code", "Station Name", "City"},
             0
         ) {
             @Override
@@ -150,16 +117,16 @@ public class RoutePickerDialog extends JDialog {
             }
         };
 
-        routeTable = new JTable(tableModel);
-        routeTable.setRowHeight(30);
-        routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        routeTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
-        routeTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
-        routeTable.getTableHeader().setReorderingAllowed(false);
-        routeTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        routeTable.getSelectionModel().addListSelectionListener(e -> {
+        stationTable = new JTable(tableModel);
+        stationTable.setRowHeight(30);
+        stationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        stationTable.getTableHeader().setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
+        stationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
+        stationTable.getTableHeader().setReorderingAllowed(false);
+        stationTable.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        stationTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
-                int row = routeTable.getSelectedRow();
+                int row = stationTable.getSelectedRow();
                 if(row != -1) {
                     pickBtn.setEnabled(true);
                 } else {
@@ -168,16 +135,16 @@ public class RoutePickerDialog extends JDialog {
             }
         });
 
-        TableColumnModel columnModel = routeTable.getColumnModel();
+        TableColumnModel columnModel = stationTable.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
         columnModel.getColumn(0).setMaxWidth(100);
         columnModel.getColumn(0).setMinWidth(100);
 
-        routeTable.setFocusable(false);
+        stationTable.setFocusable(false);
 
-        loadRoutes();
+        loadStations();
 
-        JScrollPane scrollPane = new JScrollPane(routeTable);
+        JScrollPane scrollPane = new JScrollPane(stationTable);
         return scrollPane;
     }
 
@@ -185,14 +152,10 @@ public class RoutePickerDialog extends JDialog {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panel.setOpaque(false);
 
-        // JButton cancelBtn = new JButton("Exit");
-        // cancelBtn.setPreferredSize(new Dimension(100, 33));
-        // cancelBtn.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        // cancelBtn.addActionListener(e -> dispose());
         JButton cancelBtn = UIFactory.createButton("Cancel");
         cancelBtn.setPreferredSize(new Dimension(100, 33));
         cancelBtn.addActionListener(e -> {
-            selectedRoute = null;
+            selectedStation = null;
             dispose();
         });
 
@@ -200,12 +163,12 @@ public class RoutePickerDialog extends JDialog {
         pickBtn.setPreferredSize(new Dimension(100, 33));
         pickBtn.setEnabled(false);
         pickBtn.addActionListener(e -> {
-            int row = routeTable.getSelectedRow();
+            int row = stationTable.getSelectedRow();
             if(row != -1) {
-                selectedRoute = (Route) tableModel.getValueAt(row, 0);
+                selectedStation = (Station) tableModel.getValueAt(row, 0);
                 dispose();
             }
-            else selectedRoute = null;
+            else selectedStation = null;
         });
 
         panel.add(cancelBtn);
@@ -213,78 +176,43 @@ public class RoutePickerDialog extends JDialog {
         return panel;
     }
 
-    private void loadRoutes() {
+    private void loadStations() {
         String searchTerm = searchField.getText().trim();
-        Station origin = (Station) originBox.getSelectedItem();
-        Station dest = (Station) destBox.getSelectedItem();
 
         List<Object> args = new ArrayList<>();
         String sql = 
         """
-        SELECT * 
-        FROM train_routes tr
-        INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
-        INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
-        WHERE tr.status = 'active' 
+        SELECT * FROM stations s
+        INNER JOIN cities c ON s.city_id = c.city_id
+        WHERE TRUE
         """;
 
         if(!searchTerm.isBlank()) {
-            sql += " AND (tr.route_code LIKE ? OR s1.station_name LIKE ? OR s2.station_name LIKE ?)";
+            sql += " AND (s.station_code LIKE ? OR s.station_name LIKE ? OR c.city_name LIKE ?)";
             args.add("%" + searchTerm + "%");
             args.add("%" + searchTerm + "%");
             args.add("%" + searchTerm + "%");
         }
-        if(origin != ALL_STATIONS) {
-            sql += " AND (s1.station_code = ?)";
-            args.add(origin.getStationCode());
-        }
-        if(dest != ALL_STATIONS) {
-            sql += " AND (s2.station_code = ?)";
-            args.add(dest.getStationCode());
-        }
+        sql += ";";
 
-        sql += "\n";
-        sql += "GROUP BY tr.route_id, tr.route_code, s1.station_name, s2.station_name\n";
-        sql += "ORDER BY tr.route_code ASC;";
-
-        List<Route> routes = Universal.db().query(
+        List<Station> stationList = Universal.db().query(
             sql,
-            rs -> new Route(
-                rs.getInt("tr.route_id"),
-                rs.getString("tr.route_code"),
-                rs.getInt("s1.station_id"),
-                rs.getInt("s2.station_id"),
-                rs.getString("tr.status")
-            ),
+            rs -> Station.parseResultSet(rs),
             args.toArray()
         );
 
         tableModel.setRowCount(0);
-        for(Route row: routes) {
+        for(Station s: stationList) {
             tableModel.addRow(new Object[] {
-                row,
-                row.getRouteCode(),
-                Station.getStationFromId(row.getOriginStationId()).getStationName(),
-                Station.getStationFromId(row.getDestinationStationId()).getStationName()
+                s,
+                s.getStationCode(),
+                s.getStationName(),
+                City.getCityFromId(s.getCityId()).getCityName()
             });
         }
     }
 
-    private void loadAllStations() {
-        List<Station> allStations = Universal.db().query(
-            "SELECT * FROM stations ORDER BY station_name",
-            rs -> Station.parseResultSet(rs)
-        );
-
-        originBox.addItem(ALL_STATIONS);
-        destBox.addItem(ALL_STATIONS);
-        for(Station s: allStations) {
-            originBox.addItem(s);
-            destBox.addItem(s);
-        }
-    }
-
-    public Route getSelectedRoute() {
-        return selectedRoute;
+    public Station getSelectedStation() {
+        return selectedStation;
     }
 }

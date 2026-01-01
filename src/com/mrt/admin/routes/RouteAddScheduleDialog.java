@@ -1,4 +1,4 @@
-package com.mrt.admin.trains;
+package com.mrt.admin.routes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,8 +29,9 @@ import com.mrt.model.Route;
 import com.mrt.model.Train;
 import com.mrt.services.ScheduleService;
 
-public class TrainAddScheduleDialog extends JDialog {
-    private Train train;
+public class RouteAddScheduleDialog extends JDialog {
+
+    private Route route;
 
     private JSpinner departureSpinner;
     private JSpinner arrivalSpinner;
@@ -38,14 +39,14 @@ public class TrainAddScheduleDialog extends JDialog {
     private JTextField routeField;
     private JButton pickRouteBtn;
 
-    private Route selectedRoute;
+    private Train selectedTrain;
 
     private JButton saveBtn;
 
-    public TrainAddScheduleDialog(JDialog parent, Train train) {
+    public RouteAddScheduleDialog(JDialog parent, Route route) {
         super(parent, "Add Schedule", true);
 
-        this.train = train;
+        this.route = route;
 
         setSize(new Dimension(400, 300));
         setResizable(false);
@@ -91,11 +92,11 @@ public class TrainAddScheduleDialog extends JDialog {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(UIFactory.createPlainLabel("Route:", 14), gbc);
+        panel.add(UIFactory.createPlainLabel("Train:", 14), gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        panel.add(createRoutePickerRow(), gbc);
+        panel.add(createTrainPickerRow(), gbc);
 
         return panel;
     }
@@ -113,7 +114,7 @@ public class TrainAddScheduleDialog extends JDialog {
         return spinner;
     }
 
-    private JPanel createRoutePickerRow() {
+    private JPanel createTrainPickerRow() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         panel.setOpaque(false);
 
@@ -124,13 +125,13 @@ public class TrainAddScheduleDialog extends JDialog {
         pickRouteBtn = UIFactory.createButton("...");
         pickRouteBtn.setPreferredSize(new Dimension(40, 40));
         pickRouteBtn.addActionListener(e -> {
-            RoutePickerDialog dialog = new RoutePickerDialog(this);
+            TrainPickerDialog dialog = new TrainPickerDialog(this);
             dialog.setVisible(true);
 
-            Route pickedRoute = dialog.getSelectedRoute();
-            if(pickedRoute != null) {
-                routeField.setText(pickedRoute.getRouteSummary());
-                selectedRoute = pickedRoute;
+            Train pickedTrain = dialog.getSelectedTrain();
+            if(pickedTrain != null) {
+                routeField.setText(pickedTrain.getTrainCode());
+                selectedTrain = pickedTrain;
                 saveBtn.setEnabled(true);
             } else {
                 saveBtn.setEnabled(false);
@@ -157,8 +158,8 @@ public class TrainAddScheduleDialog extends JDialog {
 
         cancelBtn.addActionListener(e -> dispose());
         saveBtn.addActionListener(e -> {
-            if(selectedRoute == null) {
-                JOptionPane.showMessageDialog(this, "Please select a route", "Schedule Error", JOptionPane.ERROR_MESSAGE);
+            if(selectedTrain == null) {
+                JOptionPane.showMessageDialog(this, "Please select a train", "Schedule Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -166,7 +167,7 @@ public class TrainAddScheduleDialog extends JDialog {
             LocalDateTime arrival = getLocalDateTime(arrivalSpinner);
             // System.out.println("ldt " + departure + " " + arrival);
 
-            int state = ScheduleService.createSchedule(train.getTrainId(), selectedRoute.getRouteId(), departure, arrival);
+            int state = ScheduleService.createSchedule(selectedTrain.getTrainId(), route.getRouteId(), departure, arrival);
             if(state == ScheduleService.SCHEDULE_CONFLICT) {
                 JOptionPane.showMessageDialog(this, "Another schedule already exists", "Schedule Error", JOptionPane.ERROR_MESSAGE);
                 return;

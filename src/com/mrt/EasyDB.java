@@ -79,6 +79,7 @@ public class EasyDB {
                 ps.setObject(i + 1, args[i]);
             }
 
+            // System.out.println(ps);
             return ps.executeUpdate();
         } catch(SQLException e) {
             throw new RuntimeException(e);
