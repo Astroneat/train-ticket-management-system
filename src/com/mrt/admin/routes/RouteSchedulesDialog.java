@@ -339,7 +339,7 @@ public class RouteSchedulesDialog extends JDialog {
         List<Schedule> schedules = ScheduleService.getSchedulesByRoute(route.getRouteId(), status);
 
         for(Schedule s: schedules) {
-            Train train = TrainService.getTrainFromId(s.getTrainId());
+            Train train = TrainService.getTrainById(s.getTrainId());
             tableModel.addRow(new Object[] {
                 s,
                 s.getDepartureTime(),

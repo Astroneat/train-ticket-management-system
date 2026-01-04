@@ -31,6 +31,7 @@ import com.mrt.model.Route;
 import com.mrt.model.Schedule;
 import com.mrt.model.Station;
 import com.mrt.model.Train;
+import com.mrt.services.RouteService;
 import com.mrt.services.ScheduleService;
 
 public class TrainSchedulesDialog extends JDialog {
@@ -302,7 +303,7 @@ public class TrainSchedulesDialog extends JDialog {
         });
 
         for(int i = 0; i < pastTable.getColumnCount(); i++) {
-            pastTable.getColumnModel().getColumn(i).setCellRenderer(renderer);
+            columnModel.getColumn(i).setCellRenderer(renderer);
         }
 
         loadAllSchedules(pastModel);
@@ -342,7 +343,7 @@ public class TrainSchedulesDialog extends JDialog {
         for(Schedule s: schedules) {
             // Schedule s = (Schedule) obj[0];
             // String routeDisplayName = (String) obj[1];
-            Route route = Route.getRouteFromId(s.getRouteId());
+            Route route = RouteService.getRouteById(s.getRouteId());
             String originName = Station.getStationFromId(route.getOriginStationId()).getStationName();
             String destinationName = Station.getStationFromId(route.getDestinationStationId()).getStationName();
             String routeDisplayName = originName + " → " + destinationName;

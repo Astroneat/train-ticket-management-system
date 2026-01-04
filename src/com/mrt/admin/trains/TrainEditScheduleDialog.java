@@ -25,6 +25,7 @@ import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.Route;
 import com.mrt.model.Schedule;
+import com.mrt.services.RouteService;
 import com.mrt.services.ScheduleService;
 
 public class TrainEditScheduleDialog extends JDialog {
@@ -58,7 +59,7 @@ public class TrainEditScheduleDialog extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         panel.add(UIFactory.createBoldLabel(
-            "<html>Route: <font color='#00b8ff'>" + Route.getRouteFromId(schedule.getRouteId()).getRouteSummary() + "</font></html>", 
+            "<html>Route: <font color='#00b8ff'>" + RouteService.getRouteById(schedule.getRouteId()).getRouteSummary() + "</font></html>", 
             18
         ));
 

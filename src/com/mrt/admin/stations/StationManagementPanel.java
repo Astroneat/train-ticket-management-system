@@ -24,7 +24,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
-import com.mrt.admin.AdminMainFrame;
+import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.City;
@@ -32,7 +32,7 @@ import com.mrt.model.Station;
 
 public class StationManagementPanel extends JPanel {
 
-    private AdminMainFrame frame;
+    private AdminFrame frame;
 
     private JTable stationTable;
     private DefaultTableModel tableModel;
@@ -50,7 +50,7 @@ public class StationManagementPanel extends JPanel {
 
     private City ALL_CITIES = new City(-1, "All");
 
-    public StationManagementPanel(AdminMainFrame frame) {
+    public StationManagementPanel(AdminFrame frame) {
         this.frame = frame;
 
         setLayout(new BorderLayout(0, 10));

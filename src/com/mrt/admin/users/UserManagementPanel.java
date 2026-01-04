@@ -27,13 +27,13 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import com.mrt.Universal;
-import com.mrt.admin.AdminMainFrame;
+import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.model.User;
 
 public class UserManagementPanel extends JPanel {
 
-    private AdminMainFrame frame;
+    private AdminFrame frame;
     private User currentUser;
 
     private JTable userTable;
@@ -49,7 +49,7 @@ public class UserManagementPanel extends JPanel {
 
     private JLabel numTableRowCount;
 
-    public UserManagementPanel(AdminMainFrame frame, User currentUser) {
+    public UserManagementPanel(AdminFrame frame, User currentUser) {
         this.frame = frame;
         this.currentUser = currentUser;
 

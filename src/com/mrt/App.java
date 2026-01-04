@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import com.mrt.admin.AdminMainFrame;
+import com.mrt.admin.AdminFrame;
 import com.mrt.model.User;
 
 public class App {
@@ -28,7 +28,7 @@ public class App {
             // new LoginFrame().setVisible(true);
 
             // new MainFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
-            new AdminMainFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
         });
     }
 }

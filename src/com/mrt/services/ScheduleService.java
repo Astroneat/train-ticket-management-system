@@ -81,6 +81,16 @@ public class ScheduleService {
         return SCHEDULE_VALID;
     }   
 
+    public static Schedule getScheduleById(int scheduleId) {
+        return Universal.db().queryOne(
+            """
+                SELECT * FROM train_schedules WHERE schedule_id = ?;
+            """,
+            rs -> Schedule.parseResultSet(rs),
+            scheduleId
+        );
+    }
+
     public static List<Schedule> getSchedulesByTrain(int trainId, String status) {
         updateCompletedSchedules();
 

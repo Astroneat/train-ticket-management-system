@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -11,7 +15,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
 
 import com.mrt.Universal;
 
@@ -89,5 +95,23 @@ public class UIFactory {
         checkBox.setFont(createDefaultPlainFont(14));
         checkBox.setFocusable(false);
         return checkBox;
+    }
+
+    public static JSpinner createDateTimeSpinner(String pattern, LocalDateTime defaultTime) {
+        Date date = Date.from(defaultTime.atZone(ZoneId.systemDefault()).toInstant());
+        SpinnerDateModel spinnerModel = new SpinnerDateModel(date, null, null, Calendar.MINUTE);
+        JSpinner spinner = new JSpinner(spinnerModel);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, pattern);
+        spinner.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
+        editor.getTextField().setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.BLACK, 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        spinner.setEditor(editor);
+        return spinner;
+    }
+
+    public static JSpinner createDateTimeSpinner(String pattern) {
+        return createDateTimeSpinner(pattern, (new Date().toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
     }
 }

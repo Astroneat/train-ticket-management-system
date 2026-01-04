@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
-import com.mrt.admin.AdminMainFrame;
+import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.Train;
@@ -34,7 +34,7 @@ import com.mrt.services.TrainService;
 
 public class TrainManagementPanel extends JPanel {
 
-    private AdminMainFrame frame;
+    private AdminFrame frame;
 
     private JTable trainTable;
     private DefaultTableModel tableModel;
@@ -52,7 +52,7 @@ public class TrainManagementPanel extends JPanel {
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
 
-    public TrainManagementPanel(AdminMainFrame frame) {
+    public TrainManagementPanel(AdminFrame frame) {
         this.frame = frame;
 
         setLayout(new BorderLayout(0, 10));

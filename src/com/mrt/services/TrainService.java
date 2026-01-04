@@ -1,5 +1,7 @@
 package com.mrt.services;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.mrt.Universal;
@@ -45,13 +47,22 @@ public class TrainService {
         return OK;
     }
 
-    public static Train getTrainFromId(int trainId) {
+    public static Train getTrainById(int trainId) {
         return Universal.db().queryOne(
             """
                 SELECT * FROM trains WHERE train_id = ?    
             """,
             rs -> Train.parseResultSet(rs),
             trainId
+        );
+    }
+
+    public static List<Train> getAllTrains() {
+        return Universal.db().query(
+            """
+                SELECT * FROM trains;    
+            """,
+            rs -> Train.parseResultSet(rs)
         );
     }
 

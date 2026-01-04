@@ -199,7 +199,7 @@ public class LoginFrame extends JFrame {
                 else {
                     JOptionPane.showMessageDialog(this, "<html>Logged in successfully as <strong>" + email + "</strong>!</html>", "Success", JOptionPane.INFORMATION_MESSAGE);
                     dispose();
-                    new MainFrame(result).setVisible(true);
+                    new UserFrame(result).setVisible(true);
                 }
             }
         });

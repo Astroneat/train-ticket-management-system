@@ -1,5 +1,9 @@
 package com.mrt.services;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 import com.mrt.Universal;
 import com.mrt.model.Route;
 import com.mrt.model.Station;
@@ -60,6 +64,25 @@ public class RouteService {
             route.getRouteId()
         );
         return true;
+    }
+
+    public static List<Route> getAllRoutes() {
+        return Universal.db().query(
+            """
+                SELECT * FROM train_routes;
+            """,
+            rs -> Route.parseResultSet(rs)
+        );
+    }
+    public static Route getRouteById(int routeId) {
+        return Universal.db().queryOne(
+            """
+                SELECT * FROM train_routes
+                WHERE route_id = ?    
+            """,
+            rs -> Route.parseResultSet(rs),
+            routeId
+        );
     }
 
     public static boolean hasSchedule(Route route) {

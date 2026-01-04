@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mrt.Universal;
+import com.mrt.services.StationService;
 
 public class Route {
     private int routeId;
@@ -32,22 +33,17 @@ public class Route {
     public int getDestinationStationId() {
         return destinationStationId;
     }
-    public String getRouteSummary() {
-        return routeCode;
-    }
     public String getStatus() {
         return status;
     }
-
-    public static Route getRouteFromId(int routeId) {
-        return Universal.db().queryOne(
-            """
-            SELECT * FROM train_routes
-            WHERE route_id = ?
-            """,
-            rs -> parseResultSet(rs),
-            routeId
-        );
+    public String getRouteSummary() {
+        if(routeId == -1) {
+            return "All";
+        }
+        
+        String origin = StationService.getStationById(originStationId).getStationName();
+        String dest = StationService.getStationById(destinationStationId).getStationName();
+        return routeCode + " (" + origin + " → " + dest + ")";
     }
 
     public static Route parseResultSet(ResultSet rs) throws SQLException {
@@ -58,5 +54,10 @@ public class Route {
             rs.getInt("destination_station_id"),
             rs.getString("status")
         );
+    }
+
+    @Override
+    public String toString() {
+        return getRouteSummary();
     }
 }

@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
-import com.mrt.admin.AdminMainFrame;
+import com.mrt.admin.AdminFrame;
 import com.mrt.factory.UIFactory;
 import com.mrt.model.City;
 import com.mrt.model.Route;
@@ -35,7 +35,7 @@ import com.mrt.services.RouteService;
 
 public class RouteManagementPanel extends JPanel {
 
-    private AdminMainFrame frame;
+    private AdminFrame frame;
 
     private JTable routeTable;
     private DefaultTableModel tableModel;
@@ -54,7 +54,7 @@ public class RouteManagementPanel extends JPanel {
     private JLabel numTableRowCount;
     private JLabel numActiveTrains;
 
-    public RouteManagementPanel(AdminMainFrame frame) {
+    public RouteManagementPanel(AdminFrame frame) {
         this.frame = frame;
 
         setLayout(new BorderLayout(0, 10));

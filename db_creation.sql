@@ -83,6 +83,22 @@ CREATE TABLE IF NOT EXISTS cities (
     city_name VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tickets (
+	ticket_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    schedule_id INT NOT NULL,
+    car_no INT NOT NULL,
+    seat_index INT NOT NULL,
+    status ENUM('booked', 'boarded', 'cancelled', 'expired') NOT NULL DEFAULT 'booked',
+    booked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    scanned_at TIMESTAMP,
+    
+    UNIQUE(schedule_id, car_no, seat_index),
+    
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (schedule_id) REFERENCES train_schedules(schedule_id)
+);
+
 INSERT INTO users (email, full_name, role, password) VALUES
 ('nguyen.anh@gmail.com', 'Nguyen Minh Anh', 'customer', 'Anh@4821'),
 ('tran.huy@gmail.com', 'Tran Quang Huy', 'customer', 'Huy#7392'),
@@ -97,13 +113,74 @@ INSERT INTO users (email, full_name, role, password) VALUES
 ('it.admin@mrt.vn', 'Nguyen Tuan IT', 'admin', 'IT#2025'),
 ('operations@mrt.vn', 'Tran Operations Lead', 'admin', 'Ops!7788');
 
+INSERT INTO cities (city_name) VALUES
+('An Giang'),
+('Bắc Ninh'),
+('Cà Mau'),
+('TP. Cần Thơ'),
+('Cao Bằng'),
+('TP. Đà Nẵng'),
+('Đắk Lắk'),
+('Điện Biên'),
+('Đồng Nai'),
+('Đồng Tháp'),
+('Gia Lai'),
+('TP. Hà Nội'),
+('Hà Tĩnh'),
+('TP. Hải Phòng'),
+('TP. Huế'),
+('Hưng Yên'),
+('Khánh Hòa'),
+('Lai Châu'),
+('Lâm Đồng'),
+('Lạng Sơn'),
+('Lào Cai'),
+('Nghệ An'),
+('Ninh Bình'),
+('Phú Thọ'),
+('Quảng Ngãi'),
+('Quảng Ninh'),
+('Quảng Trị'),
+('Sơn La'),
+('Tây Ninh'),
+('Thái Nguyên'),
+('Thanh Hóa'),
+('TP. Hồ Chí Minh'),
+('Tuyên Quang'),
+('Vĩnh Long');
+
 INSERT INTO stations (station_code, station_name, city) VALUES
-('DN', 'Da Nang Central', 'Da Nang'),
+('DN', 'Da Nang Central', 'Đà Nẵng'),
 ('HU', 'Hue Station', 'Hue'),
 ('DH', 'Dong Hoi Station', 'Dong Hoi'),
 ('VI', 'Vinh Station', 'Vinh'),
 ('HN', 'Hanoi Central', 'Hanoi'),
 ('HP', 'Hai Phong Station', 'Hai Phong');
+
+DELETE FROM train_schedules;
+DELETE FROM train_routes;
+DELETE FROM stations;
+
+DESCRIBE stations;
+
+SELECT * FROM stations;
+SELECT 1 AS exist FROM train_routes
+WHERE origin_station_id = 7 OR destination_station_id = 7;    
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE stations s
+JOIN cities c ON s.city = c.city_name
+SET s.city_id = c.city_id;
+
+UPDATE stations SET city = 'TP. Hà Nội' WHERE station_code = 'HN';
+
+SELECT * FROM stations;
+DELETE FROM stations WHERE station_code = 'VI';
+
+SELECT * FROM train_schedules ts
+INNER JOIN train_routes tr ON ts.route_id = tr.route_id
+INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
+INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id;
 
 INSERT INTO trains (train_code, seat_capacity, status) VALUES
 ('MRT-T01', 300, 'active'),
@@ -112,12 +189,12 @@ INSERT INTO trains (train_code, seat_capacity, status) VALUES
 ('MRT-T04', 320, 'active'),
 ('MRT-T05', 200, 'retired');
 
-INSERT INTO train_routes (route_code, origin_station_id, destination_station_id, distance_km)
+INSERT INTO train_routes (route_code, origin_station_id, destination_station_id)
 VALUES
-('DN-HU', 1, 2, 102.5),
-('DN-HN', 1, 5, 764.0),
-('HU-HN', 2, 5, 661.5),
-('HN-HP', 5, 6, 120.0);
+('DN-HU', 1, 2),
+('DN-HN', 1, 5),
+('HU-HN', 2, 5),
+('HN-HP', 5, 6);
 
 INSERT INTO route_stations (route_id, station_id, sequence_no) VALUES
 (1, 1, 1), -- Da Nang

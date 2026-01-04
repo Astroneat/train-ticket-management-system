@@ -31,6 +31,13 @@ public class Train {
     }
 
     public String getTrainSummary() {
+        if(trainId == -1) return "All";
+
         return trainCode + " (" + seatCapacity + " seats)";
+    }
+
+    @Override
+    public String toString() {
+        return getTrainSummary();
     }
 }
