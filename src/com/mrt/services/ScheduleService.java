@@ -18,7 +18,7 @@ public class ScheduleService {
     public static final int SCHEDULE_DEPARTURE_IN_THE_PAST = 3;
 
     public static int createSchedule(int trainId, int routeId, LocalDateTime departure, LocalDateTime arrival) {
-        updateCompletedSchedules();
+        refreshSchedulesStatus();
 
         Instant departureUTC = toUTC(departure);
         Instant arrivalUTC = toUTC(arrival);
@@ -49,7 +49,7 @@ public class ScheduleService {
         );
     }
 
-    public static void updateCompletedSchedules() {
+    public static void refreshSchedulesStatus() {
         Universal.db().execute(
             """
                 UPDATE train_schedules
@@ -92,7 +92,7 @@ public class ScheduleService {
     }
 
     public static List<Schedule> getSchedulesByTrain(int trainId, String status) {
-        updateCompletedSchedules();
+        refreshSchedulesStatus();
 
         String sql = 
             """
@@ -119,7 +119,7 @@ public class ScheduleService {
     }
 
     public static List<Schedule> getSchedulesByRoute(int routeId, String status) {
-        updateCompletedSchedules();
+        refreshSchedulesStatus();
 
         String sortOrder = status.equals("scheduled") ? "ASC" : "DESC";
         String sql = """

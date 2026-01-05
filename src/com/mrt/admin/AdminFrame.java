@@ -3,7 +3,6 @@ import javax.swing.*;
 
 import com.mrt.HeaderPanel;
 import com.mrt.LoginFrame;
-import com.mrt.UserFrame;
 import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
 import com.mrt.Universal;
@@ -13,6 +12,7 @@ import com.mrt.admin.tickets.TicketManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.model.User;
+import com.mrt.user.UserFrame;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -66,10 +66,10 @@ public class AdminFrame extends JFrame implements MyFrame {
         // showPage("TRAINS");
         // showPage("STATIONS");
         // showPage("ROUTES");
-        showPage(TICKETS);
+        goToPage(TICKETS);
     }
 
-    public void showPage(String page) {
+    public void goToPage(String page) {
         cardLayout.show(contentPanel, page);
     } 
     public void logout() {

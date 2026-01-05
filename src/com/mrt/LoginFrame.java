@@ -24,6 +24,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.mrt.model.User;
+import com.mrt.user.UserFrame;
 
 public class LoginFrame extends JFrame {
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -98,6 +99,8 @@ public class TicketManagementPanel extends JPanel {
         panel.setOpaque(false);
 
         panel.add(UIFactory.createBoldLabel("Ticket Management", 28));
+
+        panel.add(Box.createHorizontalStrut(5));
         
         displayNumBookedTickets = UIFactory.createPlainLabel("", 14);
         panel.add(displayNumBookedTickets);
@@ -373,6 +376,7 @@ public class TicketManagementPanel extends JPanel {
                 RouteService.getRouteById(s.getRouteId()).getRouteSummary(),
                 t.getCarNo() + "-" + t.getSeatIndex(),
                 s.getDepartureTime(),
+                s.getArrivalTime(),
                 scannedAtDisplay,
                 t.getStatus()
             });
@@ -387,7 +391,7 @@ public class TicketManagementPanel extends JPanel {
 
     private JScrollPane createScrollPane() {
         tableModel = new DefaultTableModel(
-            new Object[] { "obj_ticket", "Ticket ID", "User", "Train", "Route", "Seat", "Departure", "Scanned At", "Status"},
+            new String[] { "obj_ticket", "Ticket ID", "User", "Train", "Route", "Seat", "Departure", "Arrival", "Scanned At", "Status"},
             0
         ) {
             @Override
@@ -417,9 +421,10 @@ public class TicketManagementPanel extends JPanel {
         setColumnWidth(columnModel, 2, 180);
         setColumnWidth(columnModel, 3, 350);
         setColumnWidth(columnModel, 4, 80);
-        setColumnWidth(columnModel, 5, 200);
-        setColumnWidth(columnModel, 6, 100);
-        setColumnWidth(columnModel, 7, 100);
+        setColumnWidth(columnModel, 5, 130);
+        setColumnWidth(columnModel, 6, 130);
+        setColumnWidth(columnModel, 7, 130);
+        setColumnWidth(columnModel, 8, 100);
 
         ticketTable.getSelectionModel().addListSelectionListener(e -> {
             if(!e.getValueIsAdjusting()) {
@@ -462,7 +467,7 @@ public class TicketManagementPanel extends JPanel {
             boolean isStatus = false;
             if(value instanceof LocalDateTime) {
                 setText(((LocalDateTime) value).format(formatter));
-            } else if(column == 7) {
+            } else if(column == 8) {
                 isStatus = true;
                 setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
             }

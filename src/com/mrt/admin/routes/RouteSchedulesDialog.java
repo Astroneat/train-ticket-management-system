@@ -325,7 +325,7 @@ public class RouteSchedulesDialog extends JDialog {
     }
 
     private void refresh() {
-        ScheduleService.updateCompletedSchedules();
+        ScheduleService.refreshSchedulesStatus();
         loadAllSchedules(futureModel);
         loadAllSchedules(pastModel);
     }

@@ -93,7 +93,6 @@ public class TrainManagementPanel extends JPanel {
         JPanel search = new JPanel();
         search.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         search.setOpaque(false);
-        search.setMaximumSize(new Dimension(1000, 50));
 
         search.add(UIFactory.createPlainLabel("Search:", 16));
 
@@ -424,7 +423,7 @@ public class TrainManagementPanel extends JPanel {
 
         int returnedSize = trainList.size();
         int numAllTrains = countAllTrains();
-        numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numAllTrains ? "" : " (" + numAllTrains + " total)"));
+        numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numAllTrains ? "" : " (of " + numAllTrains + " total)"));
         numActiveTrains.setText(countActiveTrains() + " active trains");
     }
 }

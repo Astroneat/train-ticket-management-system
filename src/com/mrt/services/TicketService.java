@@ -33,4 +33,25 @@ public class TicketService {
             ticketId
         );
     }
+
+    public static void refreshTicketsStatus() {
+        Universal.db().execute(
+            """
+               UPDATE tickets tk
+               INNER JOIN train_schedules ts ON tk.schedule_id = ts.schedule_id
+               SET tk.status = 'cancelled'
+               WHERE ts.status = 'cancelled' AND tk.status != 'cancelled';     
+            """
+        );
+
+        Universal.db().execute(
+            """
+                UPDATE tickets tk
+                INNER JOIN train_schedules ts ON tk.schedule_id = tk.schedule_id
+                SET tk.status = 'expired'
+                WHERE ts.arrival_utc < UTC_TIMESTAMP()
+                AND tk.status= 'booked';
+            """
+        );
+    }
 }

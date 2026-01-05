@@ -176,7 +176,7 @@ public class TrainSchedulesDialog extends JDialog {
                 String status = (String) futureModel.getValueAt(row, 5);
                 if(status.equals("scheduled")) {
                     int scheduleId = (int) futureModel.getValueAt(row, 0);
-                    TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, Schedule.getScheduleFromId(scheduleId));
+                    TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, ScheduleService.getScheduleById(scheduleId));
                     dialog.setVisible(true);
 
                     refresh();

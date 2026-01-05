@@ -53,17 +53,6 @@ public class Schedule {
         return timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
-    public static Schedule getScheduleFromId(int scheduleId) {
-        return Universal.db().queryOne(
-            """
-            SELECT * FROM train_schedules
-            WHERE schedule_id = ?       
-            """,
-            rs -> parseResultSet(rs),
-            scheduleId
-        );
-    }
-
     public static Schedule parseResultSet(ResultSet rs) throws SQLException {
         return new Schedule(
             rs.getInt("schedule_id"),

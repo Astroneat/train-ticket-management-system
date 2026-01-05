@@ -1,8 +1,15 @@
-package com.mrt;
+package com.mrt.user;
 import javax.swing.*;
 
+import com.mrt.HeaderPanel;
+import com.mrt.LoginFrame;
+import com.mrt.MyFrame;
+import com.mrt.SidebarPanel;
+import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
 import com.mrt.model.User;
+import com.mrt.user.schedules.ScheduleSearchPanel;
+import com.mrt.user.schedules.SchedulesPanel;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -14,11 +21,22 @@ public class UserFrame extends JFrame implements MyFrame {
     private JPanel contentPanel;
     private User currentUser;
 
+    private SidebarPanel sidebar;
+    private static final String HOME      = "HOME";
+    private static final String SCHEDULES = "SCHEDULES";
+    private static final String TICKETS   = "TICKETS";
+    private static final String PROFILE   = "PROFILE";
+
+    private JButton homeBtn;
+    private JButton schedulesBtn;
+    private JButton ticketsBtn;
+    private JButton profileBtn;
+
     public UserFrame(User user) {
         this.currentUser = user;
 
         setTitle("MRT Viet Nam");
-        setSize(1100, 700);
+        setSize(1200, 800);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -30,14 +48,33 @@ public class UserFrame extends JFrame implements MyFrame {
 
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
+
+        contentPanel.add(HOME, new UserHomePanel());
+        contentPanel.add(SCHEDULES, new SchedulesPanel());
         
         add(contentPanel, BorderLayout.CENTER);
 
-        showPage("HOME");
+        // showPage("HOME");
+        goToPage(SCHEDULES);
     }
 
-    public void showPage(String page) {
+    public void goToPage(String page) {
         cardLayout.show(contentPanel, page);
+
+        switch(page) {
+            case "HOME":
+                sidebar.setActiveSidebarButton(homeBtn);
+                break;
+            case "SCHEDULES":
+                sidebar.setActiveSidebarButton(schedulesBtn);
+                break;
+            case "TICKETS":
+                sidebar.setActiveSidebarButton(ticketsBtn);
+                break;
+            case "PROFILE":
+                sidebar.setActiveSidebarButton(profileBtn);
+                break;
+        }
     }
     public void logout() {
         dispose();
@@ -48,13 +85,17 @@ public class UserFrame extends JFrame implements MyFrame {
     }
 
     private JPanel createSidebarPanel() {
-        SidebarPanel sidebar = new SidebarPanel(this);
+        sidebar = new SidebarPanel(this);
 
         int verticalStrut = 10;
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Home", "src/com/mrt/img/home.png", "HOME"));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Search Trains", "src/com/mrt/img/train.png", "TRAINS"));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("My Tickets", "src/com/mrt/img/ticket.png", "TICKETS"));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", "PROFILE"));
+        homeBtn = sidebar.createSidebarButton("Home", "src/com/mrt/img/home.png", HOME);
+        sidebar.addToMenuPanel(homeBtn);
+        schedulesBtn = sidebar.createSidebarButton("Search Schedules", "src/com/mrt/img/search_light.png", SCHEDULES);
+        sidebar.addToMenuPanel(schedulesBtn);
+        ticketsBtn = sidebar.createSidebarButton("My Tickets", "src/com/mrt/img/ticket.png", TICKETS);
+        sidebar.addToMenuPanel(ticketsBtn);
+        profileBtn = sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", PROFILE);
+        sidebar.addToMenuPanel(profileBtn);
 
         if(currentUser.getRole().equals("admin")) {
             sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));

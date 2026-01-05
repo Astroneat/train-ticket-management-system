@@ -1,5 +1,7 @@
 package com.mrt.user;
 
-public class UserHomePanel {
+import javax.swing.JPanel;
+
+public class UserHomePanel extends JPanel {
     
 }

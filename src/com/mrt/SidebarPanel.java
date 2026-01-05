@@ -51,8 +51,11 @@ public class SidebarPanel extends JPanel {
         logoutPanel.add(comp);
     }
     public void setActiveSidebarButton(JButton btn) {
+        // activeSidebarButton = btn;
+        // activeSidebarButton.setBackground(Color.BLACK);
+        activeSidebarButton.setBackground(Universal.BACKGROUND_BLACK);
+        btn.setBackground(Color.BLACK);
         activeSidebarButton = btn;
-        activeSidebarButton.setBackground(Color.BLACK);
     }
 
     public JButton createSidebarButton(String text, String imageFileName, String toPage) {
@@ -80,7 +83,7 @@ public class SidebarPanel extends JPanel {
         btn.setOpaque(true);
         
         btn.addActionListener(e -> {
-            frame.showPage(toPage);
+            frame.goToPage(toPage);
         });
         btn.addMouseListener(new MouseAdapter() {
             @Override
@@ -95,10 +98,8 @@ public class SidebarPanel extends JPanel {
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-            if(btn.getMousePosition() != null) {
-                activeSidebarButton.setBackground(Universal.BACKGROUND_BLACK);
-                btn.setBackground(Color.BLACK);
-                activeSidebarButton = btn;
+                if(btn.getMousePosition() != null) {
+                    setActiveSidebarButton(btn);
                 }
             }
         });

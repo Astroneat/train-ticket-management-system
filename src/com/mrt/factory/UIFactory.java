@@ -97,6 +97,10 @@ public class UIFactory {
         return checkBox;
     }
 
+    public static JCheckBox createCheckBox() {
+        return createCheckBox("");
+    }
+
     public static JSpinner createDateTimeSpinner(String pattern, LocalDateTime defaultTime) {
         Date date = Date.from(defaultTime.atZone(ZoneId.systemDefault()).toInstant());
         SpinnerDateModel spinnerModel = new SpinnerDateModel(date, null, null, Calendar.MINUTE);

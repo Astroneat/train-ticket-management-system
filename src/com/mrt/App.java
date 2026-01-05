@@ -5,8 +5,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import com.mrt.admin.AdminFrame;
 import com.mrt.model.User;
+import com.mrt.user.UserFrame;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -27,8 +27,8 @@ public class App {
             Universal.db().establishConnection();
             // new LoginFrame().setVisible(true);
 
-            // new MainFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
-            new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            new UserFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            // new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
         });
     }
 }
