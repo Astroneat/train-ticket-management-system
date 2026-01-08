@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mrt.Universal;
-import com.mrt.model.Station;
+import com.mrt.models.Station;
 
 public class StationService {
 

@@ -7,8 +7,7 @@ import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
 import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
-import com.mrt.model.User;
-import com.mrt.user.schedules.ScheduleSearchPanel;
+import com.mrt.models.User;
 import com.mrt.user.schedules.SchedulesPanel;
 
 import java.awt.*;
@@ -50,7 +49,7 @@ public class UserFrame extends JFrame implements MyFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(HOME, new UserHomePanel());
-        contentPanel.add(SCHEDULES, new SchedulesPanel());
+        contentPanel.add(SCHEDULES, new SchedulesPanel(this, user));
         
         add(contentPanel, BorderLayout.CENTER);
 
@@ -87,7 +86,6 @@ public class UserFrame extends JFrame implements MyFrame {
     private JPanel createSidebarPanel() {
         sidebar = new SidebarPanel(this);
 
-        int verticalStrut = 10;
         homeBtn = sidebar.createSidebarButton("Home", "src/com/mrt/img/home.png", HOME);
         sidebar.addToMenuPanel(homeBtn);
         schedulesBtn = sidebar.createSidebarButton("Search Schedules", "src/com/mrt/img/search_light.png", SCHEDULES);
@@ -96,39 +94,19 @@ public class UserFrame extends JFrame implements MyFrame {
         sidebar.addToMenuPanel(ticketsBtn);
         profileBtn = sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", PROFILE);
         sidebar.addToMenuPanel(profileBtn);
-
+        
         if(currentUser.getRole().equals("admin")) {
+            int verticalStrut = 5;
             sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
             sidebar.addToMenuPanel(new JSeparator());
             sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
 
-            JButton toAdmin = new JButton("Admin");
-            toAdmin.setAlignmentX(CENTER_ALIGNMENT);
-            toAdmin.setPreferredSize(new Dimension(500, 50));
-            toAdmin.setMaximumSize(new Dimension(500, 50));
-
-            toAdmin.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
-
-            toAdmin.setBorderPainted(false);
-            toAdmin.setFocusPainted(false);
-            toAdmin.setForeground(Universal.BACKGROUND_WHITE);
-            toAdmin.setBackground(Universal.BACKGROUND_BLACK);
-            toAdmin.setOpaque(true);
-
+            JButton toAdmin = sidebar.createSidebarButton("Admin", "src/com/mrt/img/gears.png", "");
             toAdmin.addActionListener(e -> {
                 dispose();
                 new AdminFrame(currentUser).setVisible(true);
             });
-            toAdmin.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    toAdmin.setBackground(Color.BLACK);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    toAdmin.setBackground(Universal.BACKGROUND_BLACK);
-                }
-            });
+
             sidebar.addToMenuPanel(toAdmin);
         }
 

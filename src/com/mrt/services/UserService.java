@@ -1,7 +1,7 @@
 package com.mrt.services;
 
 import com.mrt.Universal;
-import com.mrt.model.User;
+import com.mrt.models.User;
 
 public class UserService {
     

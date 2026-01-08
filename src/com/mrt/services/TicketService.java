@@ -1,6 +1,12 @@
 package com.mrt.services;
 
+import java.util.List;
+
 import com.mrt.Universal;
+import com.mrt.models.Schedule;
+import com.mrt.models.Seat;
+import com.mrt.models.Ticket;
+import com.mrt.models.User;
 
 public class TicketService {
 
@@ -47,11 +53,36 @@ public class TicketService {
         Universal.db().execute(
             """
                 UPDATE tickets tk
-                INNER JOIN train_schedules ts ON tk.schedule_id = tk.schedule_id
+                INNER JOIN train_schedules ts ON ts.schedule_id = tk.schedule_id
                 SET tk.status = 'expired'
-                WHERE ts.arrival_utc < UTC_TIMESTAMP()
-                AND tk.status= 'booked';
+                WHERE ts.status = 'completed' AND tk.status = 'booked';
             """
         );
+    }
+
+    public static List<Ticket> getTicketsBySchedule(Schedule schedule) {
+        return Universal.db().query(
+            """
+                SELECT * FROM tickets
+                WHERE schedule_id = ?;    
+            """,
+            rs -> Ticket.parseResultSet(rs),
+            schedule.getScheduleId()
+        );
+    }
+
+    public static void bookTickets(User user, Schedule schedule, List<Seat> seats) {
+        for(Seat seat: seats) {
+            Universal.db().execute(
+                """
+                    INSERT INTO tickets (user_id, schedule_id, car_no, seat_index, status)
+                    VALUES (?, ?, ?, ?, 'booked');    
+                """,
+                user.getUserId(),
+                schedule.getScheduleId(),
+                seat.getCarNo(),
+                seat.getSeatIndex()
+            );
+        }
     }
 }

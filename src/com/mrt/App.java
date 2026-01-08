@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import com.mrt.model.User;
+import com.mrt.models.User;
 import com.mrt.user.UserFrame;
 
 public class App {

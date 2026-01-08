@@ -23,8 +23,7 @@ import javax.swing.SpinnerDateModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Route;
-import com.mrt.model.Schedule;
+import com.mrt.models.Schedule;
 import com.mrt.services.RouteService;
 import com.mrt.services.ScheduleService;
 
@@ -41,7 +40,7 @@ public class TrainEditScheduleDialog extends JDialog {
 
         this.schedule = schedule;
 
-        setSize(new Dimension(350, 250));
+        setSize(new Dimension(500, 250));
         setResizable(false);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));

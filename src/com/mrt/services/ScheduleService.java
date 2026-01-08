@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mrt.Universal;
-import com.mrt.model.Schedule;
+import com.mrt.models.Schedule;
 
 public class ScheduleService {
 

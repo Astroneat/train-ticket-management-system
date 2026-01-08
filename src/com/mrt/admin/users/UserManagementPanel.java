@@ -29,7 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
-import com.mrt.model.User;
+import com.mrt.models.User;
 
 public class UserManagementPanel extends JPanel {
 

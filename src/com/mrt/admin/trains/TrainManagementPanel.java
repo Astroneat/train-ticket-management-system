@@ -29,7 +29,7 @@ import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Train;
+import com.mrt.models.Train;
 import com.mrt.services.TrainService;
 
 public class TrainManagementPanel extends JPanel {

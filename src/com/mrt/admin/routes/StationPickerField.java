@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Station;
+import com.mrt.models.Station;
 
 public class StationPickerField extends JPanel {
     

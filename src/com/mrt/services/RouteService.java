@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.mrt.Universal;
-import com.mrt.model.Route;
-import com.mrt.model.Station;
+import com.mrt.models.Route;
+import com.mrt.models.Station;
 
 public class RouteService {
     

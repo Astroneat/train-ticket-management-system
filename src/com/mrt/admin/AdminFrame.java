@@ -11,7 +11,7 @@ import com.mrt.admin.stations.StationManagementPanel;
 import com.mrt.admin.tickets.TicketManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
-import com.mrt.model.User;
+import com.mrt.models.User;
 import com.mrt.user.UserFrame;
 
 import java.awt.BorderLayout;
@@ -61,12 +61,12 @@ public class AdminFrame extends JFrame implements MyFrame {
         contentPanel.add(USERS, new UserManagementPanel(this, user));
         
         add(contentPanel, BorderLayout.CENTER);
-        // showPage("DASHBOARD");
+        goToPage(DASHBOARD);
         // showPage("USERS");
         // showPage("TRAINS");
         // showPage("STATIONS");
         // showPage("ROUTES");
-        goToPage(TICKETS);
+        // goToPage(TICKETS);
     }
 
     public void goToPage(String page) {
@@ -92,35 +92,18 @@ public class AdminFrame extends JFrame implements MyFrame {
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", USERS));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", REPORTS));
         sidebar.setActiveSidebarButton(dashboardBtn);
-        
-        JButton toHome = new JButton("Back to Home");
-        toHome.setAlignmentX(CENTER_ALIGNMENT);
-        toHome.setPreferredSize(new Dimension(500, 50));
-        toHome.setMaximumSize(new Dimension(500, 50));
-        toHome.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 16));
 
-        toHome.setBorderPainted(false);
-        toHome.setFocusPainted(false);
-        toHome.setForeground(Universal.BACKGROUND_WHITE);
-        toHome.setBackground(Universal.BACKGROUND_BLACK);
-        toHome.setOpaque(true);
-
-        toHome.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                toHome.setBackground(Color.BLACK);
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                toHome.setBackground(Universal.BACKGROUND_BLACK);
-            }
-        });
-
+        JButton toHome = sidebar.createSidebarButton("Back to Home", "src/com/mrt/img/home.png", "");
         toHome.addActionListener(e -> {
             dispose();
             new UserFrame(currentUser).setVisible(true);;
         });
-        sidebar.addToLogoutPanel(toHome);
+        int verticalStrut = 5;
+        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
+        sidebar.addToMenuPanel(new JSeparator());
+        sidebar.addToMenuPanel(Box.createVerticalStrut(verticalStrut));
+        sidebar.addToMenuPanel(toHome);
+
         sidebar.addToLogoutPanel(sidebar.createLogoutButton());
 
         return sidebar;

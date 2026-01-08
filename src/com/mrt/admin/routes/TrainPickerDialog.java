@@ -23,7 +23,7 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Train;
+import com.mrt.models.Train;
 
 public class TrainPickerDialog extends JDialog {
 

@@ -27,10 +27,10 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Route;
-import com.mrt.model.Schedule;
-import com.mrt.model.Station;
-import com.mrt.model.Train;
+import com.mrt.models.Route;
+import com.mrt.models.Schedule;
+import com.mrt.models.Station;
+import com.mrt.models.Train;
 import com.mrt.services.RouteService;
 import com.mrt.services.ScheduleService;
 

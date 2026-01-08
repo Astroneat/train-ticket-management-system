@@ -22,7 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.mrt.model.User;
+import com.mrt.models.User;
 
 public class RegisterFrame extends JFrame {
     public RegisterFrame() {

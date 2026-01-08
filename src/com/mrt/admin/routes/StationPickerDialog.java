@@ -21,8 +21,8 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.City;
-import com.mrt.model.Station;
+import com.mrt.models.City;
+import com.mrt.models.Station;
 
 public class StationPickerDialog extends JDialog {
 

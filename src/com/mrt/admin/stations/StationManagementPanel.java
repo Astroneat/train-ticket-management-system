@@ -27,8 +27,8 @@ import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
 import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.City;
-import com.mrt.model.Station;
+import com.mrt.models.City;
+import com.mrt.models.Station;
 
 public class StationManagementPanel extends JPanel {
 

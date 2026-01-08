@@ -22,8 +22,8 @@ import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Route;
-import com.mrt.model.Station;
+import com.mrt.models.Route;
+import com.mrt.models.Station;
 
 public class RoutePickerDialog extends JDialog {
 

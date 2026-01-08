@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.mrt.Universal;
-import com.mrt.model.Train;
+import com.mrt.models.Train;
 
 public class TrainService {
     

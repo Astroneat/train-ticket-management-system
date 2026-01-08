@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
-import com.mrt.model.Station;
+import com.mrt.models.Station;
 import com.mrt.services.RouteService;
 
 public class AddRouteDialog extends JDialog {
