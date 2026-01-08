@@ -3,7 +3,6 @@ package com.mrt.models;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.mrt.Universal;
 import com.mrt.services.StationService;
 
 public class Route {

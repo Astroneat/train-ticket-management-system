@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -55,8 +54,8 @@ public class TicketManagementPanel extends JPanel {
     private JComboBox<Train> trainBox;
     private JComboBox<Route> routeBox;
 
-    private JButton addBtn;
-    private JButton viewBtn;
+    // private JButton addBtn;
+    // private JButton viewBtn;
     private JButton cancelBtn;
     private JButton boardBtn;
     private JButton expireBtn;

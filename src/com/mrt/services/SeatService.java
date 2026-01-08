@@ -1,7 +1,5 @@
 package com.mrt.services;
 
-import java.math.BigDecimal;
-
 public class SeatService {
 
     private static final int rows = 6;

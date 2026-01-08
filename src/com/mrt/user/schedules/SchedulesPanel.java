@@ -57,6 +57,7 @@ public class SchedulesPanel extends JPanel {
         // contentPanel.add(BookingStep.SEATS.getLabel(), new SeatSelectionPanel(this));
 
         showStep(BookingStep.SEARCH);
+        // showStep(BookingStep.SUCCESS);
         add(contentPanel, BorderLayout.CENTER);
     }
 

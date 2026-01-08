@@ -5,14 +5,12 @@ import com.mrt.HeaderPanel;
 import com.mrt.LoginFrame;
 import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
-import com.mrt.Universal;
 import com.mrt.admin.AdminFrame;
 import com.mrt.models.User;
 import com.mrt.user.schedules.SchedulesPanel;
+import com.mrt.user.tickets.TicketsPanel;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class UserFrame extends JFrame implements MyFrame {
 
@@ -21,10 +19,10 @@ public class UserFrame extends JFrame implements MyFrame {
     private User currentUser;
 
     private SidebarPanel sidebar;
-    private static final String HOME      = "HOME";
-    private static final String SCHEDULES = "SCHEDULES";
-    private static final String TICKETS   = "TICKETS";
-    private static final String PROFILE   = "PROFILE";
+    public static final String HOME      = "HOME";
+    public static final String SCHEDULES = "SCHEDULES";
+    public static final String TICKETS   = "TICKETS";
+    public static final String PROFILE   = "PROFILE";
 
     private JButton homeBtn;
     private JButton schedulesBtn;
@@ -50,6 +48,7 @@ public class UserFrame extends JFrame implements MyFrame {
 
         contentPanel.add(HOME, new UserHomePanel());
         contentPanel.add(SCHEDULES, new SchedulesPanel(this, user));
+        contentPanel.add(TICKETS, new TicketsPanel(user));
         
         add(contentPanel, BorderLayout.CENTER);
 

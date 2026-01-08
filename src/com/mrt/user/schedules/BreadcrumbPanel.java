@@ -14,12 +14,9 @@ import com.mrt.factory.UIFactory;
 
 public class BreadcrumbPanel extends JPanel {
     
-    private SchedulesPanel parent;
     private List<JButton> btnList;
 
     public BreadcrumbPanel(SchedulesPanel parent) {
-        this.parent = parent;
-
         setLayout(new FlowLayout(FlowLayout.LEFT));
         setOpaque(false);
 

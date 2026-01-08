@@ -5,7 +5,6 @@ import com.mrt.HeaderPanel;
 import com.mrt.LoginFrame;
 import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
-import com.mrt.Universal;
 import com.mrt.admin.routes.RouteManagementPanel;
 import com.mrt.admin.stations.StationManagementPanel;
 import com.mrt.admin.tickets.TicketManagementPanel;
@@ -16,11 +15,6 @@ import com.mrt.user.UserFrame;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class AdminFrame extends JFrame implements MyFrame {
 

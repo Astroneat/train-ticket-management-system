@@ -111,6 +111,14 @@ public class ScheduleSearchPanel extends JPanel {
         });
         panel.add(searchBtn);
 
+        JButton refreshBtn = UIFactory.createIconButton("src/com/mrt/img/refresh.png", new Dimension(14, 14));
+        refreshBtn.setPreferredSize(new Dimension(36, 36));
+        refreshBtn.addActionListener(e -> {
+            clearFilters();
+            loadSchedules();
+        });
+        panel.add(refreshBtn);
+
         buyBtn = UIFactory.createButton("Buy Ticket");
         buyBtn.setFont(new Font(Universal.defaultFontFamily, Font.BOLD, 14));
         buyBtn.setPreferredSize(new Dimension(120, 36));
@@ -154,7 +162,7 @@ public class ScheduleSearchPanel extends JPanel {
 
         JButton clearFilterBtn = UIFactory.createButton("Clear filter");
         clearFilterBtn.addActionListener(e -> {
-            routeBox.setSelectedIndex(0);
+            clearFilters();
             loadSchedules();
         });
         panel.add(clearFilterBtn);
@@ -223,6 +231,15 @@ public class ScheduleSearchPanel extends JPanel {
         panel.add(applyBtn);
 
         return panel;
+    }
+
+    private void clearFilters() {
+        searchField.setText("");
+        routeBox.setSelectedIndex(0);
+        fromCheckBox.setSelected(false);
+        fromSpinner.setEnabled(false);
+        toCheckBox.setSelected(false);
+        toSpinner.setEnabled(false);
     }
 
     private void loadSchedules() {
