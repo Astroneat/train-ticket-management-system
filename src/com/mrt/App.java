@@ -27,7 +27,8 @@ public class App {
             Universal.db().establishConnection();
             // new LoginFrame().setVisible(true);
 
-            new UserFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            // new UserFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            new UserFrame(new User(3, "datnvt2007@gmail.com", "Nguyen Viet Thanh Dat", "customer")).setVisible(true);;
             // new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
         });
     }

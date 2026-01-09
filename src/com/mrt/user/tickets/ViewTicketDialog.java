@@ -7,6 +7,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,21 +18,26 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
+import com.mrt.models.EmailMessage;
 import com.mrt.models.Route;
 import com.mrt.models.Schedule;
 import com.mrt.models.Ticket;
 import com.mrt.models.Train;
 import com.mrt.models.User;
 import com.mrt.services.CurrencyService;
+import com.mrt.services.EmailService;
 import com.mrt.services.QRCodeService;
 import com.mrt.services.SeatService;
+import com.mrt.services.TicketPdfService;
 
 public class ViewTicketDialog extends JDialog {
 
@@ -37,6 +46,8 @@ public class ViewTicketDialog extends JDialog {
     private Route route;
     private Train train;
     private User user;
+
+    private BufferedImage qrImage;
 
     public ViewTicketDialog(JFrame parent, Ticket ticket, Schedule schedule, Route route, Train train, User user) {
         super(parent, "Viewing Ticket #" + ticket.getTicketId(), true);
@@ -202,7 +213,7 @@ public class ViewTicketDialog extends JDialog {
         panel.setOpaque(false);
 
         String data = QRCodeService.buildQRData(ticket);
-        BufferedImage qrImage = QRCodeService.generateQRCode(data, 200);
+        qrImage = QRCodeService.generateQRCode(data, 200);
 
         JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
         // qrLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -225,14 +236,55 @@ public class ViewTicketDialog extends JDialog {
         JButton downloadBtn = UIFactory.createButton("Download PDF");
         downloadBtn.setPreferredSize(btnDim);
         downloadBtn.addActionListener(e -> {
-
+            try {
+                File pdf = TicketPdfService.generateTicketPdf(ticket, schedule, route, train, user, qrImage);
+                
+                JFileChooser chooser = new JFileChooser();
+                String ticketFileName = "ticket_" + ticket.getTicketId() + ".pdf";
+                chooser.setSelectedFile(new File(ticketFileName));
+                chooser.setDialogTitle("Download Ticket");
+                if(chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    Path path = Files.copy(
+                        pdf.toPath(),
+                        chooser.getSelectedFile().toPath(),
+                        StandardCopyOption.REPLACE_EXISTING
+                    );
+                    JOptionPane.showMessageDialog(this, "<html>Ticket successfully downloaded to <strong>" + path + "</strong></html>", "Download Successful", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch(Exception ignored) {
+                JOptionPane.showMessageDialog(this, "Failed to download PDF", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
         panel.add(downloadBtn);
 
         JButton emailBtn = UIFactory.createButton("Email PDF");
         emailBtn.setPreferredSize(btnDim);
         emailBtn.addActionListener(e -> {
+            int option = JOptionPane.showConfirmDialog(this, "Send this ticket to your email?", "Send e-ticket confirmation", JOptionPane.YES_NO_OPTION);
+            if(option == JOptionPane.YES_OPTION) {
+                try {
+                    File pdf = TicketPdfService.generateTicketPdf(ticket, schedule, route, train, user, qrImage);
 
+                    EmailMessage msg = new EmailMessage(
+                        user.getEmail(), 
+                        "Your MRT Ticket - Booking #" + ticket.getTicketId(), 
+                        """
+                            <p>Dear %s,</p>
+                            <p>Your MRT ticket is attached to this email.<br>
+                            Please present the QR code at the gate before departure.</p>
+                            <p>Thank you for choosing MRT Viet Nam.</p>
+                        """.formatted(user.getFullName())
+                    );
+                    msg.addAttachment(pdf);
+                    EmailService.send(msg);
+
+                    JOptionPane.showMessageDialog(this, "<html>Ticket sent to <strong>" + user.getEmail() + "</strong></html>", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Failed to send email", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
         panel.add(emailBtn);
 

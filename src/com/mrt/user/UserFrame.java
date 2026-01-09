@@ -1,11 +1,11 @@
 package com.mrt.user;
 import javax.swing.*;
 
-import com.mrt.HeaderPanel;
-import com.mrt.LoginFrame;
-import com.mrt.MyFrame;
-import com.mrt.SidebarPanel;
-import com.mrt.admin.AdminFrame;
+import com.mrt.frames.AdminFrame;
+import com.mrt.frames.HeaderPanel;
+import com.mrt.frames.LoginFrame;
+import com.mrt.frames.MyFrame;
+import com.mrt.frames.SidebarPanel;
 import com.mrt.models.User;
 import com.mrt.user.home.HomePanel;
 import com.mrt.user.schedules.SchedulesPanel;

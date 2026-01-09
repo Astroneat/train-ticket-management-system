@@ -26,8 +26,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.mrt.Universal;
-import com.mrt.admin.AdminFrame;
 import com.mrt.factory.UIFactory;
+import com.mrt.frames.AdminFrame;
 import com.mrt.models.City;
 import com.mrt.models.Route;
 import com.mrt.models.Station;
