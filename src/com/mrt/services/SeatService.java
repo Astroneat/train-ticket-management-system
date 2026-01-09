@@ -5,6 +5,7 @@ public class SeatService {
     private static final int rows = 6;
     private static final int cols = 20;
     private static final int pricePerTicket = 100_000;
+    private static final int feesPerTicket = 0;
 
     public static int getRows() {
         return rows;
@@ -14,6 +15,9 @@ public class SeatService {
     }
     public static int getPricePerTicket() {
         return pricePerTicket;
+    }
+    public static int getFeesPerTicket() {
+        return feesPerTicket;
     }
     
     public static String toSeatCode(int seatIndex) {

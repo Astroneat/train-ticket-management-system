@@ -41,10 +41,7 @@ public class HeaderPanel extends JPanel {
         try {
             ImageIcon icon = new ImageIcon("src/com/mrt/img/logo_train.png");
             Image img = icon.getImage();
-            float imgScaleFactor = 0.03f;
-            float newWidth = img.getWidth(this) * imgScaleFactor;
-            float newHeight = img.getHeight(this) * imgScaleFactor;
-            Image scaledImg = img.getScaledInstance((int) newWidth, (int) newHeight, Image.SCALE_SMOOTH);
+            Image scaledImg = img.getScaledInstance(36, 36, Image.SCALE_SMOOTH);
             JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
             leftPanel.add(imgLabel);
         } catch(Exception e) {

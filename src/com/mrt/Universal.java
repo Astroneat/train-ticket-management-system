@@ -19,6 +19,7 @@ public class Universal {
     public static final Color PASTEL_PURPLE = Color.decode("#bdb2ff");
     public static final Color PASTEL_PINK = Color.decode("#ffc6ff");
     public static final Color PASTEL_WHITE = Color.decode("#fffffc");
+    public static final Color PASTEL_GREY = Color.decode("#d0d0d0");
 
     private static final EasyDB DB = new EasyDB(3306, "TrainTicketManagement", "root", "");
 

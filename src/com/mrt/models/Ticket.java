@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import com.mrt.services.SeatService;
+
 public class Ticket {
 
     private int ticketId;
@@ -60,5 +62,12 @@ public class Ticket {
             rs.getString("status"),
             ldt
         );
+    }
+
+    public int getPrice() {
+        return SeatService.getPricePerTicket();
+    }
+    public int getFees() {
+        return SeatService.getFeesPerTicket();
     }
 }

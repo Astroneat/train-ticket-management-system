@@ -7,6 +7,7 @@ import com.mrt.MyFrame;
 import com.mrt.SidebarPanel;
 import com.mrt.admin.AdminFrame;
 import com.mrt.models.User;
+import com.mrt.user.home.HomePanel;
 import com.mrt.user.schedules.SchedulesPanel;
 import com.mrt.user.tickets.TicketsPanel;
 
@@ -46,14 +47,15 @@ public class UserFrame extends JFrame implements MyFrame {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(HOME, new UserHomePanel());
+        contentPanel.add(HOME, new HomePanel());
         contentPanel.add(SCHEDULES, new SchedulesPanel(this, user));
         contentPanel.add(TICKETS, new TicketsPanel(user));
         
         add(contentPanel, BorderLayout.CENTER);
 
-        // showPage("HOME");
-        goToPage(SCHEDULES);
+        // goToPage("HOME");
+        // goToPage(SCHEDULES);
+        goToPage(TICKETS);
     }
 
     public void goToPage(String page) {

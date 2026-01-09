@@ -71,6 +71,17 @@ public class TicketService {
         );
     }
 
+    public static List<Ticket> getTicketsByUser(User user) {
+        return Universal.db().query(
+            """
+                SELECT * FROM tickets
+                WHERE user_id = ?;    
+            """,
+            rs -> Ticket.parseResultSet(rs),
+            user.getUserId()
+        );
+    }
+
     public static void bookTickets(User user, Schedule schedule, List<Seat> seats) {
         for(Seat seat: seats) {
             Universal.db().execute(

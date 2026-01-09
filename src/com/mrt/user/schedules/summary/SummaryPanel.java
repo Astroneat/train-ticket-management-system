@@ -235,7 +235,7 @@ public class SummaryPanel extends JPanel implements BookingPage {
 
         gbc.gridx++;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(UIFactory.createPlainLabel(CurrencyService.formatVnd(0), summaryFontSize), gbc);
+        panel.add(UIFactory.createPlainLabel(CurrencyService.formatVnd(parent.getSelectedSeats().size() * SeatService.getFeesPerTicket()), summaryFontSize), gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
