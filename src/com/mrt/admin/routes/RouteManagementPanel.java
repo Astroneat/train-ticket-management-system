@@ -32,8 +32,9 @@ import com.mrt.models.City;
 import com.mrt.models.Route;
 import com.mrt.models.Station;
 import com.mrt.services.RouteService;
+import com.mrt.user.schedules.Page;
 
-public class RouteManagementPanel extends JPanel {
+public class RouteManagementPanel extends JPanel implements Page {
 
     private AdminFrame frame;
 
@@ -102,13 +103,13 @@ public class RouteManagementPanel extends JPanel {
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search by code or station");
         searchField.addActionListener(e -> {
-            loadRoutes();
+            refreshPage();
         });
         search.add(searchField);
 
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.addActionListener(e -> {
-            loadRoutes();
+            refreshPage();
         });
         search.add(searchButton);
 
@@ -130,14 +131,14 @@ public class RouteManagementPanel extends JPanel {
             "---", "active", "inactive"
         });
         activeFilter.addActionListener(e -> {
-            loadRoutes();
+            refreshPage();
         });
         panel.add(activeFilter);
 
         JButton clearFilterBtn = UIFactory.createButton("Clear filter");
         clearFilterBtn.addActionListener(e -> {
             activeFilter.setSelectedIndex(0);
-            loadRoutes();
+            refreshPage();
         });
         panel.add(clearFilterBtn);
 
@@ -156,13 +157,13 @@ public class RouteManagementPanel extends JPanel {
             "Code", "Schedules"
         });
         sortBox.addActionListener(e -> {
-            loadRoutes();
+            refreshPage();
         });
         panel.add(sortBox);
 
         sortDesc = UIFactory.createCheckBox("Descending");
         sortDesc.addActionListener(e -> {
-            loadRoutes();
+            refreshPage();
         });
         panel.add(sortDesc);
 
@@ -194,7 +195,7 @@ public class RouteManagementPanel extends JPanel {
             AddRouteDialog dialog = new AddRouteDialog(frame);
 
             dialog.setVisible(true);
-            loadRoutes();
+            refreshPage();
         });
 
         editBtn.addActionListener(e -> {
@@ -208,7 +209,7 @@ public class RouteManagementPanel extends JPanel {
             EditRouteDialog dialog = new EditRouteDialog(frame, selectedRoute);
             dialog.setVisible(true);
 
-            loadRoutes();
+            refreshPage();
         });
 
         deleteBtn.addActionListener(e -> {
@@ -226,7 +227,7 @@ public class RouteManagementPanel extends JPanel {
                     JOptionPane.showMessageDialog(frame, "Cannot delete this route because it has existing schedules", "Error", JOptionPane.ERROR_MESSAGE);;
                     return;
                 }
-                loadRoutes();
+                refreshPage();
             }
         });
 
@@ -240,13 +241,13 @@ public class RouteManagementPanel extends JPanel {
             Route selectedRoute = (Route) tableModel.getValueAt(row, 0);
             RouteSchedulesDialog dialog = new RouteSchedulesDialog(frame, selectedRoute);
             dialog.setVisible(true);
-            loadRoutes();
+            refreshPage();
         });
 
         refreshBtn.addActionListener(e -> {
             searchField.setText("");
             activeFilter.setSelectedIndex(0);
-            loadRoutes();
+            refreshPage();
         });
 
         actionPanel.add(addBtn);
@@ -311,7 +312,7 @@ public class RouteManagementPanel extends JPanel {
             }
         });
 
-        loadRoutes();
+        refreshPage();
 
         JScrollPane scrollPane = new JScrollPane(routeTable);
         return scrollPane;
@@ -422,5 +423,9 @@ public class RouteManagementPanel extends JPanel {
         int numAllRoutes = countAllRoutes();
         numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numAllRoutes ? "" : " (" + numAllRoutes + " total)"));
         numActiveTrains.setText(countActiveRoutes() + " active routes");
+    }
+
+    public void refreshPage() {
+        loadRoutes();
     }
 }

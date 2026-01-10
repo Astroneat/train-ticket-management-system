@@ -9,17 +9,17 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import com.mrt.Universal;
+import com.mrt.frames.UserFrame;
 import com.mrt.models.Schedule;
 import com.mrt.models.Seat;
 import com.mrt.models.User;
 import com.mrt.services.TicketService;
-import com.mrt.user.UserFrame;
 import com.mrt.user.schedules.search.ScheduleSearchPanel;
 import com.mrt.user.schedules.seats.SeatSelectionPanel;
 import com.mrt.user.schedules.success.SuccessPanel;
 import com.mrt.user.schedules.summary.SummaryPanel;
 
-public class SchedulesPanel extends JPanel {
+public class SchedulesPanel extends JPanel implements Page {
 
     private User user;
 
@@ -90,5 +90,9 @@ public class SchedulesPanel extends JPanel {
 
     public User getUser() {
         return user;
+    }
+
+    public void refreshPage() {
+        showStep(BookingStep.SEARCH);
     }
 }

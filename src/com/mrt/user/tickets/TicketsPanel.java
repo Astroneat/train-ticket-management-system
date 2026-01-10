@@ -13,11 +13,17 @@ import javax.swing.JPanel;
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.models.User;
+import com.mrt.user.schedules.Page;
 
-public class TicketsPanel extends JPanel {
+public class TicketsPanel extends JPanel implements Page {
 
     private TicketViewPanel ticketViewPanel;
     private JPanel numTicketsPanel;
+
+    private JLabel bookedLabel;
+    private JLabel boardedLabel;
+    private JLabel cancelledLabel;
+    private JLabel expiredLabel;
     
     public TicketsPanel(User user) {
         setBackground(Universal.BACKGROUND_WHITE);
@@ -31,19 +37,10 @@ public class TicketsPanel extends JPanel {
     }
 
     private void updateTicketCounts() {
-        int fontSize = 16;
-        numTicketsPanel.add(UIFactory.createBoldLabel("Total Tickets:", fontSize));
-        JLabel bookedLabel = UIFactory.createPlainLabel("Booked: " + ticketViewPanel.getNumberOfBookedTickets(), fontSize);
-        numTicketsPanel.add(bookedLabel);
-        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
-        JLabel boardedLabel = UIFactory.createPlainLabel("Boarded: " + ticketViewPanel.getNumberOfBoardedTickets(), fontSize);
-        numTicketsPanel.add(boardedLabel);
-        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
-        JLabel cancelledLabel = UIFactory.createPlainLabel("Cancelled: " + ticketViewPanel.getNumberOfCancelledTickets(), fontSize);
-        numTicketsPanel.add(cancelledLabel);
-        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
-        JLabel expiredLabel = UIFactory.createPlainLabel("Expired: " + ticketViewPanel.getNumberOfExpiredTickets(), fontSize);
-        numTicketsPanel.add(expiredLabel);
+        bookedLabel.setText("Booked: " + ticketViewPanel.getNumberOfBookedTickets());
+        boardedLabel.setText("Boarded: " + ticketViewPanel.getNumberOfBoardedTickets());
+        cancelledLabel.setText("Cancelled: " + ticketViewPanel.getNumberOfCancelledTickets());
+        expiredLabel.setText("Expired: " + ticketViewPanel.getNumberOfExpiredTickets());
     }
 
     private JPanel createTitlePanel() {
@@ -57,15 +54,35 @@ public class TicketsPanel extends JPanel {
         JButton refreshBtn = UIFactory.createIconButton("src/com/mrt/img/refresh.png", new Dimension(14, 14));
         refreshBtn.setPreferredSize(new Dimension(40, 40));
         refreshBtn.addActionListener(e -> {
-            ticketViewPanel.refreshTickets();
+            refreshPage();
         });
         panel.add(refreshBtn);
 
         numTicketsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         numTicketsPanel.setOpaque(false);
         panel.add(Box.createHorizontalStrut(20));
+
+        int fontSize = 16;
+        numTicketsPanel.add(UIFactory.createBoldLabel("Total Tickets:", fontSize));
+        bookedLabel = UIFactory.createPlainLabel("", fontSize);
+        numTicketsPanel.add(bookedLabel);
+        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
+        boardedLabel = UIFactory.createPlainLabel("", fontSize);
+        numTicketsPanel.add(boardedLabel);
+        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
+        cancelledLabel = UIFactory.createPlainLabel("", fontSize);
+        numTicketsPanel.add(cancelledLabel);
+        numTicketsPanel.add(UIFactory.createPlainLabel("|", fontSize));
+        expiredLabel = UIFactory.createPlainLabel("", fontSize);
+        numTicketsPanel.add(expiredLabel);
+
         panel.add(numTicketsPanel);
 
         return panel;
+    }
+
+    public void refreshPage() {
+        ticketViewPanel.refreshTickets();
+        updateTicketCounts();
     }
 }

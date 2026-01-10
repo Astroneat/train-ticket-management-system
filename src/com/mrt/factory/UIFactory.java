@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -66,6 +67,17 @@ public class UIFactory {
 
     public static JTextField createTextField() {
         return createTextField(0);
+    }
+
+    public static JPasswordField createPasswordField(int columns) {
+        JPasswordField field = new JPasswordField(columns);
+        field.setFont(createDefaultBoldFont(14));
+        field.setBorder(createDefaultBorder());
+        return field;
+    }
+
+    public static JPasswordField createPasswordField() {
+        return createPasswordField(0);
     }
 
     public static JButton createButton(String text) {

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.mrt.Universal;
+import com.mrt.user.schedules.Page;
 
 public class SidebarPanel extends JPanel {
 
@@ -60,7 +61,7 @@ public class SidebarPanel extends JPanel {
         activeSidebarButton = btn;
     }
 
-    public JButton createSidebarButton(String text, String imageFileName, String toPage) {
+    public JButton createSidebarButton(String text, String imageFileName, Page toPage) {
         JButton btn;
         if(imageFileName.isBlank()) {
             btn = new JButton(text);
@@ -85,6 +86,7 @@ public class SidebarPanel extends JPanel {
         btn.setOpaque(true);
         
         btn.addActionListener(e -> {
+            if(toPage == null) return;
             frame.goToPage(toPage);
         });
         btn.addMouseListener(new MouseAdapter() {

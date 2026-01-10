@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.mrt.factory.UIFactory;
-import com.mrt.user.UserFrame;
+import com.mrt.frames.UserFrame;
 import com.mrt.user.schedules.BookingPage;
 import com.mrt.user.schedules.BookingStep;
 import com.mrt.user.schedules.SchedulesPanel;
@@ -62,7 +62,7 @@ public class SuccessPanel extends JPanel implements BookingPage {
         JButton myTicketsBtn = UIFactory.createButton("My Tickets");
         myTicketsBtn.setPreferredSize(btnSize);
         myTicketsBtn.addActionListener(e -> {
-            userFrame.goToPage(UserFrame.TICKETS);
+            userFrame.goToPage(UserFrame.ticketsPanel);
             schedulesPanel.showStep(BookingStep.SEARCH);
         });
         panel.add(myTicketsBtn);
@@ -70,7 +70,7 @@ public class SuccessPanel extends JPanel implements BookingPage {
         JButton homeBtn = UIFactory.createButton("Home");
         homeBtn.setPreferredSize(btnSize);
         homeBtn.addActionListener(e -> {
-            userFrame.goToPage(UserFrame.HOME);
+            userFrame.goToPage(UserFrame.homePanel);
             schedulesPanel.showStep(BookingStep.SEARCH);
         });
         panel.add(homeBtn);
@@ -78,7 +78,7 @@ public class SuccessPanel extends JPanel implements BookingPage {
         JButton bookAnotherBtn = UIFactory.createButton("Book Another Ticket");
         bookAnotherBtn.setPreferredSize(btnSize);
         bookAnotherBtn.addActionListener(e -> {
-            userFrame.goToPage(UserFrame.SCHEDULES);
+            userFrame.goToPage(UserFrame.schedulesPanel);
             schedulesPanel.showStep(BookingStep.SEARCH);
         });
         panel.add(bookAnotherBtn);

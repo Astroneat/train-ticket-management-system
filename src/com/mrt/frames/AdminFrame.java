@@ -8,10 +8,11 @@ import com.mrt.admin.tickets.TicketManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.models.User;
-import com.mrt.user.UserFrame;
+import com.mrt.user.schedules.Page;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.util.Map;
 
 public class AdminFrame extends JFrame implements MyFrame {
 
@@ -27,6 +28,14 @@ public class AdminFrame extends JFrame implements MyFrame {
     private static final String USERS     = "USERS";
     private static final String REPORTS   = "REPORTS";
 
+    private Map<Page, String> pages;
+    private Page dashboard;
+    private Page trains;
+    private Page stations;
+    private Page routes;
+    private Page tickets;
+    private Page users;
+
     public AdminFrame(User user) {
         this.currentUser = user;
 
@@ -38,21 +47,35 @@ public class AdminFrame extends JFrame implements MyFrame {
 
         setLayout(new BorderLayout());
 
+        dashboard = new DashboardPanel();
+        trains = new TrainManagementPanel(this);
+        stations = new StationManagementPanel(this);
+        routes = new RouteManagementPanel(this);
+        tickets = new TicketManagementPanel(this);
+        users = new UserManagementPanel(this, user);
+
+        pages.put(dashboard, DASHBOARD);
+        pages.put(trains, TRAINS);
+        pages.put(stations, STATIONS);
+        pages.put(routes, ROUTES);
+        pages.put(tickets, TICKETS);
+        pages.put(users, USERS);
+
         add(createSidebarPanel(), BorderLayout.WEST);
         add(new HeaderPanel(currentUser), BorderLayout.NORTH);
 
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(DASHBOARD, new DashboardPanel());
-        contentPanel.add(TRAINS, new TrainManagementPanel(this));
-        contentPanel.add(STATIONS, new StationManagementPanel(this));
-        contentPanel.add(ROUTES, new RouteManagementPanel(this));
-        contentPanel.add(TICKETS, new TicketManagementPanel(this));
-        contentPanel.add(USERS, new UserManagementPanel(this, user));
+        contentPanel.add(DASHBOARD, (JPanel) dashboard);
+        contentPanel.add(TRAINS, (JPanel) trains);
+        contentPanel.add(STATIONS, (JPanel) stations);
+        contentPanel.add(ROUTES, (JPanel) routes);
+        contentPanel.add(TICKETS, (JPanel) tickets);
+        contentPanel.add(USERS, (JPanel) users);
         
         add(contentPanel, BorderLayout.CENTER);
-        goToPage(DASHBOARD);
+        goToPage(dashboard);
         // showPage("USERS");
         // showPage("TRAINS");
         // showPage("STATIONS");
@@ -60,8 +83,11 @@ public class AdminFrame extends JFrame implements MyFrame {
         // goToPage(TICKETS);
     }
 
-    public void goToPage(String page) {
-        cardLayout.show(contentPanel, page);
+    public void goToPage(Page page) {
+        if(pages.get(page) == null) return;
+        String pageName = pages.get(page);
+        page.refreshPage();
+        cardLayout.show(contentPanel, pageName);
     } 
     public void logout() {
         dispose();
@@ -74,17 +100,17 @@ public class AdminFrame extends JFrame implements MyFrame {
     private JPanel createSidebarPanel() {
         SidebarPanel sidebar = new SidebarPanel(this);
 
-        JButton dashboardBtn = sidebar.createSidebarButton("Dashboard", "src/com/mrt/img/dashboard.png", DASHBOARD);
+        JButton dashboardBtn = sidebar.createSidebarButton("Dashboard", "src/com/mrt/img/dashboard.png", dashboard);
         sidebar.addToMenuPanel(dashboardBtn);
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Trains", "src/com/mrt/img/train.png", TRAINS));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Stations", "src/com/mrt/img/location.png", STATIONS));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "src/com/mrt/img/route.png", ROUTES));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "src/com/mrt/img/ticket.png", TICKETS));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", USERS));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", REPORTS));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Trains", "src/com/mrt/img/train.png", trains));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Stations", "src/com/mrt/img/location.png", stations));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "src/com/mrt/img/route.png", routes));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "src/com/mrt/img/ticket.png", tickets));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", users));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", null));
         sidebar.setActiveSidebarButton(dashboardBtn);
 
-        JButton toHome = sidebar.createSidebarButton("Back to Home", "src/com/mrt/img/home.png", "");
+        JButton toHome = sidebar.createSidebarButton("Back to Home", "src/com/mrt/img/home.png", null);
         toHome.addActionListener(e -> {
             dispose();
             new UserFrame(currentUser).setVisible(true);;

@@ -31,8 +31,9 @@ import com.mrt.factory.UIFactory;
 import com.mrt.frames.AdminFrame;
 import com.mrt.models.Train;
 import com.mrt.services.TrainService;
+import com.mrt.user.schedules.Page;
 
-public class TrainManagementPanel extends JPanel {
+public class TrainManagementPanel extends JPanel implements Page {
 
     private AdminFrame frame;
 
@@ -99,13 +100,13 @@ public class TrainManagementPanel extends JPanel {
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search by code or seat capacity");
         searchField.addActionListener(e -> {
-            loadTrains();
+            refreshPage();
         });
         search.add(searchField);
 
         JButton searchBtn = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchBtn.addActionListener(e -> {
-            loadTrains();
+            refreshPage();
         });
         search.add(searchBtn);
 
@@ -127,14 +128,14 @@ public class TrainManagementPanel extends JPanel {
             "---", "active", "maintenance", "retired"
         });
         filterBox.addActionListener(e -> {
-            loadTrains();
+            refreshPage();
         });
         panel.add(filterBox);
 
         JButton clearFilterBtn = UIFactory.createButton("Clear filter");
         clearFilterBtn.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
-            loadTrains();
+            refreshPage();
         });
         panel.add(clearFilterBtn);
 
@@ -153,13 +154,13 @@ public class TrainManagementPanel extends JPanel {
             "Code", "Schedules"
         });
         sortBox.addActionListener(e -> {
-            loadTrains();
+            refreshPage();
         });
         panel.add(sortBox);
 
         sortDesc = UIFactory.createCheckBox("Descending");
         sortDesc.addActionListener(e -> {
-            loadTrains();
+            refreshPage();
         });
         panel.add(sortDesc);
 
@@ -208,7 +209,7 @@ public class TrainManagementPanel extends JPanel {
                         break;
                     case TrainService.OK:
                         dialog.dispose();
-                        loadTrains();
+                        refreshPage();
                         break;
                 }
             });
@@ -254,7 +255,7 @@ public class TrainManagementPanel extends JPanel {
                         break;
                     case TrainService.OK:
                         dialog.dispose();
-                        loadTrains();
+                        refreshPage();
                         break;
                 }
 
@@ -283,7 +284,7 @@ public class TrainManagementPanel extends JPanel {
         refreshBtn.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
-            loadTrains();
+            refreshPage();
         });
 
         actionPanel.add(addBtn);
@@ -338,7 +339,7 @@ public class TrainManagementPanel extends JPanel {
             }
         });
 
-        loadTrains();
+        refreshPage();
 
         JScrollPane scrollPane = new JScrollPane(trainTable);
         return scrollPane;
@@ -425,5 +426,9 @@ public class TrainManagementPanel extends JPanel {
         int numAllTrains = countAllTrains();
         numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numAllTrains ? "" : " (of " + numAllTrains + " total)"));
         numActiveTrains.setText(countActiveTrains() + " active trains");
+    }
+
+    public void refreshPage() {
+        loadTrains();
     }
 }

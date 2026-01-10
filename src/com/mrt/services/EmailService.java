@@ -12,6 +12,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
@@ -65,5 +66,16 @@ public class EmailService {
         } catch(Exception e) {
             throw new RuntimeException("Failed to send email", e);
         }
+    }
+
+    public static boolean isValidEmailAddress(String email) {
+        boolean valid = true;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+        } catch(AddressException ignored) {
+            valid = false;
+        }
+        return valid;
     }
 }

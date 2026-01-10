@@ -39,8 +39,9 @@ import com.mrt.services.ScheduleService;
 import com.mrt.services.TicketService;
 import com.mrt.services.TrainService;
 import com.mrt.services.UserService;
+import com.mrt.user.schedules.Page;
 
-public class TicketManagementPanel extends JPanel {
+public class TicketManagementPanel extends JPanel implements Page {
 
     private AdminFrame frame;
 
@@ -116,13 +117,13 @@ public class TicketManagementPanel extends JPanel {
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search ticket, user, train...");
         searchField.addActionListener(e -> {
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(searchField);
 
         JButton searchBtn = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchBtn.addActionListener(e -> {
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(searchBtn);
 
@@ -143,28 +144,28 @@ public class TicketManagementPanel extends JPanel {
             "All", "booked", "boarded", "cancelled", "expired"
         });
         statusBox.addActionListener(e -> {
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(statusBox);
 
         panel.add(UIFactory.createPlainLabel("Train", 16));
         loadAllTrains();
         trainBox.addActionListener(e -> {
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(trainBox);
 
         panel.add(UIFactory.createPlainLabel("Route", 16));
         loadAllRoutes();
         routeBox.addActionListener(e -> {
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(routeBox);
 
         JButton clearFilterBtn = UIFactory.createButton("Clear filter");
         clearFilterBtn.addActionListener(e -> {
             clearFilters();
-            loadAllTickets();
+            refreshPage();
         });
         panel.add(clearFilterBtn);
 
@@ -194,7 +195,7 @@ public class TicketManagementPanel extends JPanel {
                 int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to cancel this ticket? (This action cannot be undone)", "Confirm cancellation", JOptionPane.YES_NO_OPTION);
                 if(option == JOptionPane.YES_OPTION) {
                     TicketService.cancelTicket(selectedTicket.getTicketId());
-                    loadAllTickets();
+                    refreshPage();
                 }
             }
             else {
@@ -211,7 +212,7 @@ public class TicketManagementPanel extends JPanel {
                 int option = JOptionPane.showConfirmDialog(frame, "Mark this ticket as boarded?", "Confirm boarding", JOptionPane.YES_NO_OPTION);
                 if(option == JOptionPane.YES_OPTION) {
                     TicketService.boardTicket(selectedTicket.getTicketId());
-                    loadAllTickets();
+                    refreshPage();
                 }
             }
             else {
@@ -228,7 +229,7 @@ public class TicketManagementPanel extends JPanel {
                 int option = JOptionPane.showConfirmDialog(frame, "Force expire this ticket?", "Confirm force expiry", JOptionPane.YES_NO_OPTION);
                 if(option == JOptionPane.YES_OPTION) {
                     TicketService.expireTicket(selectedTicket.getTicketId());
-                    loadAllTickets();
+                    refreshPage();
                 }
             }
             else {
@@ -239,7 +240,7 @@ public class TicketManagementPanel extends JPanel {
         refreshBtn.addActionListener(e -> {
             searchField.setText("");
             clearFilters();
-            loadAllTickets();
+            refreshPage();
         });
 
         panel.add(cancelBtn);
@@ -445,10 +446,14 @@ public class TicketManagementPanel extends JPanel {
             columnModel.getColumn(i).setCellRenderer(renderer);
         }
 
-        loadAllTickets();
+        refreshPage();
 
         JScrollPane scrollPane = new JScrollPane(ticketTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return scrollPane;
+    }
+
+    public void refreshPage() {
+        loadAllTickets();
     }
 
     private void setColumnWidth(TableColumnModel columnModel, int col, int width) {

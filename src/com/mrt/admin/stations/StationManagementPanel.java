@@ -29,8 +29,9 @@ import com.mrt.factory.UIFactory;
 import com.mrt.frames.AdminFrame;
 import com.mrt.models.City;
 import com.mrt.models.Station;
+import com.mrt.user.schedules.Page;
 
-public class StationManagementPanel extends JPanel {
+public class StationManagementPanel extends JPanel implements Page {
 
     private AdminFrame frame;
 
@@ -95,13 +96,13 @@ public class StationManagementPanel extends JPanel {
         searchField = UIFactory.createTextField(30);
         searchField.setToolTipText("Search by code, name, or city");
         searchField.addActionListener(e -> {
-            loadStations();
+            refreshPage();
         });
         search.add(searchField);
 
         JButton searchButton = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(24, 24));
         searchButton.addActionListener(e -> {
-            loadStations();
+            refreshPage();
         });
         search.add(searchButton);
 
@@ -125,14 +126,14 @@ public class StationManagementPanel extends JPanel {
             filterBox.addItem(c);
         }
         filterBox.addActionListener(e -> {
-            loadStations();
+            refreshPage();
         });
         panel.add(filterBox);
 
         JButton clearFilterButton = UIFactory.createButton("Clear filter");
         clearFilterButton.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
-            loadStations();
+            refreshPage();
         });
         panel.add(clearFilterButton);
 
@@ -192,7 +193,7 @@ public class StationManagementPanel extends JPanel {
                         city.getCityId()
                     );
 
-                    loadStations();
+                    refreshPage();
                     addDialog.dispose();
                 } catch(Exception ex) {
                     ex.printStackTrace();
@@ -255,7 +256,7 @@ public class StationManagementPanel extends JPanel {
                         stationId
                     );
 
-                    loadStations();
+                    refreshPage();
                     editDialog.dispose();
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(editDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
@@ -293,14 +294,14 @@ public class StationManagementPanel extends JPanel {
                     "DELETE FROM stations WHERE station_id = ?",
                     stationId
                 );
-                loadStations();
+                refreshPage();
             }
         });
 
         refreshButton.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
-            loadStations();
+            refreshPage();
         });
 
         actionPanel.add(addButton);
@@ -356,7 +357,7 @@ public class StationManagementPanel extends JPanel {
             }
         });
 
-        loadStations();
+        refreshPage();
 
         JScrollPane scrollPane = new JScrollPane(stationTable);
         return scrollPane;
@@ -422,5 +423,9 @@ public class StationManagementPanel extends JPanel {
             """,
             rs -> City.parseResultSet(rs)
         );
+    }
+
+    public void refreshPage() {
+        loadStations();
     }
 }

@@ -2,6 +2,10 @@ package com.mrt.user.home;
 
 import javax.swing.JPanel;
 
-public class HomePanel extends JPanel {
-    
+import com.mrt.user.schedules.Page;
+
+public class HomePanel extends JPanel implements Page {
+    public void refreshPage() {
+        
+    }
 }

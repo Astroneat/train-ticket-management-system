@@ -30,8 +30,9 @@ import com.mrt.Universal;
 import com.mrt.dialog.FormDialog;
 import com.mrt.frames.AdminFrame;
 import com.mrt.models.User;
+import com.mrt.user.schedules.Page;
 
-public class UserManagementPanel extends JPanel {
+public class UserManagementPanel extends JPanel implements Page {
 
     private AdminFrame frame;
     private User currentUser;
@@ -102,7 +103,7 @@ public class UserManagementPanel extends JPanel {
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
         searchField.addActionListener(e -> {
-            loadUsersWithConstraints();
+            refreshPage();
         });
         search.add(searchField);
 
@@ -114,7 +115,7 @@ public class UserManagementPanel extends JPanel {
             searchButton.setIcon(new ImageIcon(newImg));
         } catch (Exception ignored) {}
         searchButton.addActionListener(e -> {
-            loadUsersWithConstraints();
+            refreshPage();
         });
         search.add(searchButton);
 
@@ -140,7 +141,7 @@ public class UserManagementPanel extends JPanel {
         });
         filterBox.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         filterBox.addActionListener(e -> {
-            loadUsersWithConstraints();
+            refreshPage();
         });
         panel.add(filterBox);
 
@@ -148,7 +149,7 @@ public class UserManagementPanel extends JPanel {
         clearFilterButton.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         clearFilterButton.addActionListener(e -> {
             filterBox.setSelectedIndex(0);
-            loadUsersWithConstraints();
+            refreshPage();
         });
         panel.add(clearFilterButton);
 
@@ -208,7 +209,7 @@ public class UserManagementPanel extends JPanel {
                         role
                     );
 
-                    loadAllUsers();
+                    refreshPage();
                     addDialog.dispose();
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(addDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
@@ -275,7 +276,7 @@ public class UserManagementPanel extends JPanel {
                         userId
                     );
 
-                    loadUsersWithConstraints();
+                    refreshPage();
                     editDialog.dispose();
                 } catch(Exception ex) {
                     JOptionPane.showMessageDialog(editDialog, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
@@ -303,14 +304,14 @@ public class UserManagementPanel extends JPanel {
                     "DELETE FROM users WHERE user_id = ?",
                     userId
                 );
-                loadUsersWithConstraints();
+                refreshPage();
             }
         });
 
         refreshButton.addActionListener(e -> {
             searchField.setText("");
             filterBox.setSelectedIndex(0);
-            loadAllUsers();
+            refreshPage();
         });
 
         actionPanel.add(addButton);
@@ -371,7 +372,7 @@ public class UserManagementPanel extends JPanel {
             }
         });
 
-        loadAllUsers();
+        refreshPage();
 
         JScrollPane scrollPane = new JScrollPane(userTable);
         return scrollPane;
@@ -384,27 +385,7 @@ public class UserManagementPanel extends JPanel {
         );
     }
 
-    private void loadAllUsers() {
-        tableModel.setRowCount(0);
-
-        List<User> userList = Universal.db().query(
-            "SELECT * FROM users;",
-            rs -> User.parseResultSet(rs)
-        );
-
-        for(User user: userList) {
-            tableModel.addRow(new Object[] {
-                user.getUserId(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getRole()
-            });
-        }
-
-        numTableRowCount.setText(userList.size() + " result" + (userList.size() > 1 ? "s" : ""));
-    }
-
-    private void loadUsersWithConstraints() {
+    private void loadUsers() {
         tableModel.setRowCount(0);
         String searchTerm = searchField.getText().trim();
         String role = "";
@@ -442,5 +423,9 @@ public class UserManagementPanel extends JPanel {
         int returnedSize = userList.size();
         int numUsers = countUsers();
         numTableRowCount.setText(returnedSize + " result" + (returnedSize > 1 ? "s" : "") + (returnedSize == numUsers ? "" : " (" + numUsers + " total)"));
+    }
+
+    public void refreshPage() {
+        loadUsers();
     }
 }
