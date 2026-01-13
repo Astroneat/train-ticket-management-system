@@ -12,8 +12,8 @@ import javax.swing.JPanel;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
+import com.mrt.frames.Page;
 import com.mrt.models.User;
-import com.mrt.user.schedules.Page;
 
 public class TicketsPanel extends JPanel implements Page {
 

@@ -30,6 +30,7 @@ import javax.swing.table.TableColumnModel;
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.frames.AdminFrame;
+import com.mrt.frames.Page;
 import com.mrt.models.Route;
 import com.mrt.models.Schedule;
 import com.mrt.models.Ticket;
@@ -39,7 +40,6 @@ import com.mrt.services.ScheduleService;
 import com.mrt.services.TicketService;
 import com.mrt.services.TrainService;
 import com.mrt.services.UserService;
-import com.mrt.user.schedules.Page;
 
 public class TicketManagementPanel extends JPanel implements Page {
 
@@ -61,6 +61,7 @@ public class TicketManagementPanel extends JPanel implements Page {
     private JButton boardBtn;
     private JButton expireBtn;
     private JButton refreshBtn;
+    private JButton qrScanBtn;
 
     private DefaultTableModel tableModel;
     private JTable ticketTable;
@@ -185,6 +186,8 @@ public class TicketManagementPanel extends JPanel implements Page {
         expireBtn.setPreferredSize(btnDim);
         refreshBtn = UIFactory.createButton("Refresh");
         refreshBtn.setPreferredSize(btnDim);
+        qrScanBtn = UIFactory.createIconButton("src/com/mrt/img/qr-code.png", new Dimension(20, 20));
+        qrScanBtn.setPreferredSize(new Dimension(36, 36));
 
         cancelBtn.addActionListener(e -> {
             int row = ticketTable.getSelectedRow();
@@ -243,10 +246,18 @@ public class TicketManagementPanel extends JPanel implements Page {
             refreshPage();
         });
 
+        qrScanBtn.addActionListener(e -> {
+            QRScanDialog dialog = new QRScanDialog(frame);
+            dialog.setVisible(true);
+            refreshPage();
+        });
+
         panel.add(cancelBtn);
         panel.add(boardBtn);
         panel.add(expireBtn);
         panel.add(refreshBtn);
+        panel.add(Box.createHorizontalStrut(10));
+        panel.add(qrScanBtn);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         return panel;
     }
@@ -366,7 +377,7 @@ public class TicketManagementPanel extends JPanel implements Page {
             Schedule s = ScheduleService.getScheduleById(t.getScheduleId());
             LocalDateTime scannedAt = t.getScannedAt();
             String scannedAtDisplay = "---";
-            if(scannedAt != null) scannedAtDisplay = scannedAt.toString();
+            if(scannedAt != null) scannedAtDisplay = t.getFormattedScannedAt();
 
             tableModel.addRow(new Object[] {
                 t,

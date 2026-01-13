@@ -275,7 +275,7 @@ public class SummaryPanel extends JPanel implements BookingPage {
 
         int verticalStrut = 10;
 
-        panel.add(UIFactory.createItalicLabel("• Boarding opens 15 minutes before departure.", summaryFontSize - 4));
+        panel.add(UIFactory.createItalicLabel("• Boarding opens 30 minutes before departure.", summaryFontSize - 4));
         panel.add(Box.createVerticalStrut(verticalStrut));
         panel.add(UIFactory.createItalicLabel("• Ensure that all selected seats and personal details are correct.", summaryFontSize - 4));
         panel.add(Box.createVerticalStrut(verticalStrut));

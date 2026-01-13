@@ -53,6 +53,7 @@ public class TicketListScrollPane extends JScrollPane {
         panel.setOpaque(false);
 
         List<Ticket> tickets = TicketService.getTicketsByUser(user);
+        numOfTickets = 0;
         for (Ticket ticket: tickets) {
             Schedule schedule = ScheduleService.getScheduleById(ticket.getScheduleId());
             Route route = RouteService.getRouteById(schedule.getRouteId());

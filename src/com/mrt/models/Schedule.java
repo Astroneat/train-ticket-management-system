@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 
 import com.mrt.Universal;
 
@@ -57,6 +58,11 @@ public class Schedule {
 
     private static LocalDateTime toLocalDateTime(Timestamp timestamp) {
         return timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public boolean isOngoing() {
+        LocalDateTime now = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return !(now.isBefore(getDepartureTime()) || now.isAfter(getArrivalTime()));
     }
 
     public static Schedule parseResultSet(ResultSet rs) throws SQLException {

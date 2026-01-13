@@ -10,11 +10,25 @@ import com.mrt.models.User;
 
 public class TicketService {
 
+    public enum ScanResult {
+        NOT_FOUND,
+        CANCELLED,
+        EXPIRED,
+        ALREADY_USED,
+        WRONG_TIME,
+        SUCCESS
+    };
+
+    private static final String CANCELLED = "cancelled";
+    private static final String EXPIRED = "expired";
+    private static final String BOARDED = "boarded";
+    private static final String BOOKED = "booked";
+
     public static void cancelTicket(int ticketId) { 
         Universal.db().execute(
             """
                 UPDATE tickets SET status = 'cancelled'
-                WHERE ticket_id = ?    
+                WHERE ticket_id = ?;
             """,
             ticketId
         );
@@ -23,8 +37,8 @@ public class TicketService {
     public static void boardTicket(int ticketId) {
         Universal.db().execute(
             """
-                UPDATE tickets SET status = 'boarded'
-                WHERE ticket_id = ?        
+                UPDATE tickets SET status = 'boarded', scanned_at = UTC_TIMESTAMP()
+                WHERE ticket_id = ?;     
             """,
             ticketId
         );
@@ -34,7 +48,7 @@ public class TicketService {
         Universal.db().execute(
             """
                 UPDATE tickets SET status = 'expired'
-                WHERE ticket_id = ?        
+                WHERE ticket_id = ?;        
             """,
             ticketId
         );
@@ -60,6 +74,17 @@ public class TicketService {
         );
     }
 
+    public static ScanResult scan(Ticket ticket) {
+        if(ticket == null) return ScanResult.NOT_FOUND;
+        if(ticket.getStatus().equals(CANCELLED)) return ScanResult.CANCELLED;
+        if(ticket.getStatus().equals(EXPIRED)) return ScanResult.EXPIRED;
+        if(ticket.getStatus().equals(BOARDED)) return ScanResult.ALREADY_USED;
+        if(ScheduleService.getScheduleById(ticket.getScheduleId()).isOngoing()) return ScanResult.WRONG_TIME;
+
+        boardTicket(ticket.getTicketId());
+        return ScanResult.SUCCESS;
+    }
+
     public static List<Ticket> getTicketsBySchedule(Schedule schedule) {
         return Universal.db().query(
             """
@@ -79,6 +104,17 @@ public class TicketService {
             """,
             rs -> Ticket.parseResultSet(rs),
             user.getUserId()
+        );
+    }
+
+    public static Ticket getTicketById(int ticketId) {
+        return Universal.db().queryOne(
+            """
+                SELECT * FROM tickets
+                WHERE ticket_id = ?        
+            """,
+            rs -> Ticket.parseResultSet(rs),
+            ticketId
         );
     }
 

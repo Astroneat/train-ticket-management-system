@@ -8,10 +8,10 @@ import com.mrt.admin.tickets.TicketManagementPanel;
 import com.mrt.admin.trains.TrainManagementPanel;
 import com.mrt.admin.users.UserManagementPanel;
 import com.mrt.models.User;
-import com.mrt.user.schedules.Page;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AdminFrame extends JFrame implements MyFrame {
@@ -28,7 +28,7 @@ public class AdminFrame extends JFrame implements MyFrame {
     private static final String USERS     = "USERS";
     private static final String REPORTS   = "REPORTS";
 
-    private Map<Page, String> pages;
+    private Map<Page, String> pages = new HashMap<>();
     private Page dashboard;
     private Page trains;
     private Page stations;

@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import com.mrt.Universal;
+import com.mrt.frames.Page;
 import com.mrt.frames.UserFrame;
 import com.mrt.models.Schedule;
 import com.mrt.models.Seat;

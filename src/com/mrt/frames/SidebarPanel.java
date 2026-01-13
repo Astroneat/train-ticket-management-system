@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.mrt.Universal;
-import com.mrt.user.schedules.Page;
 
 public class SidebarPanel extends JPanel {
 

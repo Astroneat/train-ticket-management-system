@@ -29,8 +29,8 @@ import javax.swing.table.DefaultTableModel;
 import com.mrt.Universal;
 import com.mrt.dialog.FormDialog;
 import com.mrt.frames.AdminFrame;
+import com.mrt.frames.Page;
 import com.mrt.models.User;
-import com.mrt.user.schedules.Page;
 
 public class UserManagementPanel extends JPanel implements Page {
 

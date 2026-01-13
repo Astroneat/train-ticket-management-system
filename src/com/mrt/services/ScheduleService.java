@@ -102,10 +102,10 @@ public class ScheduleService {
             """;
 
         if(status.equals("scheduled")) {
-            sql += " AND UTC_TIMESTAMP() <= ts.departure_utc\n";
+            // sql += " AND UTC_TIMESTAMP() <= ts.departure_utc\n";
             sql += "ORDER BY ts.status ASC, ts.departure_utc ASC";
         } else if(status.equals("completed")) {
-            sql += " AND ts.arrival_utc < UTC_TIMESTAMP()";
+            // sql += " AND ts.arrival_utc < UTC_TIMESTAMP()";
             sql += "ORDER BY ts.status ASC, ts.departure_utc DESC";
         }
         sql += ";";

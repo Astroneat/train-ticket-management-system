@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import com.mrt.Universal;
 import com.mrt.services.SeatService;
 
 public class Ticket {
@@ -36,6 +37,9 @@ public class Ticket {
     }
     public LocalDateTime getScannedAt() {
         return scannedAt;
+    }
+    public String getFormattedScannedAt() {
+        return getScannedAt().format(Universal.getDateTimeFormatter());
     }
     public Ticket(int ticketId, int userId, int scheduleId, int carNo, int seatIndex, String status,
             LocalDateTime scannedAt) {

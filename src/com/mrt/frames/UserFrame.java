@@ -3,7 +3,6 @@ import javax.swing.*;
 
 import com.mrt.models.User;
 import com.mrt.user.home.HomePanel;
-import com.mrt.user.schedules.Page;
 import com.mrt.user.schedules.SchedulesPanel;
 import com.mrt.user.tickets.TicketsPanel;
 

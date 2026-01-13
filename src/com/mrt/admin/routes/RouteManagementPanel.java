@@ -28,11 +28,12 @@ import javax.swing.table.TableColumnModel;
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
 import com.mrt.frames.AdminFrame;
+import com.mrt.frames.Page;
 import com.mrt.models.City;
 import com.mrt.models.Route;
 import com.mrt.models.Station;
 import com.mrt.services.RouteService;
-import com.mrt.user.schedules.Page;
+import com.mrt.services.ScheduleService;
 
 public class RouteManagementPanel extends JPanel implements Page {
 
@@ -154,7 +155,7 @@ public class RouteManagementPanel extends JPanel implements Page {
         panel.add(UIFactory.createPlainLabel("Sort by:", 16));
 
         sortBox = UIFactory.createComboBox(new String[] {
-            "Code", "Schedules"
+            "Code", "Scheduled", "Completed"
         });
         sortBox.addActionListener(e -> {
             refreshPage();
@@ -290,8 +291,8 @@ public class RouteManagementPanel extends JPanel implements Page {
         columnModel.removeColumn(columnModel.getColumn(0));
         columnModel.getColumn(0).setMaxWidth(100);
         columnModel.getColumn(0).setMinWidth(100);
-        columnModel.getColumn(3).setMaxWidth(100);
-        columnModel.getColumn(3).setMinWidth(100);
+        columnModel.getColumn(3).setMinWidth(180);
+        columnModel.getColumn(3).setMaxWidth(180);
         columnModel.getColumn(4).setMaxWidth(100);
         columnModel.getColumn(4).setMinWidth(100);
         
@@ -342,8 +343,11 @@ public class RouteManagementPanel extends JPanel implements Page {
             case "Code":
                 orderBy = "tr.route_id";
                 break;
-            case "Schedules":
-                orderBy = "schedules";
+            case "Scheduled":
+                orderBy = "scheduled";
+                break;
+            case "Completed":
+                orderBy = "completed";
                 break;
         }
         String sortOrder = "ASC";
@@ -361,7 +365,8 @@ public class RouteManagementPanel extends JPanel implements Page {
                 c1.city_name,
                 s2.station_name,
                 c2.city_name,
-                COUNT(ts.schedule_id) schedules,
+                COUNT(DISTINCT ts.schedule_id) scheduled,
+                COUNT(DISTINCT ts2.schedule_id) completed,
                 tr.status
             FROM train_routes tr
             INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
@@ -369,6 +374,7 @@ public class RouteManagementPanel extends JPanel implements Page {
             INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
             INNER JOIN cities c2 ON s2.city_id = c2.city_id
             LEFT JOIN train_schedules ts ON ts.route_id = tr.route_id AND ts.status = 'scheduled'
+            LEFT JOIN train_schedules ts2 ON ts2.route_id = tr.route_id AND ts2.status = 'completed'
             WHERE TRUE
         """;
         if(!searchTerm.isBlank()) {
@@ -388,6 +394,7 @@ public class RouteManagementPanel extends JPanel implements Page {
         sql += "ORDER BY " + orderBy + " " + sortOrder + ";";
 
         List<Integer> numScheduled = new ArrayList<>();
+        List<Integer> numCompleted = new ArrayList<>();
         List<Route> routeList = Universal.db().query(
             sql,
             rs -> {
@@ -398,13 +405,14 @@ public class RouteManagementPanel extends JPanel implements Page {
                     rs.getInt("tr.destination_station_id"),
                     rs.getString("tr.status")
                 );
-                numScheduled.add(rs.getInt("schedules"));
+                numScheduled.add(rs.getInt("scheduled"));
+                numCompleted.add(rs.getInt("completed"));
                 return route;
             },
             args.toArray(new Object[args.size()])
         );
 
-        int numScheduledIdx = 0;
+        int rowIdx = 0;
         for(Route route: routeList) {
             Station origin = Station.getStationFromId(route.getOriginStationId());
             Station destination = Station.getStationFromId(route.getDestinationStationId());
@@ -413,10 +421,10 @@ public class RouteManagementPanel extends JPanel implements Page {
                 route.getRouteCode(),
                 origin.getStationName() + ", " + City.getCityFromId(origin.getCityId()).getCityName(),
                 destination.getStationName() + ", " + City.getCityFromId(destination.getCityId()).getCityName(),
-                numScheduled.get(numScheduledIdx),
+                numScheduled.get(rowIdx) + " scheduled, " + numCompleted.get(rowIdx) + " completed",
                 route.getStatus()
             });
-            numScheduledIdx++;
+            rowIdx++;
         }
 
         int returnedSize = routeList.size();
@@ -426,6 +434,7 @@ public class RouteManagementPanel extends JPanel implements Page {
     }
 
     public void refreshPage() {
+        ScheduleService.refreshSchedulesStatus();
         loadRoutes();
     }
 }

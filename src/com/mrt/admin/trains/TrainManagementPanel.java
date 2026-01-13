@@ -29,9 +29,10 @@ import com.mrt.Universal;
 import com.mrt.dialog.FormDialog;
 import com.mrt.factory.UIFactory;
 import com.mrt.frames.AdminFrame;
+import com.mrt.frames.Page;
 import com.mrt.models.Train;
+import com.mrt.services.ScheduleService;
 import com.mrt.services.TrainService;
-import com.mrt.user.schedules.Page;
 
 public class TrainManagementPanel extends JPanel implements Page {
 
@@ -151,7 +152,7 @@ public class TrainManagementPanel extends JPanel implements Page {
         panel.add(UIFactory.createPlainLabel("Sort by:", 16));
 
         sortBox = UIFactory.createComboBox(new String[] {
-            "Code", "Schedules"
+            "Code", "Scheduled"
         });
         sortBox.addActionListener(e -> {
             refreshPage();
@@ -232,7 +233,7 @@ public class TrainManagementPanel extends JPanel implements Page {
             });
             
             Train selectedTrain = (Train) tableModel.getValueAt(row, 0);
-            codeField.setText(String.valueOf(selectedTrain.getTrainId()));
+            codeField.setText(selectedTrain.getTrainCode());
             seatCapacityField.setText(String.valueOf(selectedTrain.getSeatCapacity()));
             statusBox.setSelectedItem(selectedTrain.getStatus());
 
@@ -369,8 +370,8 @@ public class TrainManagementPanel extends JPanel implements Page {
             case "Code":
                 orderBy = "t.train_code";
                 break;
-            case "Schedules":
-                orderBy = "schedules";
+            case "Scheduled":
+                orderBy = "scheduled";
                 break;
         }
         String sortOrder = "ASC";
@@ -378,15 +379,29 @@ public class TrainManagementPanel extends JPanel implements Page {
 
         List<String> args = new ArrayList<String>();
 
-        String sql = "SELECT \n" +
-                    "    t.train_id,\n" +
-                    "    t.train_code,\n" +
-                    "    t.seat_capacity,\n" +
-                    "    t.status,\n" +
-                    "    COUNT(ts.route_id) schedules\n" +
-                    "FROM trains t\n" +
-                    "LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'\n" +
-                    "WHERE true";
+        // String sql = "SELECT \n" +
+        //             "    t.train_id,\n" +
+        //             "    t.train_code,\n" +
+        //             "    t.seat_capacity,\n" +
+        //             "    t.status,\n" +
+        //             "    COUNT(ts.route_id) scheduled\n" +
+        //             "FROM trains t\n" +
+        //             "LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'\n" +
+        //             "WHERE true";
+        String sql = 
+        """
+            SELECT
+                t.train_id,
+                t.train_code,
+                t.seat_capacity,
+                t.status,
+                COUNT(DISTINCT ts.route_id) scheduled,
+                COUNT(DISTINCT ts2.route_id) completed
+            FROM trains t
+            LEFT JOIN train_schedules ts ON t.train_id = ts.train_id AND ts.status = 'scheduled'
+            LEFT JOIN train_schedules ts2 ON t.train_id = ts2.train_id AND ts2.status = 'completed'
+            WHERE TRUE        
+        """;
         if(!searchTerm.isBlank()) {
             sql += " AND (t.train_code LIKE ?)";
             args.add("%" + searchTerm + "%");
@@ -400,26 +415,28 @@ public class TrainManagementPanel extends JPanel implements Page {
                 "ORDER BY " + orderBy + " " + sortOrder + ";";
 
         List<Integer> numScheduled = new ArrayList<>();
+        List<Integer> numCompleted = new ArrayList<>();
         List<Train> trainList = Universal.db().query(
             sql,
             rs -> {
                 Train ret = Train.parseResultSet(rs);
-                numScheduled.add(rs.getInt("schedules"));
+                numScheduled.add(rs.getInt("scheduled"));
+                numCompleted.add(rs.getInt("completed"));
                 return ret;
             },
             args.toArray(new Object[args.size()])
         );
 
-        int numScheduledIdx = 0;
+        int rowIdx = 0;
         for(Train train: trainList) {
             tableModel.addRow(new Object[] {
                 train,
                 train.getTrainCode(),
                 train.getSeatCapacity(),
                 train.getStatus(),
-                numScheduled.get(numScheduledIdx)
+                numScheduled.get(rowIdx) + " scheduled, " + numCompleted.get(rowIdx) + " completed"
             });
-            numScheduledIdx++;
+            rowIdx++;
         }
 
         int returnedSize = trainList.size();
@@ -429,6 +446,7 @@ public class TrainManagementPanel extends JPanel implements Page {
     }
 
     public void refreshPage() {
+        ScheduleService.refreshSchedulesStatus();
         loadTrains();
     }
 }

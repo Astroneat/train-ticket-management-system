@@ -54,7 +54,7 @@ public class RouteSchedulesDialog extends JDialog {
         this.route = route;
         renderer = new ScheduleCellRenderer();
         
-        setSize(new Dimension(700, 600));
+        setSize(new Dimension(1000, 600));
         setResizable(false);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(0, 0));

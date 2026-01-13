@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
+import com.mrt.frames.AdminFrame;
 import com.mrt.frames.LoginFrame;
 import com.mrt.frames.UserFrame;
 import com.mrt.models.User;
@@ -26,11 +27,11 @@ public class App {
 
         SwingUtilities.invokeLater(() -> {
             Universal.db().establishConnection();
-            new LoginFrame().setVisible(true);
+            // new LoginFrame().setVisible(true);
 
             // new UserFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
             // new UserFrame(new User(3, "datnvt2007@gmail.com", "Nguyen Viet Thanh Dat", "customer")).setVisible(true);;
-            // new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
+            new AdminFrame(new User(2, "admin", "admin", "admin")).setVisible(true);;
         });
     }
 }

@@ -376,8 +376,8 @@ public class ScheduleSearchPanel extends JPanel {
         TableColumnModel columnModel = scheduleTable.getColumnModel();
         columnModel.removeColumn(columnModel.getColumn(0));
 
-        setColumnWidth(columnModel, 0, 350);
-        setColumnWidth(columnModel, 1, 180);
+        setColumnWidth(columnModel, 0, 450);
+        setColumnWidth(columnModel, 1, 150);
         setColumnWidth(columnModel, 2, 150);
         setColumnWidth(columnModel, 3, 150);
         setColumnWidth(columnModel, 4, 130);
@@ -387,7 +387,13 @@ public class ScheduleSearchPanel extends JPanel {
             if(!e.getValueIsAdjusting()) {
                 int selectedRow = scheduleTable.getSelectedRow();
                 if(selectedRow != -1) {
-                    buyBtn.setEnabled(true);
+                    Schedule s = (Schedule) tableModel.getValueAt(selectedRow, 0);
+                    if(s.getStatus().equals("scheduled") && !s.isOngoing()) {
+                        buyBtn.setEnabled(true);
+                    }
+                    else {
+                        buyBtn.setEnabled(false);
+                    }
                 }
                 else {
                     buyBtn.setEnabled(false);
