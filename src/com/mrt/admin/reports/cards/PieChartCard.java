@@ -51,8 +51,8 @@ class PieChart extends JPanel {
 
             int angle = (int) Math.round(360.0 * ts.getCount() / sum);
             g2d.setColor(colorFromStatus(status));
-            g2d.fillArc(x, y, size, size, accum_angle - 90, angle);
-            accum_angle += angle;
+            g2d.fillArc(x, y, size, size, accum_angle + 90, -angle);
+            accum_angle -= angle;
         }
     }
 

@@ -3,6 +3,8 @@ package com.mrt.services;
 import java.util.Random;
 
 import com.mrt.Universal;
+import com.mrt.models.Schedule;
+import com.mrt.models.Seat;
 import com.mrt.models.User;
 
 public class UserService {
@@ -14,6 +16,21 @@ public class UserService {
             """,
             rs -> User.parseResultSet(rs),
             userId
+        );
+    }
+
+    public static User getUserBySeat(Schedule schedule, Seat seat) {
+        return Universal.db().queryOne(
+            """
+                SELECT * FROM tickets tk
+                INNER JOIN train_schedules ts ON ts.schedule_id = tk.schedule_id
+                INNER JOIN users u ON tk.user_id = u.user_id
+                WHERE ts.schedule_id = ? AND tk.car_no = ? AND tk.seat_index = ?
+            """,
+            rs -> User.parseResultSet(rs),
+            schedule.getScheduleId(),
+            seat.getCarNo(),
+            seat.getSeatIndex()
         );
     }
 
