@@ -2,6 +2,7 @@ package com.mrt.frames;
 import javax.swing.*;
 
 import com.mrt.admin.dashboard.DashboardPanel;
+import com.mrt.admin.reports.ReportsPanel;
 import com.mrt.admin.routes.RouteManagementPanel;
 import com.mrt.admin.stations.StationManagementPanel;
 import com.mrt.admin.tickets.TicketManagementPanel;
@@ -35,6 +36,7 @@ public class AdminFrame extends JFrame implements MyFrame {
     private Page routes;
     private Page tickets;
     private Page users;
+    private Page reports;
 
     public AdminFrame(User user) {
         this.currentUser = user;
@@ -53,13 +55,15 @@ public class AdminFrame extends JFrame implements MyFrame {
         routes = new RouteManagementPanel(this);
         tickets = new TicketManagementPanel(this);
         users = new UserManagementPanel(this, user);
+        reports = new ReportsPanel();
 
         pages.put(dashboard, DASHBOARD);
-        pages.put(trains, TRAINS);
-        pages.put(stations, STATIONS);
-        pages.put(routes, ROUTES);
-        pages.put(tickets, TICKETS);
-        pages.put(users, USERS);
+        pages.put(trains,    TRAINS);
+        pages.put(stations,  STATIONS);
+        pages.put(routes,    ROUTES);
+        pages.put(tickets,   TICKETS);
+        pages.put(users,     USERS);
+        pages.put(reports,   REPORTS);
 
         add(createSidebarPanel(), BorderLayout.WEST);
         add(new HeaderPanel(currentUser), BorderLayout.NORTH);
@@ -68,19 +72,16 @@ public class AdminFrame extends JFrame implements MyFrame {
         contentPanel = new JPanel(cardLayout);
 
         contentPanel.add(DASHBOARD, (JPanel) dashboard);
-        contentPanel.add(TRAINS, (JPanel) trains);
-        contentPanel.add(STATIONS, (JPanel) stations);
-        contentPanel.add(ROUTES, (JPanel) routes);
-        contentPanel.add(TICKETS, (JPanel) tickets);
-        contentPanel.add(USERS, (JPanel) users);
+        contentPanel.add(TRAINS,    (JPanel) trains);
+        contentPanel.add(STATIONS,  (JPanel) stations);
+        contentPanel.add(ROUTES,    (JPanel) routes);
+        contentPanel.add(TICKETS,   (JPanel) tickets);
+        contentPanel.add(USERS,     (JPanel) users);
+        contentPanel.add(REPORTS,   (JPanel) reports);
         
         add(contentPanel, BorderLayout.CENTER);
-        goToPage(dashboard);
-        // showPage("USERS");
-        // showPage("TRAINS");
-        // showPage("STATIONS");
-        // showPage("ROUTES");
-        // goToPage(TICKETS);
+        // goToPage(dashboard);
+        goToPage(reports);
     }
 
     public void goToPage(Page page) {
@@ -107,7 +108,7 @@ public class AdminFrame extends JFrame implements MyFrame {
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Routes", "src/com/mrt/img/route.png", routes));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Tickets", "src/com/mrt/img/ticket.png", tickets));
         sidebar.addToMenuPanel(sidebar.createSidebarButton("Users", "src/com/mrt/img/user.png", users));
-        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", null));
+        sidebar.addToMenuPanel(sidebar.createSidebarButton("Reports", "src/com/mrt/img/chart.png", reports));
         sidebar.setActiveSidebarButton(dashboardBtn);
 
         JButton toHome = sidebar.createSidebarButton("Back to Home", "src/com/mrt/img/home.png", null);
