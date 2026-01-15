@@ -27,6 +27,10 @@ public class EmailService {
     private static final String HOST_EMAIL_ADDRESS = dotenv.get("HOST_EMAIL_ADDRESS");
     private static final String HOST_EMAIL_PASSWORD = dotenv.get("HOST_EMAIL_PASSWORD");
 
+    public static String getHostEmailAddress() {
+        return HOST_EMAIL_ADDRESS;
+    }
+
     public static void send(EmailMessage message) {
         try {
             Properties props = new Properties();

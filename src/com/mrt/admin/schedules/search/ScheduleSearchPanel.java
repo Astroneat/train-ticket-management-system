@@ -82,6 +82,7 @@ public class ScheduleSearchPanel extends JPanel implements Page {
         panel.add(createTitlePanel());
         panel.add(createSearchPanel());
         panel.add(createFilterPanel());
+        panel.add(createActionPanel());
         // panel.add(Box.createVerticalStrut(10));
         // JPanel upcomingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         // upcomingPanel.setOpaque(false);
@@ -246,6 +247,12 @@ public class ScheduleSearchPanel extends JPanel implements Page {
         fromSpinner.setEnabled(false);
         toCheckBox.setSelected(false);
         toSpinner.setEnabled(false);
+    }
+
+    private JPanel createActionPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        return panel;
     }
 
     private void loadSchedules() {

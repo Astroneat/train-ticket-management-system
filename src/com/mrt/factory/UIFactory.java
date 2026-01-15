@@ -33,7 +33,7 @@ public class UIFactory {
     public static Font createDefaultBoldFont(int size) {
         return new Font(Universal.defaultFontFamily, Font.BOLD, size);
     }
-    private static Border createDefaultBorder() {
+    public static Border createDefaultBorder() {
         return BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.BLACK, 1), 
             BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -71,7 +71,7 @@ public class UIFactory {
 
     public static JPasswordField createPasswordField(int columns) {
         JPasswordField field = new JPasswordField(columns);
-        field.setFont(createDefaultBoldFont(14));
+        field.setFont(createDefaultPlainFont(14));
         field.setBorder(createDefaultBorder());
         return field;
     }
@@ -169,7 +169,6 @@ public class UIFactory {
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setBorder(createDefaultBorder());
-        textArea.setFocusable(false);
         return textArea;
     }
 

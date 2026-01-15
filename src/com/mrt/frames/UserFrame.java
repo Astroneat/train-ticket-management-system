@@ -2,7 +2,9 @@ package com.mrt.frames;
 import javax.swing.*;
 
 import com.mrt.models.User;
+import com.mrt.user.feedback.FeedbackPanel;
 import com.mrt.user.home.HomePanel;
+import com.mrt.user.profile.ProfilePanel;
 import com.mrt.user.schedules.SchedulesPanel;
 import com.mrt.user.tickets.TicketsPanel;
 
@@ -21,17 +23,21 @@ public class UserFrame extends JFrame implements MyFrame {
     private static final String SCHEDULES = "SCHEDULES";
     private static final String TICKETS   = "TICKETS";
     private static final String PROFILE   = "PROFILE";
+    private static final String FEEDBACK  = "FEEDBACK";
 
     private JButton homeBtn;
     private JButton schedulesBtn;
     private JButton ticketsBtn;
     private JButton profileBtn;
+    private JButton feedbackBtn;
 
     private Map<Page, String> pages = new HashMap<>();
 
     public static Page homePanel;
     public static Page schedulesPanel;
     public static Page ticketsPanel;
+    public static Page profilePanel;
+    public static Page feedbackPanel;
 
     public UserFrame(User user) {
         this.currentUser = user;
@@ -44,12 +50,16 @@ public class UserFrame extends JFrame implements MyFrame {
 
         setLayout(new BorderLayout());
 
-        homePanel = new HomePanel();
+        homePanel = new HomePanel(this, user);
         schedulesPanel = new SchedulesPanel(this, user);
         ticketsPanel = new TicketsPanel(user);
+        profilePanel = new ProfilePanel(this, user);
+        feedbackPanel = new FeedbackPanel(this);
         pages.put(homePanel, HOME);
         pages.put(schedulesPanel, SCHEDULES);
         pages.put(ticketsPanel, TICKETS);
+        pages.put(profilePanel, PROFILE);
+        pages.put(feedbackPanel, FEEDBACK);
 
         add(createSidebarPanel(), BorderLayout.WEST);
         add(new HeaderPanel(currentUser), BorderLayout.NORTH);
@@ -60,10 +70,12 @@ public class UserFrame extends JFrame implements MyFrame {
         contentPanel.add(HOME, (JPanel) homePanel);
         contentPanel.add(SCHEDULES, (JPanel) schedulesPanel);
         contentPanel.add(TICKETS, (JPanel) ticketsPanel);
+        contentPanel.add(PROFILE, (JPanel) profilePanel);
+        contentPanel.add(FEEDBACK, (JPanel) feedbackPanel);
         
         add(contentPanel, BorderLayout.CENTER);
 
-        goToPage(ticketsPanel);
+        goToPage(homePanel);
     }
 
     public void goToPage(Page page) {
@@ -73,17 +85,20 @@ public class UserFrame extends JFrame implements MyFrame {
         cardLayout.show(contentPanel, pageName);
 
         switch(pageName) {
-            case "HOME":
+            case HOME:
                 sidebar.setActiveSidebarButton(homeBtn);
                 break;
-            case "SCHEDULES":
+            case SCHEDULES:
                 sidebar.setActiveSidebarButton(schedulesBtn);
                 break;
-            case "TICKETS":
+            case TICKETS:
                 sidebar.setActiveSidebarButton(ticketsBtn);
                 break;
-            case "PROFILE":
+            case PROFILE:
                 sidebar.setActiveSidebarButton(profileBtn);
+                break;
+            case FEEDBACK:
+                sidebar.setActiveSidebarButton(feedbackBtn);
                 break;
         }
     }
@@ -104,8 +119,10 @@ public class UserFrame extends JFrame implements MyFrame {
         sidebar.addToMenuPanel(schedulesBtn);
         ticketsBtn = sidebar.createSidebarButton("My Tickets", "src/com/mrt/img/ticket.png", ticketsPanel);
         sidebar.addToMenuPanel(ticketsBtn);
-        profileBtn = sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", null);
+        profileBtn = sidebar.createSidebarButton("Profile", "src/com/mrt/img/user.png", profilePanel);
         sidebar.addToMenuPanel(profileBtn);
+        feedbackBtn = sidebar.createSidebarButton("Feedback", "src/com/mrt/img/chat.png", feedbackPanel);
+        sidebar.addToMenuPanel(feedbackBtn);
         
         if(currentUser.getRole().equals("admin")) {
             int verticalStrut = 5;

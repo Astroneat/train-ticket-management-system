@@ -39,6 +39,8 @@ public class ScheduleService {
     }
 
     public static void cancelSchedule(int scheduleId) {
+        refreshSchedulesStatus();
+        
         Universal.db().execute(
             """
             UPDATE train_schedules
@@ -47,6 +49,7 @@ public class ScheduleService {
             """,
             scheduleId
         );
+        TicketService.refreshTicketsStatus();
     }
 
     public static void refreshSchedulesStatus() {
