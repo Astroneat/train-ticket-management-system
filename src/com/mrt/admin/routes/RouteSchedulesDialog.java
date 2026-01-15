@@ -170,19 +170,13 @@ public class RouteSchedulesDialog extends JDialog {
         });
 
         editButton.addActionListener(e -> {
-            // int row = futureTable.getSelectedRow();
-            // if(row != -1) {
-            //     String status = (String) futureModel.getValueAt(row, 5);
-            //     if(status.equals("scheduled")) {
-            //         int scheduleId = (int) futureModel.getValueAt(row, 0);
-            //         TrainEditScheduleDialog dialog = new TrainEditScheduleDialog(this, Schedule.getScheduleFromId(scheduleId));
-            //         dialog.setVisible(true);
-
-            //         refresh();
-            //     } else {
-            //         JOptionPane.showMessageDialog(this, "Cannot edit a cancelled schedule", "Error", JOptionPane.ERROR_MESSAGE);
-            //     }
-            // }
+            int row = futureTable.getSelectedRow();
+            if(row != -1) {
+                Schedule s = (Schedule) futureModel.getValueAt(row, 0);
+                JDialog dialog = new RouteEditScheduleDialog(this, s);
+                dialog.setVisible(true);
+                refresh();
+            }
         });
 
         refreshButton.addActionListener(e -> {

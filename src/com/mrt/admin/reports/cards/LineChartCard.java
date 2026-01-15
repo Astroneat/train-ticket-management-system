@@ -115,12 +115,6 @@ public class LineChartCard extends JPanel implements DataCard {
 
         this.dataSupplier = dataSupplier;
         this.title = title;
-        loadData();
-
-        add(createTitlePanel(), BorderLayout.NORTH);
-        add(lineChart, BorderLayout.CENTER);
-
-        setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
     }
 
     private JPanel createTitlePanel() {
@@ -134,6 +128,13 @@ public class LineChartCard extends JPanel implements DataCard {
         try {
             data = dataSupplier.get();
             lineChart.loadData(data);
+            
+            removeAll();
+            add(createTitlePanel(), BorderLayout.NORTH);
+            add(lineChart, BorderLayout.CENTER);
+
+            setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
         } catch(Exception e) {
             e.printStackTrace();
         }

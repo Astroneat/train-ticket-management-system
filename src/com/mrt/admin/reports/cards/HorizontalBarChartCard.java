@@ -111,10 +111,6 @@ public class HorizontalBarChartCard extends JPanel implements DataCard {
 
         this.dataSupplier = dataSupplier;
         this.title = title;
-        loadData();
-
-        add(createTitlePanel(), BorderLayout.NORTH);
-        add(barChart, BorderLayout.CENTER);
     }
 
     private JPanel createTitlePanel() {
@@ -128,6 +124,12 @@ public class HorizontalBarChartCard extends JPanel implements DataCard {
         try {
             data = dataSupplier.get();
             barChart.loadData(data);
+
+            removeAll();
+
+            add(createTitlePanel(), BorderLayout.NORTH);
+            add(barChart, BorderLayout.CENTER);
+
         } catch(Exception e) {
             e.printStackTrace();
         }

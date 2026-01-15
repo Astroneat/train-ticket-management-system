@@ -58,7 +58,7 @@ public class ViewTicketDialog extends JDialog {
         this.train = train;
         this.user = user;
         
-        setSize(500, 700);
+        setSize(500, 750);
         setLocationRelativeTo(parent);
         setResizable(false);
         JPanel contentPane = (JPanel) getContentPane();

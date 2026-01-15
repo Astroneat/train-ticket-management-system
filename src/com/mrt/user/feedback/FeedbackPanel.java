@@ -88,7 +88,7 @@ public class FeedbackPanel extends JPanel implements Page {
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        JButton sendBtn = UIFactory.createButton("Send!");
+        JButton sendBtn = UIFactory.createButton("Send");
         sendBtn.setFont(UIFactory.createDefaultBoldFont(fontSize));
         sendBtn.setPreferredSize(new Dimension(120, 36));
         sendBtn.addActionListener(e -> {

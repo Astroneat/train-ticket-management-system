@@ -14,7 +14,8 @@ public class Analytics {
     public static int totalTicketsSold() {
         return Universal.db().queryOne(
             """
-                SELECT COUNT(tickets.ticket_id) AS cnt FROM tickets;
+                SELECT COUNT(tickets.ticket_id) AS cnt FROM tickets
+                WHERE status != 'cancelled';
             """,
             rs -> rs.getInt("cnt")
         );

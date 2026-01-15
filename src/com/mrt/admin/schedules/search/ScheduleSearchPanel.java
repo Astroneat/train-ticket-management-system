@@ -19,13 +19,17 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
@@ -52,6 +56,10 @@ public class ScheduleSearchPanel extends JPanel implements Page {
     private JSpinner fromSpinner;
     private JCheckBox toCheckBox;
     private JSpinner toSpinner;
+
+    private JButton addBtn;
+    private JButton editBtn;
+    private JButton cancelBtn;
 
     private JButton viewBtn;
 
@@ -250,7 +258,55 @@ public class ScheduleSearchPanel extends JPanel implements Page {
     }
 
     private JPanel createActionPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT)); 
+        panel.setOpaque(false);
+
+        Dimension btnDim = new Dimension(120, 36);
+
+        addBtn = UIFactory.createButton("Add");
+        addBtn.setPreferredSize(btnDim);
+        addBtn.addActionListener(e -> {
+            JDialog dialog = new AddScheduleDialog((JFrame) SwingUtilities.getWindowAncestor(this));
+            dialog.setVisible(true);
+            refreshPage();
+        });
+        panel.add(addBtn);
+
+        editBtn = UIFactory.createButton("Edit");
+        editBtn.setPreferredSize(btnDim);
+        editBtn.setEnabled(false);
+        editBtn.addActionListener(e -> {
+            int row = scheduleTable.getSelectedRow();
+            if(row != -1) {
+                Schedule s = (Schedule) tableModel.getValueAt(row, 0);
+                JDialog dialog = new EditScheduleDialog((JFrame) SwingUtilities.getWindowAncestor(this), s);
+                dialog.setVisible(true);
+                refreshPage();
+            }
+        });
+        panel.add(editBtn);
+
+        cancelBtn = UIFactory.createButton("Cancel");
+        cancelBtn.setPreferredSize(btnDim);
+        cancelBtn.setEnabled(false);
+        cancelBtn.addActionListener(e -> {
+            int row = scheduleTable.getSelectedRow();
+            if(row != -1) {
+                int option = JOptionPane.showConfirmDialog(
+                    SwingUtilities.getWindowAncestor(this), 
+                    "Are you sure you want to cancel this schedule? (This action cannot be undone)",
+                    "Confirm cancellation",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if(option == JOptionPane.YES_OPTION) {
+                    Schedule s = (Schedule) tableModel.getValueAt(row, 0);
+                    ScheduleService.cancelSchedule(s.getScheduleId());
+                    refreshPage();
+                }
+            }
+        });
+        panel.add(cancelBtn);
 
         return panel;
     }
@@ -401,9 +457,13 @@ public class ScheduleSearchPanel extends JPanel implements Page {
                 int selectedRow = scheduleTable.getSelectedRow();
                 if(selectedRow != -1) {
                     viewBtn.setEnabled(true);
+                    editBtn.setEnabled(true);
+                    cancelBtn.setEnabled(true);
                 }
                 else {
                     viewBtn.setEnabled(false);
+                    editBtn.setEnabled(false);
+                    cancelBtn.setEnabled(false);
                 }
             }
         });

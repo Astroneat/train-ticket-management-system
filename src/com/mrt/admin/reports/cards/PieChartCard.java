@@ -85,14 +85,6 @@ public class PieChartCard extends JPanel implements DataCard {
 
         this.dataSupplier = dataSupplier;
         this.title = title;
-        loadData();
-
-        add(createTitlePanel(), BorderLayout.NORTH);
-        add(chart, BorderLayout.CENTER);
-        add(createLegendPanel(), BorderLayout.EAST);
-
-        setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        setMaximumSize(getPreferredSize());
     }
 
     private JPanel createTitlePanel() {
@@ -136,6 +128,16 @@ public class PieChartCard extends JPanel implements DataCard {
         try {
             data = dataSupplier.get();
             chart.loadData(data);
+
+            removeAll();
+            
+            add(createTitlePanel(), BorderLayout.NORTH);
+            add(chart, BorderLayout.CENTER);
+            add(createLegendPanel(), BorderLayout.EAST);
+
+            setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+            setMaximumSize(getPreferredSize());
+
         } catch(Exception e) {
             e.printStackTrace();
         }

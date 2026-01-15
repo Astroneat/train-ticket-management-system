@@ -100,7 +100,9 @@ public class TicketService {
         return Universal.db().query(
             """
                 SELECT * FROM tickets
-                WHERE user_id = ?;    
+                INNER JOIN train_schedules ts ON tickets.schedule_id = ts.schedule_id
+                WHERE tickets.user_id = ?
+                ORDER BY ts.departure_utc;
             """,
             rs -> Ticket.parseResultSet(rs),
             user.getUserId()
