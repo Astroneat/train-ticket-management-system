@@ -43,18 +43,21 @@ public class SeatViewPanel extends JPanel {
         // titlePanel.add(UIFactory.createBoldLabel("<html>Viewing seats for route: <font color='#00b8ff'>" + RouteService.getRouteById(selectedSchedule.getRouteId()).getRouteSummary() + "</font></html>", 20));
         // add(titlePanel);
         
+        seatInfoPanel = new SeatInfoPanel(this);
+
         Train train = TrainService.getTrainById(selectedSchedule.getTrainId());
         carPanel = new CarPanel(this, train.getSeatCapacity());
+
         add(carPanel);
-
-        seatInfoPanel = new SeatInfoPanel(this);
         add(seatInfoPanel);
-
         add(createButtonsPanel());
     }
 
-    private void refreshSeatStatus() {
+    public void refreshSeatInfo() {
         seatInfoPanel.refreshSeatStatus();
+    }
+    public void refreshCarPanel() {
+        carPanel.refresh();
     }
 
     private JPanel createButtonsPanel() {
@@ -98,6 +101,9 @@ public class SeatViewPanel extends JPanel {
     public void markSeatBoarded(JButton btn) {
         btn.setBackground(Universal.PASTEL_PURPLE);
     }
+    public void markSeatUnoccupied(JButton btn) {
+        btn.setBackground(Universal.PASTEL_WHITE);
+    }
 
     public JPanel createSeatBorderWrapper(JButton btn) {
         JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -108,7 +114,7 @@ public class SeatViewPanel extends JPanel {
 
     public void setSelectedSeat(Seat seat) {
         this.selectedSeat = seat;
-        refreshSeatStatus();
+        refreshSeatInfo();
     }
     public Seat getSelectedSeat() {
         return selectedSeat;

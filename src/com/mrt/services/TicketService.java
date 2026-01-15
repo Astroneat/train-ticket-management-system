@@ -1,5 +1,6 @@
 package com.mrt.services;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.mrt.Universal;
@@ -89,7 +90,7 @@ public class TicketService {
         return Universal.db().query(
             """
                 SELECT * FROM tickets
-                WHERE schedule_id = ?;    
+                WHERE schedule_id = ? AND status != 'cancelled';    
             """,
             rs -> Ticket.parseResultSet(rs),
             schedule.getScheduleId()
@@ -120,6 +121,19 @@ public class TicketService {
         );
     }
 
+    public static Ticket getTicketByScheduleAndSeat(Schedule schedule, Seat seat) {
+        return Universal.db().queryOne(
+            """
+                SELECT * FROM tickets tk
+                WHERE tk.schedule_id = ? AND tk.car_no = ? AND tk.seat_index = ? AND status != 'cancelled'
+            """,
+            rs -> Ticket.parseResultSet(rs),
+            schedule.getScheduleId(),
+            seat.getCarNo(),
+            seat.getSeatIndex()
+        );
+    }
+
     public static void bookTickets(User user, Schedule schedule, List<Seat> seats) {
         for(Seat seat: seats) {
             Universal.db().execute(
@@ -133,5 +147,9 @@ public class TicketService {
                 seat.getSeatIndex()
             );
         }
+    }
+
+    public static void bookTicket(User user, Schedule schedule, Seat seat) {
+        bookTickets(user, schedule, Arrays.asList(new Seat[]{seat}));
     }
 }

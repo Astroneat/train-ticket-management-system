@@ -214,7 +214,7 @@ public class CarPanel extends JPanel {
         return panel;
     }
 
-    private void loadBookedSeats() {
+    public void loadBookedSeats() {
         List<Ticket> bookedTickets = TicketService.getTicketsBySchedule(parent.getSelectedSchedule());
         for(Ticket tk: bookedTickets) {
             int carIndex = tk.getCarNo();

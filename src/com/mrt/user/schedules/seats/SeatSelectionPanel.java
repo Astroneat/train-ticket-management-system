@@ -81,6 +81,7 @@ public class SeatSelectionPanel extends JPanel implements BookingPage {
             nextBtn.setEnabled(true);
         }
 
+        carPanel.loadBookedSeats();
         seatInfoPanel.refreshSeatStatus();
     }
 

@@ -103,7 +103,6 @@ CREATE TABLE `tickets` (
   `booked_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `scanned_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`ticket_id`),
-  UNIQUE KEY `schedule_id` (`schedule_id`,`car_no`,`seat_index`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `tickets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `tickets_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `train_schedules` (`schedule_id`)

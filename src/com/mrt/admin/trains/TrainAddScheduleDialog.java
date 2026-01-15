@@ -132,8 +132,6 @@ public class TrainAddScheduleDialog extends JDialog {
                 routeField.setText(pickedRoute.getRouteSummary());
                 selectedRoute = pickedRoute;
                 saveBtn.setEnabled(true);
-            } else {
-                saveBtn.setEnabled(false);
             }
         });
 

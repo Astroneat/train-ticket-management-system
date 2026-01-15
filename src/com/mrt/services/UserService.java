@@ -31,7 +31,7 @@ public class UserService {
                 SELECT * FROM tickets tk
                 INNER JOIN train_schedules ts ON ts.schedule_id = tk.schedule_id
                 INNER JOIN users u ON tk.user_id = u.user_id
-                WHERE ts.schedule_id = ? AND tk.car_no = ? AND tk.seat_index = ?
+                WHERE ts.schedule_id = ? AND tk.car_no = ? AND tk.seat_index = ? AND tk.status != 'cancelled'
             """,
             rs -> User.parseResultSet(rs),
             schedule.getScheduleId(),

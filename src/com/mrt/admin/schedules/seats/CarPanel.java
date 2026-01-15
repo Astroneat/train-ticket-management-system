@@ -35,6 +35,7 @@ public class CarPanel extends JPanel {
     private int numCars;
     private int currentShownCar;
     private Map<Integer, List<JButton>> seats;
+    private JButton selectedBtn;
 
     private JButton scrollLeftBtn;
     private JButton scrollRightBtn;
@@ -60,11 +61,11 @@ public class CarPanel extends JPanel {
         for(int i = 1; i <= numCars; i++) {
             cardPanel.add(String.valueOf(i), createCarPanel(i));
         }
-        loadBookedSeats();
 
         add(cardPanel, BorderLayout.CENTER);
         add(createScrollLeftBtnButton(), BorderLayout.WEST);
         add(createScrollRightBtnButton(), BorderLayout.EAST);
+        loadBookedSeats();
     }
 
     private void showCar(int carIndex) {
@@ -130,7 +131,7 @@ public class CarPanel extends JPanel {
     }
 
     private JPanel createTitlePanel(int carIndex) {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         panel.setOpaque(false);
 
         panel.add(UIFactory.createBoldLabel("Car " + carIndex, 18));
@@ -138,7 +139,7 @@ public class CarPanel extends JPanel {
         JButton refreshBtn = UIFactory.createIconButton("src/com/mrt/img/refresh.png", new Dimension(10, 10));
         refreshBtn.setPreferredSize(new Dimension(32, 32));
         refreshBtn.addActionListener(e -> {
-            loadBookedSeats();
+            refresh();
         });
         panel.add(refreshBtn);
 
@@ -194,6 +195,7 @@ public class CarPanel extends JPanel {
                 btn.putClientProperty("seat", new Seat(carIndex, seatIndex));
                 btn.addActionListener(e -> {
                     Seat seat = (Seat) btn.getClientProperty("seat");
+                    selectSeatButton(btn);
                     parent.setSelectedSeat(seat);
                 });
 
@@ -208,7 +210,35 @@ public class CarPanel extends JPanel {
         return panel;
     }
 
-    private void loadBookedSeats() {
+    public void refresh() {
+        selectSeatButton(null);
+        parent.setSelectedSeat(null);
+        loadBookedSeats();
+    }
+
+    private void selectSeatButton(JButton btn) {
+        if(selectedBtn == btn) return;
+
+        if(selectedBtn != null) {
+            // System.out.print("sel: " + selectedBtn.getBackground() + " ");
+            selectedBtn.setBackground(selectedBtn.getBackground().brighter());
+        }
+        if(btn != null) {
+            // System.out.print("btn: " + btn.getBackground() + " ");
+            btn.setBackground(btn.getBackground().darker());
+        }
+        // System.out.println();
+        selectedBtn = btn;
+    }
+
+    public void loadBookedSeats() {
+        for(Map.Entry<Integer, List<JButton>> entry: seats.entrySet()) {
+            List<JButton> curSeats = entry.getValue();
+            for(JButton btn: curSeats) {
+                parent.markSeatUnoccupied(btn);
+            }
+        }
+
         List<Ticket> bookedTickets = TicketService.getTicketsBySchedule(parent.getSelectedSchedule());
         for(Ticket tk: bookedTickets) {
             int carIndex = tk.getCarNo();
@@ -216,6 +246,7 @@ public class CarPanel extends JPanel {
             String seatStatus = tk.getStatus();
             JButton btn = seats.get(carIndex).get(seatIndex);
 
+            if(btn == selectedBtn) continue;
             if(seatStatus.equals("booked")) {
                 parent.markSeatBooked(btn);
             }
