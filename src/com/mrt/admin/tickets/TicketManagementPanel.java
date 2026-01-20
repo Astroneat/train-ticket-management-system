@@ -285,7 +285,7 @@ public class TicketManagementPanel extends JPanel implements Page {
     }
 
     private void recountSearchDisplay() {
-        int ignored = Universal.db().queryOne(
+        Universal.db().queryOne(
             """
             SELECT 
                 COUNT(tk1.ticket_id) total_cnt,

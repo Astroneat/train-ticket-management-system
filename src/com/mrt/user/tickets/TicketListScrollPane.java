@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -12,6 +14,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -35,10 +38,13 @@ public class TicketListScrollPane extends JScrollPane {
 
     private User user;
     private int numOfTickets;
+    private TicketStatus status;
+    private String searchTerm;
     
     public TicketListScrollPane(User user, TicketStatus status) {
         this.user = user;
-        showTickets(status);
+        this.status = status;
+        showTickets(status, "");
 
         setBorder(null);
         setOpaque(false);
@@ -47,12 +53,14 @@ public class TicketListScrollPane extends JScrollPane {
         setPreferredSize(getPreferredSize());
     }
 
-    public void showTickets(TicketStatus status) {
+    public void showTickets(TicketStatus status, String searchTerm) {
+        this.searchTerm = searchTerm;
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
 
-        List<Ticket> tickets = TicketService.getTicketsByUser(user);
+        List<Ticket> tickets = TicketService.getTicketsByUser(user, searchTerm);
         numOfTickets = 0;
         for (Ticket ticket: tickets) {
             Schedule schedule = ScheduleService.getScheduleById(ticket.getScheduleId());
@@ -192,9 +200,38 @@ public class TicketListScrollPane extends JScrollPane {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         panel.setOpaque(false);
 
+        if(status == TicketStatus.BOOKED) {
+            JButton cancelTicketBtn = UIFactory.createButton("Cancel Ticket");
+            cancelTicketBtn.setForeground(Color.RED);
+            cancelTicketBtn.setFont(UIFactory.createDefaultBoldFont(16));
+            cancelTicketBtn.setBorder(null);
+            cancelTicketBtn.addActionListener(e -> {
+                int option = JOptionPane.showConfirmDialog(
+                    SwingUtilities.getWindowAncestor(this), 
+                    "Cancel this ticket? (This action cannot be undone)",
+                    "Confirm cancellation",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if(option == JOptionPane.YES_OPTION) {
+                    TicketService.cancelTicket(ticket.getTicketId());
+                    showTickets(status, searchTerm);
+                }
+            });
+
+            LocalDateTime now = LocalDateTime.now();
+            long diff = Duration.between(now, schedule.getDepartureTime()).toMinutes();
+            if(diff <= 30) {
+                cancelTicketBtn.setEnabled(false);
+            }
+            
+            panel.add(cancelTicketBtn);
+            panel.add(Box.createHorizontalStrut(20));
+        }
+
         JButton viewDetailsButton = UIFactory.createButton("View Ticket →");
         viewDetailsButton.setForeground(Color.BLUE);
-        viewDetailsButton.setFont(UIFactory.createDefaultPlainFont(16));
+        viewDetailsButton.setFont(UIFactory.createDefaultBoldFont(16));
         viewDetailsButton.setBorder(null);
         viewDetailsButton.addActionListener(e -> {
             ViewTicketDialog dialog = new ViewTicketDialog((JFrame) SwingUtilities.getWindowAncestor(this), ticket, schedule, route, train, user);

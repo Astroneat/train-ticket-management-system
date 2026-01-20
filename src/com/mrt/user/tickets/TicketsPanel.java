@@ -9,6 +9,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.mrt.Universal;
 import com.mrt.factory.UIFactory;
@@ -24,6 +25,8 @@ public class TicketsPanel extends JPanel implements Page {
     private JLabel boardedLabel;
     private JLabel cancelledLabel;
     private JLabel expiredLabel;
+
+    private JTextField searchField = UIFactory.createTextField(30);
     
     public TicketsPanel(User user) {
         setBackground(Universal.BACKGROUND_WHITE);
@@ -31,9 +34,29 @@ public class TicketsPanel extends JPanel implements Page {
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         add(createTitlePanel());
+        add(createSearchPanel());
         ticketViewPanel = new TicketViewPanel(user);
         add(ticketViewPanel);
         updateTicketCounts();
+    }
+
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setOpaque(false);
+
+        panel.add(UIFactory.createPlainLabel("Search:", 16));
+
+        searchField.addActionListener(e -> {
+            refreshPage();
+        });
+        panel.add(searchField);
+
+        JButton searchBtn = UIFactory.createIconButton("src/com/mrt/img/search.png", new Dimension(25, 25));
+        searchBtn.addActionListener(e -> {
+            refreshPage();
+        });
+        panel.add(searchBtn);
+        return panel;
     }
 
     private void updateTicketCounts() {
@@ -54,6 +77,7 @@ public class TicketsPanel extends JPanel implements Page {
         JButton refreshBtn = UIFactory.createIconButton("src/com/mrt/img/refresh.png", new Dimension(14, 14));
         refreshBtn.setPreferredSize(new Dimension(40, 40));
         refreshBtn.addActionListener(e -> {
+            searchField.setText("");
             refreshPage();
         });
         panel.add(refreshBtn);
@@ -82,7 +106,7 @@ public class TicketsPanel extends JPanel implements Page {
     }
 
     public void refreshPage() {
-        ticketViewPanel.refreshTickets();
+        ticketViewPanel.refreshTickets(searchField.getText().trim());
         updateTicketCounts();
     }
 }

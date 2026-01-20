@@ -23,7 +23,7 @@ public class TicketService {
     private static final String CANCELLED = "cancelled";
     private static final String EXPIRED = "expired";
     private static final String BOARDED = "boarded";
-    private static final String BOOKED = "booked";
+    // private static final String BOOKED = "booked";
 
     public static void cancelTicket(int ticketId) { 
         Universal.db().execute(
@@ -97,16 +97,26 @@ public class TicketService {
         );
     }
 
-    public static List<Ticket> getTicketsByUser(User user) {
+    public static List<Ticket> getTicketsByUser(User user, String searchTerm) {
         return Universal.db().query(
             """
                 SELECT * FROM tickets
                 INNER JOIN train_schedules ts ON tickets.schedule_id = ts.schedule_id
-                WHERE tickets.user_id = ?
+                INNER JOIN train_routes tr ON ts.route_id = tr.route_id
+                INNER JOIN stations s1 ON tr.origin_station_id = s1.station_id
+                INNER JOIN stations s2 ON tr.destination_station_id = s2.station_id
+                WHERE tickets.user_id = ? AND (
+                    tr.route_code LIKE ? OR
+                    s1.station_name LIKE ? OR
+                    s2.station_name LIKE ?
+                )
                 ORDER BY ts.departure_utc;
             """,
             rs -> Ticket.parseResultSet(rs),
-            user.getUserId()
+            user.getUserId(),
+            "%" + searchTerm + "%",
+            "%" + searchTerm + "%",
+            "%" + searchTerm + "%"
         );
     }
 

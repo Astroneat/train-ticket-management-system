@@ -53,11 +53,11 @@ public class TicketViewPanel extends JPanel {
         return expiredScrollPane.getNumberOfTickets();
     }
 
-    public void refreshTickets() {
-        bookedScrollPane.showTickets(TicketStatus.BOOKED);
-        boardedScrollPane.showTickets(TicketStatus.BOARDED);
-        cancelledScrollPane.showTickets(TicketStatus.CANCELLED);
-        expiredScrollPane.showTickets(TicketStatus.EXPIRED);
+    public void refreshTickets(String status) {
+        bookedScrollPane.showTickets(TicketStatus.BOOKED, status);
+        boardedScrollPane.showTickets(TicketStatus.BOARDED, status);
+        cancelledScrollPane.showTickets(TicketStatus.CANCELLED, status);
+        expiredScrollPane.showTickets(TicketStatus.EXPIRED, status);
     }
 
     private JPanel createTicketListPanel() {

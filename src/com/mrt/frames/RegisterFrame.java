@@ -5,7 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,8 +12,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,6 +22,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.mrt.Universal;
+import com.mrt.factory.UIFactory;
 import com.mrt.models.User;
 
 public class RegisterFrame extends JFrame {
@@ -63,18 +63,19 @@ public class RegisterFrame extends JFrame {
         brandPanel.setBackground(new Color(135, 206, 235));
         brandPanel.setOpaque(true);
 
-        try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("./img/logo_train.png"));
-            Image img = icon.getImage();
-            float imgScaleFactor = 0.12f;
-            float newWidth = img.getWidth(brandPanel) * imgScaleFactor;
-            float newHeight = img.getHeight(brandPanel) * imgScaleFactor;
-            Image scaledImg = img.getScaledInstance((int) newWidth, (int) newHeight, Image.SCALE_SMOOTH);
-            JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
-            brandPanel.add(imgLabel);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     ImageIcon icon = new ImageIcon(getClass().getResource("./img/logo_train.png"));
+        //     Image img = icon.getImage();
+        //     float imgScaleFactor = 0.12f;
+        //     float newWidth = img.getWidth(brandPanel) * imgScaleFactor;
+        //     float newHeight = img.getHeight(brandPanel) * imgScaleFactor;
+        //     Image scaledImg = img.getScaledInstance((int) newWidth, (int) newHeight, Image.SCALE_SMOOTH);
+        //     JLabel imgLabel = new JLabel(new ImageIcon(scaledImg));
+        //     brandPanel.add(imgLabel);
+        // } catch(Exception e) {
+        //     e.printStackTrace();
+        // }
+        brandPanel.add(UIFactory.createImageLabel("src/com/mrt/img/logo_train.png", new Dimension(100, 100)));
 
         brandPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
@@ -135,6 +136,7 @@ public class RegisterFrame extends JFrame {
         registerForm.add(passwordLabel, gbc);
 
         JPasswordField passwordField = new JPasswordField();
+        char defaultEchoChar = passwordField.getEchoChar();
         passwordField.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.BLACK, 1),
@@ -162,6 +164,20 @@ public class RegisterFrame extends JFrame {
         gbc.weightx = 1;
         registerForm.add(confirmPasswordField, gbc);
 
+        gbc.gridy++;
+        JCheckBox showPass = UIFactory.createCheckBox("Show password");
+        showPass.addActionListener(e -> {
+            if(showPass.isSelected()) {
+                passwordField.setEchoChar((char) 0);
+                confirmPasswordField.setEchoChar((char) 0);
+            }
+            else {
+                passwordField.setEchoChar(defaultEchoChar);
+                confirmPasswordField.setEchoChar(defaultEchoChar);
+            }
+        });
+        registerForm.add(showPass, gbc);
+
         JButton registerButton = new JButton("Register");
         registerButton.setOpaque(true);
         registerButton.setBorderPainted(true);
@@ -171,7 +187,7 @@ public class RegisterFrame extends JFrame {
             BorderFactory.createLineBorder(Color.BLACK, 1, true),
             BorderFactory.createEmptyBorder(12, 16, 12, 16)
         ));
-        gbc.gridy = 8;
+        gbc.gridy++;
         gbc.weightx = 1;
 
         registerButton.addMouseListener(new MouseAdapter() {
@@ -258,7 +274,7 @@ public class RegisterFrame extends JFrame {
         loginTextPanel.add(loginPrompt);
         loginTextPanel.add(loginLink);
 
-        gbc.gridy = 9;
+        gbc.gridy++;
         gbc.weightx = 1;
         registerForm.add(loginTextPanel, gbc);
 

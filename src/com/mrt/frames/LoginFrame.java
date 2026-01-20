@@ -217,7 +217,7 @@ public class LoginFrame extends JFrame {
         registerPrompt.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
         JButton registerLink = new JButton("[Register]");
         registerLink.setFont(new Font(Universal.defaultFontFamily, Font.PLAIN, 14));
-        registerLink.setPreferredSize(new Dimension(80, 20));
+        // registerLink.setPreferredSize(new Dimension(80, 30));
         registerLink.setForeground(Color.BLUE);
         registerLink.setBorder(BorderFactory.createEmptyBorder());
         registerLink.setFocusable(false);
