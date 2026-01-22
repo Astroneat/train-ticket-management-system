@@ -95,17 +95,12 @@ public class EditScheduleDialog extends JDialog {
         Dimension btnDim = new Dimension(80, 33);
         JButton cancelBtn = UIFactory.createButton("Cancel");
         cancelBtn.setPreferredSize(btnDim);
-        saveBtn = UIFactory.createButton("Add");
+        saveBtn = UIFactory.createButton("Save");
         saveBtn.setPreferredSize(btnDim);
-        saveBtn.setEnabled(false);
+        // saveBtn.setEnabled(false);
 
         cancelBtn.addActionListener(e -> dispose());
         saveBtn.addActionListener(e -> {
-            if(selectedTrain == null) {
-                JOptionPane.showMessageDialog(this, "Please select a train", "Schedule Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             LocalDateTime departure = getLocalDateTime(departureSpinner);
             LocalDateTime arrival = getLocalDateTime(arrivalSpinner);
             // System.out.println("ldt " + departure + " " + arrival);
