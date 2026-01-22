@@ -104,6 +104,9 @@ public class SeatViewPanel extends JPanel {
     public void markSeatUnoccupied(JButton btn) {
         btn.setBackground(Universal.PASTEL_WHITE);
     }
+    public void markSeatExpired(JButton btn) {
+        btn.setBackground(Universal.PASTEL_GREY);
+    }
 
     public JPanel createSeatBorderWrapper(JButton btn) {
         JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));

@@ -8,7 +8,9 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
@@ -23,7 +25,7 @@ class LineChart extends JPanel {
     List<LinePoint> data;
     public LineChart() {
         setOpaque(false);
-        setPreferredSize(new Dimension(323, 200));
+        setPreferredSize(new Dimension(400, 250));
     }
 
     public void loadData(List<LinePoint> data) {
@@ -38,26 +40,29 @@ class LineChart extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int padding = 30;
-        int width = getWidth() - padding * 2;
-        int height = getHeight() - padding * 2;
+        int leftPadding = 80;
+        int rightPadding = 30;
+        int topPadding = 10;
+        int bottomPadding = 30;
+        int width = getWidth() - leftPadding - rightPadding;
+        int height = getHeight() - topPadding - bottomPadding;
         int dataWidth = width - 20;
         int dataHeight = height - 20;
 
         g2d.setColor(Color.BLACK);
-        g2d.drawLine(padding, padding, padding, padding + height);
-        g2d.drawLine(padding, padding + height, padding + width, padding + height);
+        g2d.drawLine(leftPadding, topPadding, leftPadding, topPadding + height);
+        g2d.drawLine(leftPadding, topPadding + height, leftPadding + width, topPadding + height);
 
         int arrowWidth = 10;
         int arrowHeight = 5;
         g2d.fillPolygon(
-            new int[] {padding, padding - arrowWidth/2, padding + arrowWidth/2},
-            new int[] {padding - arrowHeight, padding, padding},
+            new int[] {leftPadding, leftPadding - arrowWidth/2, leftPadding + arrowWidth/2},
+            new int[] {topPadding - arrowHeight, topPadding, topPadding},
             3
         );
         g2d.fillPolygon(
-            new int[] {padding + width + arrowHeight, padding + width, padding + width},
-            new int[] {padding + height, padding + height - arrowWidth/2, padding + height + arrowWidth/2},
+            new int[] {leftPadding + width + arrowHeight, leftPadding + width, leftPadding + width},
+            new int[] {topPadding + height, topPadding + height - arrowWidth/2, topPadding + height + arrowWidth/2},
             3
         );
 
@@ -69,24 +74,29 @@ class LineChart extends JPanel {
         int yDiv = 8;
         Color transparentBlack = new Color(0, 0, 0, 50);
         for(int i = 1; i <= yDiv; i++) {
-            int y = padding + (int) (height - (double) dataHeight / (double) yDiv * (double) i);
+            int y = topPadding + (int) (height - (double) dataHeight / (double) yDiv * (double) i);
 
             g2d.setColor(Color.BLACK);
-            g2d.drawLine(padding - 3, y, padding + 3, y);
+            g2d.drawLine(leftPadding - 3, y, leftPadding + 3, y);
+
+            int yValue = (int) (((double) i / (double) yDiv) * maxY);
+            NumberFormat nf = NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT);
+            g2d.drawString(nf.format(yValue), leftPadding - 50, y + 5);
+
             g2d.setColor(transparentBlack);
-            g2d.drawLine(padding + 10, y, padding + dataWidth, y);
+            g2d.drawLine(leftPadding + 10, y, leftPadding + dataWidth, y);
         }
 
         for(int i = 0; i < data.size(); i++) {
             LinePoint lp = data.get(i);
             
-            int x = padding + i * stepX;
-            int y = padding + (height - (int) ((double) lp.getValue() / (double) maxY * (double) dataHeight));
+            int x = leftPadding + i * stepX;
+            int y = topPadding + (height - (int) ((double) lp.getValue() / (double) maxY * (double) dataHeight));
             
             g2d.setColor(Color.BLACK);
             g2d.setStroke(new BasicStroke());
             if(i > 0) {
-                g2d.drawLine(x, padding + height + 3, x, padding + height - 3);
+                g2d.drawLine(x, topPadding + height + 3, x, topPadding + height - 3);
             }
             
             g2d.setColor(Universal.PASTEL_BLUE);

@@ -253,6 +253,9 @@ public class CarPanel extends JPanel {
             else if(seatStatus.equals("boarded")) {
                 parent.markSeatBoarded(btn);
             }
+            else if(seatStatus.equals("expired")) {
+                parent.markSeatExpired(btn);
+            }
         }
     }
 

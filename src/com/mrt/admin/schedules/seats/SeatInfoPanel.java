@@ -296,6 +296,16 @@ public class SeatInfoPanel extends JPanel {
         gbc.gridx++;
         panel.add(UIFactory.createPlainLabel("Boarded", 16), gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy++;
+        JButton expiredSeat = parent.createSeatButton();
+        parent.markSeatExpired(expiredSeat);
+        expiredSeat.setPreferredSize(legendBtnDim);
+        panel.add(parent.createSeatBorderWrapper(expiredSeat), gbc);
+
+        gbc.gridx++;
+        panel.add(UIFactory.createPlainLabel("Expired", 16), gbc);
+
         return panel;
     }
 }
